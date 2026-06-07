@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FitCore.DAL.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260604152024_AddIdentityTables")]
-    partial class AddIdentityTables
+    [Migration("20260607232545_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
