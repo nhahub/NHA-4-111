@@ -8,7 +8,8 @@ namespace FitCore.Shared.Enums
 {
     public enum ClassStatus
     {
-        Active,
         InActive,
+        Active,
+        
     }
 }
