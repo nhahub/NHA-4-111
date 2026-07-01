@@ -13,12 +13,12 @@ namespace FitCore.API
             var builder = WebApplication.CreateBuilder(args);
 
             // 1. Connection String & DbContext
-            builder.Services.AddDbContext<ApplicationDbContext>(options =>
+            builder.Services.AddDbContext<FitCoreDbContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
             // 2. Unit of Work 
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-
+            builder.Services.AddHttpContextAccessor();
             // Add services to the container.
             builder.Services.AddControllers();
 

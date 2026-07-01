@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FitCore.DAL.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
@@ -7,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace FitCore.DAL.Data.Models
 {
-    public class Trainer
+    public class Trainer : IAuditable
     {
         public int TrainerID { get; set; }
         public int UserID { get; set; }

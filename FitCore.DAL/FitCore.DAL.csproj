@@ -15,4 +15,8 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\FitCore.Shared\FitCore.Shared.csproj" />
+  </ItemGroup>
+
 </Project>

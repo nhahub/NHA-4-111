@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FitCore.DAL.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace FitCore.DAL.Data.Models
 {
-    public class InventoryTransaction
+    public class InventoryTransaction : IAuditable
     {
         public int TransactionID { get; set; }
         public int ProductID { get; set; }

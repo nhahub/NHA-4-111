@@ -8,12 +8,15 @@ namespace FitCore.DAL.Data.Models
 {
     public class AuditLog
     {
-        public int LogID { get; set; }
-        public int UserID { get; set; }
-        public User User { get; set; } = null!;
+        public int Id { get; set; }
+        public required string EntityName { get; set; }
+        public required string Action { get; set; }
+        public string? OldValue { get; set; }
+        public string? NewValue { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public int EntityPrimaryKey { get; set; }
 
-        public string Action { get; set; } = string.Empty; 
-        public string TableName { get; set; } = string.Empty;
-        public DateTime Timestamp { get; set; }
+        public int? UserId { get; set; }
+        public virtual User User { get; set; }
     }
 }
