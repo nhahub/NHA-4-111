@@ -10,14 +10,27 @@ namespace FitCore.DAL.Configurations.InvoiceConfiguration
         public void Configure(EntityTypeBuilder<Invoice> builder)
         {
             builder.HasKey(i => i.InvoiceID);
-            builder.Property(i => i.TotalAmount).HasColumnType("decimal(18,2)");
-            builder.Property(i => i.InvoiceStatus).IsRequired().HasMaxLength(20);
+
+            builder.Property(i => i.IssueDate)
+                   .HasDefaultValueSql("GETUTCDATE()")
+                   .IsRequired();
+
+            builder.Property(i => i.TotalAmount)
+                   .HasColumnType("decimal(18,2)")
+                   .IsRequired();
+
+            builder.Property(i => i.InvoiceStatus)
+                   .HasConversion<string>()
+                   .IsRequired();
+
+            builder.Property(i => i.Description)
+                   .HasMaxLength(500);
 
             builder.HasOne(i => i.User)
-                .WithMany(mp => mp.Invoices)
-                .HasForeignKey(i => i.UserId)
-                .OnDelete(DeleteBehavior.Restrict);
-            
+                   .WithMany(i => i.Invoices)
+                   .HasForeignKey(i => i.UserID)
+                   .OnDelete(DeleteBehavior.Restrict);
+
         }
     }
 }

@@ -12,8 +12,8 @@ namespace FitCore.DAL.Data.Models
     {
         public int InvoiceID { get; set; }
         
-        public int? UserId { get; set; }
-        public User? User{ get; set; } = null!;
+        public int UserID { get; set; }
+        public User User{ get; set; } = null!;
 
         public DateTime IssueDate { get; set; }
         public decimal TotalAmount { get; set; }

@@ -13,13 +13,26 @@ namespace FitCore.DAL.Configurations.TransactionsConfiguration
     {
         public void Configure(EntityTypeBuilder<InventoryTransaction> builder)
         {
-            builder.HasKey(it => it.TransactionID);
-            builder.Property(it => it.TransactionType).IsRequired().HasMaxLength(20);
+            builder.HasKey(t => t.TransactionID);
 
-            builder.HasOne(it => it.Product)
-                .WithMany(p => p.InventoryTransactions)
-                .HasForeignKey(it => it.ProductID)
-                .OnDelete(DeleteBehavior.Cascade);
+            builder.Property(t => t.Type)
+                   .HasConversion<string>()
+                   .IsRequired();
+
+            builder.Property(t => t.TransactionDate)
+                   .HasDefaultValueSql("GETUTCDATE()")
+                   .IsRequired();
+
+            builder.Property(t => t.ReferenceNumber)
+                   .HasMaxLength(50);
+
+            builder.Property(t => t.Notes)
+                   .HasMaxLength(500);
+
+            builder.HasOne(t => t.User)
+                   .WithMany() 
+                   .HasForeignKey(t => t.UserID)
+                   .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

@@ -13,9 +13,13 @@ namespace FitCore.DAL.Configurations.ProductConfiguration
     {
         public void Configure(EntityTypeBuilder<Product> builder)
         {
+            builder.HasKey(x => x.ProductID);
             builder.Property(p => p.Name).IsRequired().HasMaxLength(100);
-            builder.Property(p => p.Category).HasMaxLength(50);
             
+            builder.Property(p => p.CurrentSellPrice)
+           .HasColumnType("decimal(18,2)")
+           .IsRequired();
+
             builder.HasOne(x => x.Category)
                 .WithMany(x => x.Products)
                 .HasForeignKey(x => x.CategoryId)

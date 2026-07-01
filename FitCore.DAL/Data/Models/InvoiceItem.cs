@@ -14,10 +14,13 @@ namespace FitCore.DAL.Data.Models
         public int InvoiceID { get; set; }
         public Invoice Invoice { get; set; } = null!;
         public InvoiceItemType ItemType { get; set; }
-        public int ProductID { get; set; }
-        public Product Product { get; set; } = null!;
+        public int? ProductID { get; set; }
+        public Product? Product { get; set; }
+
+        public int? ServiceID { get; set; }
+        public GymService? GymService { get; set; }
         public string ItemName { get; set; } = string.Empty;
-        public int Quantity { get; set; }
+        public int Quantity { get; set; }// 1 if service
         public decimal LineTotal { get; set; }
         public decimal SellPrice { get; set; }
     }

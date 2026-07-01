@@ -17,6 +17,8 @@ namespace FitCore.DAL.Data.Models
         public UserStatus Status { get; set; }
         public DateTime JoinDate { get; set; }
 
+
+        public Cart? Cart { get; set; }
         public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
         public ICollection<Notification> Notifications { get; set; } = new List<Notification>();
         public ICollection<AuditLog> AuditLogs { get; set; } = new List<AuditLog>();

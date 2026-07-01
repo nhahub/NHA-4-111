@@ -20,6 +20,6 @@ namespace FitCore.DAL.Data.Models
         public ICollection<Inventory> Inventories { get; set; } = new List<Inventory>();
         
         public ICollection<InvoiceItem> InvoiceItems { get; set; } = new List<InvoiceItem>();        
-        public ICollection<InventoryTransaction> InventoryTransactions { get; set; } = new List<InventoryTransaction>();
+        public ICollection<InventoryTransactionItem> InventoryTransactionsItems { get; set; } = new List<InventoryTransactionItem>();
     }
 }

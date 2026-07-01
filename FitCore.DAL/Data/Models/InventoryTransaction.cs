@@ -1,4 +1,5 @@
 ﻿using FitCore.DAL.Interfaces;
+using FitCore.Shared.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,11 +11,15 @@ namespace FitCore.DAL.Data.Models
     public class InventoryTransaction : IAuditable
     {
         public int TransactionID { get; set; }
-        public int ProductID { get; set; }
-        public Product Product { get; set; } = null!;
+        public int UserID { get; set; }
+        public User User { get; set; } = null!;
 
-        public string TransactionType { get; set; } = string.Empty;
-        public int Quantity { get; set; }
+        public TransactionType Type { get; set; }
         public DateTime TransactionDate { get; set; }
+
+        public string ReferenceNumber { get; set; } = string.Empty;
+        public string Notes { get; set; } = string.Empty;
+
+        public ICollection<InventoryTransactionItem> TransactionItems { get; set; } = new List<InventoryTransactionItem>();
     }
 }
