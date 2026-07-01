@@ -24,6 +24,10 @@
 
   <ItemGroup>
     <Folder Include="Controllers\Notifications\" />
+    <Folder Include="wwwroot\JS\" />
+    <Folder Include="wwwroot\CSS\" />
+    <Folder Include="wwwroot\Images\" />
+    <Folder Include="wwwroot\HTML\" />
   </ItemGroup>
 
 </Project>

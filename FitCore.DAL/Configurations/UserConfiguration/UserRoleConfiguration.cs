@@ -9,12 +9,12 @@ public class UserRoleConfiguration : IEntityTypeConfiguration<UserRole>
     {
         builder.HasKey(ur => new { ur.RoleID, ur.UserID });
 
+        builder.Property(x => x.Role).HasConversion<string>();
+
         builder.HasOne(ur => ur.User)
             .WithMany(u => u.UserRoles)
             .HasForeignKey(ur => ur.UserID);
 
-        builder.HasOne(ur => ur.Role)
-            .WithMany(r => r.UserRoles)
-            .HasForeignKey(ur => ur.RoleID);
+        
     }
 }

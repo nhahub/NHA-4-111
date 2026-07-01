@@ -1,4 +1,5 @@
 ﻿using FitCore.DAL.Interfaces;
+using FitCore.Shared.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,7 +16,7 @@ namespace FitCore.DAL.Data.Models
 
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
-        public string Status { get; set; } = string.Empty;
+        public MemberShipStatus Status { get; set; }
         public DateTime? FreezeStartDate { get; set; }
         public DateTime? FreezeEndDate { get; set; }
         public bool IsAutoRenew { get; set; }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FitCore.Shared.Enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -17,7 +18,7 @@ namespace FitCore.DAL.Data.Models
 
         public decimal AmountPaid { get; set; }
         public DateTime PaymentDate { get; set; }
-        public string PaymentMethod { get; set; } = string.Empty; 
+        public PaymentMethod PaymentMethod { get; set; }
         public string TransactionReference { get; set; } = string.Empty;
     }
 }

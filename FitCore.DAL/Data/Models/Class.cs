@@ -20,7 +20,6 @@ namespace FitCore.DAL.Data.Models
         public ClassStatus Status { get; set; }
 
         public ICollection<ClassSchedule> Schedules { get; set; } = new List<ClassSchedule>();
-        public ICollection<Booking> Bookings { get; set; } = new List<Booking>();
         public ICollection<Attendance> Attendances { get; set; } = new List<Attendance>();
     }
 }

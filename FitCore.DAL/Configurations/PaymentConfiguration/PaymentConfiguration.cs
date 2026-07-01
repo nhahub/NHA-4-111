@@ -15,7 +15,7 @@ namespace FitCore.DAL.Configurations.WalletConfiguration
         {
             builder.HasKey(p => p.PaymentID);
             builder.Property(p => p.AmountPaid).HasColumnType("decimal(18,2)");
-            builder.Property(p => p.PaymentMethod).IsRequired().HasMaxLength(30);
+            builder.Property(p => p.PaymentMethod).HasConversion<string>();
             builder.Property(p => p.TransactionReference).HasMaxLength(100);
 
             builder.HasOne(p => p.Invoice)

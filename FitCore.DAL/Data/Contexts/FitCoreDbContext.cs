@@ -35,17 +35,12 @@ namespace FitCore.DAL.Data.Contexts
         }
 
         public DbSet<User> Users { get; set; }
-        public DbSet<Role> Roles { get; set; }
         public DbSet<UserRole> UserRoles { get; set; }
         public DbSet<Trainer> Trainers { get; set; }
         public DbSet<MemberProfile> MemberProfiles { get; set; }
-        public DbSet<SubscriptionPlan> SubscriptionPlans { get; set; }
         public DbSet<Membership> Memberships { get; set; }
         public DbSet<Class> Classes { get; set; }
-        public DbSet<Booking> Bookings { get; set; }
         public DbSet<Attendance> Attendances { get; set; }
-        public DbSet<Wallet> Wallets { get; set; }
-        public DbSet<WalletTransaction> WalletTransactions { get; set; }
         public DbSet<Invoice> Invoices { get; set; }
         public DbSet<InvoiceItem> InvoiceItems { get; set; }
         public DbSet<Product> Products { get; set; }

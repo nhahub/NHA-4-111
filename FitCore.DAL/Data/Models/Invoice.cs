@@ -1,4 +1,5 @@
 ﻿using FitCore.DAL.Interfaces;
+using FitCore.Shared.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,7 +17,7 @@ namespace FitCore.DAL.Data.Models
 
         public DateTime IssueDate { get; set; }
         public decimal TotalAmount { get; set; }
-        public string InvoiceStatus { get; set; } = string.Empty; 
+        public InvoiceStatus InvoiceStatus { get; set; }
         public string Description { get; set; } = string.Empty;
 
         public ICollection<InvoiceItem> InvoiceItems { get; set; } = new List<InvoiceItem>();

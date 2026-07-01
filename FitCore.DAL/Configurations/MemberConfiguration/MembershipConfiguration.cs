@@ -21,10 +21,6 @@ namespace FitCore.DAL.Configurations.MemberConfiguration
                 .HasForeignKey(m => m.MemberID)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            builder.HasOne(m => m.SubscriptionPlan)
-                .WithMany(p => p.Memberships)
-                .HasForeignKey(m => m.PlanID)
-                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

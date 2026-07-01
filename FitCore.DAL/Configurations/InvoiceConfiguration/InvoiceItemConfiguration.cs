@@ -14,7 +14,7 @@ namespace FitCore.DAL.Configurations.InvoiceConfiguration
         public void Configure(EntityTypeBuilder<InvoiceItem> builder)
         {
             builder.HasKey(ii => ii.InvoiceItemID);
-            builder.Property(ii => ii.UnitPrice).HasColumnType("decimal(18,2)");
+            builder.Property(ii => ii.SellPrice).HasColumnType("decimal(18,2)");
             builder.Property(ii => ii.LineTotal).HasColumnType("decimal(18,2)");
 
             builder.HasOne(ii => ii.Invoice)

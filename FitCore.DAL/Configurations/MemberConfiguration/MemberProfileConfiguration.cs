@@ -9,7 +9,7 @@ namespace FitCore.DAL.Configurations.MemberConfiguration
     {
         public void Configure(EntityTypeBuilder<MemberProfile> builder)
         {
-            builder.HasKey(m => m.MemberID);
+            builder.HasKey(m => m.UserID);
 
             builder.HasOne(m => m.User)
                 .WithOne(u => u.MemberProfile)

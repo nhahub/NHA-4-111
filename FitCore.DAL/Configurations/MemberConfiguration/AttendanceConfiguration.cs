@@ -14,18 +14,21 @@ namespace FitCore.DAL.Configurations.MemberConfiguration
         public void Configure(EntityTypeBuilder<Attendance> builder)
         {
             builder.HasKey(a => a.AttendanceID);
-            builder.Property(a => a.Status).HasMaxLength(20);
-            builder.Property(a => a.Type).HasMaxLength(20);
-
+            
+            builder.Property(a => a.CheckInTime)
+               .HasDefaultValueSql("GETUTCDATE()")
+               .IsRequired();
+            
             builder.HasOne(a => a.MemberProfile)
                 .WithMany(mp => mp.Attendances)
-                .HasForeignKey(a => a.MemberID)
+                .HasForeignKey(a => a.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             builder.HasOne(a => a.Class)
                 .WithMany(c => c.Attendances)
                 .HasForeignKey(a => a.ClassID)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Restrict)
+                .IsRequired(false);
         }
     }
 }
