@@ -8,8 +8,8 @@ namespace FitCore.Shared.Enums
 {
     public enum MemberShipStatus
     {
-        Active,
-        Freezed,
-        Expired
+        Active = 1,
+        Freezed = 2,
+        Expired = 3
     }
 }

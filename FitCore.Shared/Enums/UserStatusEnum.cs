@@ -8,8 +8,8 @@ namespace FitCore.Shared.Enums
 {
     public enum UserStatus
     {
+        InActive = 0,
         Active,
-        InActive,
         Blocked,
         Suspended
     }
