@@ -1,3 +1,4 @@
+using FitCore.API.Middlewares;
 using FitCore.DAL.Data;
 using FitCore.DAL.Data.Contexts;
 using FitCore.DAL.Interfaces;
@@ -29,6 +30,8 @@ namespace FitCore.API
 
             var app = builder.Build();
 
+            app.UseMiddleware<GlobalExceptionMiddleware>();
+            
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
