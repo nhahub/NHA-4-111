@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FitCore.DAL.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,19 +7,15 @@ using System.Threading.Tasks;
 
 namespace FitCore.DAL.Data.Models
 {
-    public class MemberProfile
+    public class MemberProfile : IAuditable
     {
-        public int MemberID { get; set; }
         public int UserID { get; set; }
         public User User { get; set; } = null!;
 
         public string QRCodeData { get; set; } = string.Empty;
 
-        public Wallet? Wallet { get; set; }
         public ICollection<Membership> Memberships { get; set; } = new List<Membership>();
-        public ICollection<Booking> Bookings { get; set; } = new List<Booking>();
         public ICollection<Attendance> Attendances { get; set; } = new List<Attendance>();
-        public ICollection<Invoice> Invoices { get; set; } = new List<Invoice>();
-        public ICollection<Payment> Payments { get; set; } = new List<Payment>();
+
     }
 }

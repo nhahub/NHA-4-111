@@ -1,4 +1,6 @@
-﻿using System;
+﻿using FitCore.DAL.Interfaces;
+using FitCore.Shared.Enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace FitCore.DAL.Data.Models
 {
-    public class Class
+    public class Class : IAuditable
     {
         public int ClassID { get; set; }
         public int TrainerID { get; set; }
@@ -15,11 +17,9 @@ namespace FitCore.DAL.Data.Models
         public string ClassName { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public int Capacity { get; set; }
-        public DateTime StartDate { get; set; }
-        public DateTime EndDate { get; set; }
-        public string Status { get; set; } = string.Empty;
+        public ClassStatus Status { get; set; }
 
-        public ICollection<Booking> Bookings { get; set; } = new List<Booking>();
+        public ICollection<ClassSchedule> Schedules { get; set; } = new List<ClassSchedule>();
         public ICollection<Attendance> Attendances { get; set; } = new List<Attendance>();
     }
 }

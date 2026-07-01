@@ -10,13 +10,16 @@ namespace FitCore.DAL.Data.Models
     {
         public int ProductID { get; set; }
         public string Name { get; set; } = string.Empty;
+        public string Barcode { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
-        public string Category { get; set; } = string.Empty;
-        public decimal Price { get; set; }
-        public int StockQuantity { get; set; }
+        public decimal CurrentSellPrice { get; set; }
         public int ReorderLevel { get; set; }
 
-        public ICollection<InvoiceItem> InvoiceItems { get; set; } = new List<InvoiceItem>();
-        public ICollection<InventoryTransaction> InventoryTransactions { get; set; } = new List<InventoryTransaction>();
+        public int CategoryId { get; set; }
+        public Category Category { get; set; }
+        public ICollection<Inventory> Inventories { get; set; } = new List<Inventory>();
+        
+        public ICollection<InvoiceItem> InvoiceItems { get; set; } = new List<InvoiceItem>();        
+        public ICollection<InventoryTransactionItem> InventoryTransactionsItems { get; set; } = new List<InventoryTransactionItem>();
     }
 }

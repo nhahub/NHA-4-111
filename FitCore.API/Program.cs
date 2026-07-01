@@ -13,12 +13,12 @@ namespace FitCore.API
             var builder = WebApplication.CreateBuilder(args);
 
             // 1. Connection String & DbContext
-            builder.Services.AddDbContext<ApplicationDbContext>(options =>
+            builder.Services.AddDbContext<FitCoreDbContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
             // 2. Unit of Work 
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-
+            builder.Services.AddHttpContextAccessor();
             // Add services to the container.
             builder.Services.AddControllers();
 
@@ -40,26 +40,30 @@ namespace FitCore.API
             app.UseHttpsRedirection();
 
             app.UseAuthentication(); 
-            app.UseAuthorization();  
+            app.UseAuthorization();
 
+            app.UseDefaultFiles();
+            app.UseStaticFiles();
+            
             app.MapControllers();
 
+            #region data seeding
             // Data Seeding للـ Roles الأساسية
-            using (var scope = app.Services.CreateScope())
-            {
-                var services = scope.ServiceProvider;
-                try
-                {
-                    var context = services.GetRequiredService<ApplicationDbContext>();
-                    await ContextSeed.SeedRolesAsync(context);
-                }
-                catch (Exception ex)
-                {
-                    var logger = services.GetRequiredService<ILogger<Program>>();
-                    logger.LogError(ex, "حدث خطأ أثناء حقن البيانات التلقائية (Data Seeding)");
-                }
-            }
-
+            //using (var scope = app.Services.CreateScope())
+            //{
+            //    var services = scope.ServiceProvider;
+            //    try
+            //    {
+            //        var context = services.GetRequiredService<FitCoreDbContext>();
+            //        await ContextSeed.SeedRolesAsync(context);
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        var logger = services.GetRequiredService<ILogger<Program>>();
+            //        logger.LogError(ex, "حدث خطأ أثناء حقن البيانات التلقائية (Data Seeding)");
+            //    }
+            //}
+            #endregion
             app.Run();
         }
     }

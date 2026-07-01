@@ -10,56 +10,69 @@ using System.Linq.Expressions;
 
 namespace FitCore.DAL.Repositories
 {
-    public class GenericRepository<T> : IGenericRepository<T> where T : class
+    public class GenericRepository<T>(FitCoreDbContext _context) : IGenericRepository<T> where T : class
     {
-        protected readonly ApplicationDbContext _context;
-        private readonly DbSet<T> _dbSet;
-
-        public GenericRepository(ApplicationDbContext context)
-        {
-            _context = context;
-            _dbSet = _context.Set<T>();
-        }
-
+        /// <summary>
+        /// For return id as enumerable data
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public async Task<T?> GetByIdAsync(int id)
         {
-            return await _dbSet.FindAsync(id);
+            return await _context.Set<T>().FindAsync(id);
         }
 
-        public async Task<IEnumerable<T>> GetAllAsync()
-        {
-            return await _dbSet.ToListAsync();
-        }
-
-        public async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate, string[]? includes = null)
-        {
-            IQueryable<T> query = _dbSet;
-
-            if (includes != null)
-            {
-                foreach (var include in includes)
-                {
-                    query = query.Include(include);
-                }
-            }
-
-            return await query.Where(predicate).ToListAsync();
-        }
+        //public async Task<IEnumerable<T>> GetAllAsync()
+        //{
+        //    return await _context.Set<t>().ToListAsync();
+        //}
 
         public async Task AddAsync(T entity)
         {
-            await _dbSet.AddAsync(entity);
+            await _context.AddAsync(entity);
+        }
+        public async Task AddRangeAsync(IEnumerable<T> entities)
+        {
+            await _context.AddRangeAsync(entities);
         }
 
         public void Update(T entity)
         {
-            _dbSet.Attach(entity);
-            _context.Entry(entity).State = EntityState.Modified;
+            _context.Update(entity);
+        }
+
+        public void UpdateRange(IEnumerable<T> entities)
+        {
+            _context.UpdateRange(entities);
         }
 
         public void Delete(T entity)
         {
-            _dbSet.Remove(entity);
+            _context.Remove(entity);
         }
+        public void DeleteRange(IEnumerable<T> entities)
+        {
+            _context.RemoveRange(entities);
+        }
+
+
+        public IQueryable<T> GetAllAsIQueryable()
+        {
+            return _context.Set<T>();
+        }
+
+        public IQueryable<T> GetByIdAsIQueryable(int id)
+        {
+            //extract PK
+            var keyName = _context.Model.FindEntityType(typeof(T))!
+                                  .FindPrimaryKey()!
+                                  .Properties // if it is composite key
+                                  .Select(x => x.Name) //pk name as string
+                                  .Single();
+
+            return _context.Set<T>() //int for cast
+                           .Where(e => EF.Property<int>(e, keyName) == id);
+        }
+
     }
 }
