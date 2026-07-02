@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="DTOs\NotificationDto\" />
+    <Folder Include="DTOs\Notification\" />
   </ItemGroup>
 
 </Project>

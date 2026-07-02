@@ -1,4 +1,6 @@
 using FitCore.API.Middlewares;
+using FitCore.BLL.Interfaces.AuditLogs;
+using FitCore.BLL.Services.AuditLogs;
 using FitCore.DAL.Data;
 using FitCore.DAL.Data.Contexts;
 using FitCore.DAL.Interfaces;
@@ -19,6 +21,7 @@ namespace FitCore.API
 
             // 2. Unit of Work 
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+            builder.Services.AddScoped<IAuditLogsService, AuditLogService>();
             builder.Services.AddHttpContextAccessor();
             // Add services to the container.
             builder.Services.AddControllers();
@@ -31,7 +34,10 @@ namespace FitCore.API
             var app = builder.Build();
 
             app.UseMiddleware<GlobalExceptionMiddleware>();
-            
+
+            app.UseDefaultFiles();
+            app.UseStaticFiles();
+
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
@@ -40,13 +46,10 @@ namespace FitCore.API
                 app.UseSwaggerUI();
             }
 
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
 
             app.UseAuthentication(); 
-            app.UseAuthorization();
-
-            app.UseDefaultFiles();
-            app.UseStaticFiles();
+            app.UseAuthorization();            
             
             app.MapControllers();
 
