@@ -17,5 +17,6 @@ namespace FitCore.DAL.Data.Models
         public int DurationInDays { get; set; }
 
         public ICollection<InvoiceItem> InvoicesItems { get; set; } = new List<InvoiceItem>();
+        public ICollection<Membership> Memberships { get; set; } = new List<Membership>();
     }
 }

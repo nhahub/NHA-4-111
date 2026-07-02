@@ -16,11 +16,12 @@ namespace FitCore.DAL.Configurations.MemberConfiguration
             builder.HasKey(m => m.MembershipID);
             builder.Property(m => m.Status).IsRequired().HasMaxLength(20);
 
-            builder.HasOne(m => m.MemberProfile)
+            builder.HasOne(m => m.User)
                 .WithMany(mp => mp.Memberships)
-                .HasForeignKey(m => m.MemberID)
+                .HasForeignKey(m => m.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            builder.HasOne(x => x.GymService).WithMany(mp => mp.Memberships).HasForeignKey(x => x.GymServiceId).OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

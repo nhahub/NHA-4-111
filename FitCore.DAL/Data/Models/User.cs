@@ -24,6 +24,7 @@ namespace FitCore.DAL.Data.Models
         public ICollection<AuditLog> AuditLogs { get; set; } = new List<AuditLog>();
         public ICollection<Invoice> Invoices { get; set; } = new List<Invoice>();
         public ICollection<Payment> Payments { get; set; } = new List<Payment>();
+        public ICollection<Membership> Memberships { get; set; } = new List<Membership>();
         public Trainer? Trainer { get; set; }
         public MemberProfile? MemberProfile { get; set; }
     }

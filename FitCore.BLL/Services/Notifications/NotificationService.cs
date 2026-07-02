@@ -24,7 +24,6 @@ namespace FitCore.BLL.Services.Notifications
             var query = _unitOfWork.GetRepository<Notification>().GetAllAsIQueryable()
                 .OrderByDescending(x => x.CreatedAt).Where(x => x.UserID == userId);
 
-
             var rowsCount = query.Count();
 
             var messages = query.Skip((page - 1) * pageSize)
@@ -90,18 +89,23 @@ namespace FitCore.BLL.Services.Notifications
             }
         }
 
-        public async Task<bool> SendNotification(RequestNotificationDto notificationDto, List<UserRoles> RecieveUserRoles)
+        public async Task<bool> SendNotification(RequestNotificationDto notificationDto)
         {
-            int userId = 1;
+            int userId = 3;
             //int userId = _currentService.UserId ?? throw new UnauthorizedAccessException("No user id assigned");
             
             var SentUserRoles =await _unitOfWork.GetRepository<User>().GetByIdAsIQueryable(userId)
                 .Select(x=> x.UserRoles)
                 .FirstOrDefaultAsync();
-
-            foreach (var role in RecieveUserRoles)
+            
+            if (SentUserRoles == null)
             {
-                if (role == UserRoles.Member)
+                return false;
+            }
+            
+            foreach (var role in SentUserRoles)
+            {
+                if (role.Role == UserRoles.Member)
                 {
                     throw new BusinessRuleException("Member can't push notifications");
                 }
@@ -120,7 +124,7 @@ namespace FitCore.BLL.Services.Notifications
             { 
                 foreach(var UserRole in user.UserRoles)
                 {
-                    foreach (var role in RecieveUserRoles)
+                    foreach (var role in notificationDto.RecieveUserRoles)
                     {
                         if (role == UserRole.Role)
                         {                           
@@ -147,6 +151,30 @@ namespace FitCore.BLL.Services.Notifications
             }
             return true;
             
+        }
+
+        public async Task MemberExpiryNotification()
+        {
+            var memberShips = await _unitOfWork.GetRepository<Membership>()
+                .GetAllAsIQueryable()
+                .ToListAsync();
+
+            foreach (var membership in memberShips)
+            {
+                if(membership.EndDate <= DateTime.UtcNow)
+                {
+                    //Notification notification = new Notification()
+                    //{
+                    //    CreatedAt = DateTime.UtcNow,
+                    //    Content = "Your MemberShip",
+                    //    Title = notificationDto.Title,
+                    //    IsRead = false,
+                    //    Type = NotificationTypeEnum.Announcement,
+                    //    UserID = user.UserID,
+                    //};
+                }
+            }
+
         }
     }
 }

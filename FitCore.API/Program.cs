@@ -1,6 +1,8 @@
 using FitCore.API.Middlewares;
 using FitCore.BLL.Interfaces.AuditLogs;
+using FitCore.BLL.Interfaces.Notifications;
 using FitCore.BLL.Services.AuditLogs;
+using FitCore.BLL.Services.Notifications;
 using FitCore.DAL.Data;
 using FitCore.DAL.Data.Contexts;
 using FitCore.DAL.Interfaces;
@@ -22,6 +24,7 @@ namespace FitCore.API
             // 2. Unit of Work 
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<IAuditLogsService, AuditLogService>();
+            builder.Services.AddScoped<INotificationService, NotificationService>();
             builder.Services.AddHttpContextAccessor();
             // Add services to the container.
             builder.Services.AddControllers();

@@ -1,4 +1,6 @@
 ﻿using FitCore.BLL.Interfaces.Notifications;
+using FitCore.Shared.DTOs.Notification;
+using FitCore.Shared.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -30,6 +32,18 @@ namespace FitCore.API.Controllers.Notifications
             await _notificationService.MarkAllAsReadAsync();
 
             return Ok(new { Message = "All notifications marked as read." });
+        }
+        
+        [HttpPost]
+        public async Task<IActionResult> PushNotification(RequestNotificationDto notificationDto)
+        {
+            var result = await _notificationService.SendNotification(notificationDto);
+            if(result == false)
+            {
+                return BadRequest();
+            }
+            
+            return Ok(result);
         }
     }
 }

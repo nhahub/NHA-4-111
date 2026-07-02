@@ -1,5 +1,6 @@
 ﻿using FitCore.Shared.DTOs;
 using FitCore.Shared.DTOs.Notification;
+using FitCore.Shared.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +14,7 @@ namespace FitCore.BLL.Interfaces.Notifications
         public Task<PaginationResponseDto<NotificationDto>> GetAllNotifications(int page, int pageSize);
         public Task<bool> MarkAsReadAsync(int notificationId);
         public Task MarkAllAsReadAsync();
+        public Task<bool> SendNotification(RequestNotificationDto notificationDto);
 
     }
 }
