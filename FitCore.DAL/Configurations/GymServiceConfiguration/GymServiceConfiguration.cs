@@ -23,5 +23,7 @@ public class GymServiceConfiguration : IEntityTypeConfiguration<GymService>
         builder.Property(g => g.DurationInDays)
                .IsRequired()
                .HasDefaultValue(0);
+
+
     }
 }

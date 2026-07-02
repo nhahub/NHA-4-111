@@ -11,5 +11,6 @@ namespace FitCore.Shared.DTOs.Notification
     {
         public string Title { get; set; }
         public string Message { get; set; }
+        public ICollection<UserRoles> RecieveUserRoles { get; set; } = new List<UserRoles>();
     }
 }
