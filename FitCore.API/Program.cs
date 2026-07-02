@@ -7,6 +7,7 @@ using FitCore.DAL.Data;
 using FitCore.DAL.Data.Contexts;
 using FitCore.DAL.Interfaces;
 using FitCore.DAL.Repositories;
+using Hangfire;
 using Microsoft.EntityFrameworkCore;
 
 namespace FitCore.API
@@ -26,6 +27,22 @@ namespace FitCore.API
             builder.Services.AddScoped<IAuditLogsService, AuditLogService>();
             builder.Services.AddScoped<INotificationService, NotificationService>();
             builder.Services.AddHttpContextAccessor();
+
+
+            #region Added Hangfire
+            //var hangfireEnabled = builder.Configuration.GetValue("Hangfire:Enabled", true) && !usesSqlite;
+            //if (hangfireEnabled)
+            //{
+                builder.Services.AddHangfire(config => config.SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+                .UseSimpleAssemblyNameTypeSerializer() //when create job use simple service name not full name with version and Public Key Token
+                .UseRecommendedSerializerSettings()
+                .UseSqlServerStorage(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+                builder.Services.AddHangfireServer();
+            #endregion
+
+
+
             // Add services to the container.
             builder.Services.AddControllers();
 
@@ -38,6 +55,18 @@ namespace FitCore.API
 
             app.UseMiddleware<GlobalExceptionMiddleware>();
 
+            using (var scope = app.Services.CreateScope())
+            {
+                var recurringJobManager = scope.ServiceProvider.GetRequiredService<IRecurringJobManager>();
+                var notificationService = scope.ServiceProvider.GetRequiredService<INotificationService>();
+
+                recurringJobManager.AddOrUpdate(
+                    "check-MemberShip-expiration",
+                    () => notificationService.MemberExpiryNotification(),
+                    Cron.Daily(1)
+                );
+            }
+
             app.UseDefaultFiles();
             app.UseStaticFiles();
 
@@ -48,7 +77,7 @@ namespace FitCore.API
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
-
+            app.UseHangfireDashboard("/hangfire");
             //app.UseHttpsRedirection();
 
             app.UseAuthentication(); 
@@ -56,23 +85,6 @@ namespace FitCore.API
             
             app.MapControllers();
 
-            #region data seeding
-            // Data Seeding للـ Roles الأساسية
-            //using (var scope = app.Services.CreateScope())
-            //{
-            //    var services = scope.ServiceProvider;
-            //    try
-            //    {
-            //        var context = services.GetRequiredService<FitCoreDbContext>();
-            //        await ContextSeed.SeedRolesAsync(context);
-            //    }
-            //    catch (Exception ex)
-            //    {
-            //        var logger = services.GetRequiredService<ILogger<Program>>();
-            //        logger.LogError(ex, "حدث خطأ أثناء حقن البيانات التلقائية (Data Seeding)");
-            //    }
-            //}
-            #endregion
             app.Run();
         }
     }
