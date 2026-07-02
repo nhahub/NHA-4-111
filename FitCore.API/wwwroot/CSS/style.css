@@ -132,44 +132,45 @@ button {
     flex: 1;
 }
 
-    .sidebar-nav ul {
-        list-style: none;
+.sidebar-nav ul {
+    list-style: none;
+}
+
+.sidebar-nav li {
+    margin-bottom: var(--space-2);
+}
+
+.sidebar-nav a {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: var(--text-muted);
+    font-weight: 500;
+    font-size: var(--fs-base);
+    padding: 10px 12px;
+    border-radius: var(--radius-sm);
+    border-left: 4px solid transparent;
+    transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.sidebar-nav a:hover {
+    background-color: var(--bg-hover);
+    color: var(--text-main);
+}
+
+    .sidebar-nav a .icon {
+        margin-right: var(--space-3);
+        font-size: 20px;
+        vertical-align: middle;
     }
 
-    .sidebar-nav li {
-        margin-bottom: var(--space-2);
-    }
-
-    .sidebar-nav a {
-        display: flex;
-        align-items: center;
-        text-decoration: none;
-        color: var(--text-muted);
-        font-weight: 500;
-        font-size: var(--fs-base);
-        padding: 10px 12px;
-        border-radius: var(--radius-sm);
-        border-left: 4px solid transparent;
-        transition: background-color var(--transition-fast), color var(--transition-fast);
-    }
-
-        .sidebar-nav a:hover {
-            background-color: var(--bg-hover);
-            color: var(--text-main);
-        }
-
-        .sidebar-nav a .icon {
-            margin-right: var(--space-3);
-            font-size: 18px;
-        }
-
-    .sidebar-nav li.active a {
-        color: var(--primary-blue);
-        background-color: var(--primary-blue-soft);
-        border-left: 4px solid var(--primary-blue);
-        border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-        font-weight: 600;
-    }
+.sidebar-nav li.active a {
+    color: var(--primary-blue);
+    background-color: var(--primary-blue-soft);
+    border-left: 4px solid var(--primary-blue);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    font-weight: 600;
+}
 
 .sidebar-footer {
     margin-top: auto;
@@ -190,9 +191,9 @@ button {
     transition: color var(--transition-fast);
 }
 
-    .footer-links a:hover {
-        color: var(--text-main);
-    }
+.footer-links a:hover {
+    color: var(--text-main);
+}
 
 .footer-links .icon {
     margin-right: var(--space-3);
