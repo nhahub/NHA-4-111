@@ -16,5 +16,7 @@ namespace FitCore.BLL.Interfaces.Notifications
         public Task MarkAllAsReadAsync();
         public Task<bool> SendNotification(RequestNotificationDto notificationDto);
 
+        public Task MemberExpiryNotification();
+
     }
 }

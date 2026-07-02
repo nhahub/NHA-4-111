@@ -159,22 +159,25 @@ namespace FitCore.BLL.Services.Notifications
                 .GetAllAsIQueryable()
                 .ToListAsync();
 
+            List<Notification> notifications = new List<Notification>();
             foreach (var membership in memberShips)
             {
                 if(membership.EndDate <= DateTime.UtcNow)
                 {
-                    //Notification notification = new Notification()
-                    //{
-                    //    CreatedAt = DateTime.UtcNow,
-                    //    Content = "Your MemberShip",
-                    //    Title = notificationDto.Title,
-                    //    IsRead = false,
-                    //    Type = NotificationTypeEnum.Announcement,
-                    //    UserID = user.UserID,
-                    //};
+                    Notification notification = new Notification()
+                    {
+                        CreatedAt = DateTime.UtcNow,
+                        Content = "Your MemberShip has been expired",
+                        Title = "MemberShip Expiration",
+                        IsRead = false,
+                        Type = NotificationTypeEnum.MembershipExpiration,
+                        UserID = membership.UserId,
+                    };
+                    notifications.Add(notification);
                 }
             }
-
+            await _unitOfWork.GetRepository<Notification>().AddRangeAsync(notifications);
+            await _unitOfWork.SaveChangesAsync();
         }
     }
 }
