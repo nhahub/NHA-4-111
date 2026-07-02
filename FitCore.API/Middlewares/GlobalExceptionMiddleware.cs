@@ -58,6 +58,11 @@ namespace FitCore.API.Middlewares
                     title = "Db Update Failed";
                     message = exception.Message;
                     break;
+                case ArgumentNullException:
+                    statusCode = (int)HttpStatusCode.BadRequest;
+                    title = "Null Values";
+                    message = exception.Message;
+                    break;
 
 
             }

@@ -697,16 +697,19 @@ namespace FitCore.DAL.Migrations
             modelBuilder.Entity("FitCore.DAL.Data.Models.UserRole", b =>
                 {
                     b.Property<int>("RoleID")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<int>("UserID")
-                        .HasColumnType("int");
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("RoleID"));
 
                     b.Property<string>("Role")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("RoleID", "UserID");
+                    b.Property<int>("UserID")
+                        .HasColumnType("int");
+
+                    b.HasKey("RoleID");
 
                     b.HasIndex("UserID");
 

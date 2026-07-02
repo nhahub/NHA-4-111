@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FitCore.DAL.Migrations
 {
     [DbContext(typeof(FitCoreDbContext))]
-    [Migration("20260701181516_initial")]
+    [Migration("20260702193229_initial")]
     partial class initial
     {
         /// <inheritdoc />
@@ -434,7 +434,10 @@ namespace FitCore.DAL.Migrations
 
                     b.HasIndex("ServiceID");
 
-                    b.ToTable("InvoiceItems");
+                    b.ToTable("InvoiceItems", t =>
+                        {
+                            t.HasCheckConstraint("CK_InvoiceItem_OnlyOneTypeAllowed", "(ProductID IS NOT NULL AND ServiceID IS NULL) OR (ProductID IS NULL AND ServiceID IS NOT NULL)");
+                        });
                 });
 
             modelBuilder.Entity("FitCore.DAL.Data.Models.MemberProfile", b =>
@@ -500,6 +503,12 @@ namespace FitCore.DAL.Migrations
                         .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -691,16 +700,19 @@ namespace FitCore.DAL.Migrations
             modelBuilder.Entity("FitCore.DAL.Data.Models.UserRole", b =>
                 {
                     b.Property<int>("RoleID")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<int>("UserID")
-                        .HasColumnType("int");
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("RoleID"));
 
                     b.Property<string>("Role")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("RoleID", "UserID");
+                    b.Property<int>("UserID")
+                        .HasColumnType("int");
+
+                    b.HasKey("RoleID");
 
                     b.HasIndex("UserID");
 

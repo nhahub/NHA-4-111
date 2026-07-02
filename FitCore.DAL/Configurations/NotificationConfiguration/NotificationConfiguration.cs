@@ -13,6 +13,7 @@ namespace FitCore.DAL.Configurations.NotificationConfiguration
     {
         public void Configure(EntityTypeBuilder<Notification> builder)
         {
+            builder.HasKey(c => c.NotificationID);
             builder.Property(n => n.Content).IsRequired().HasMaxLength(500);
 
             builder.HasOne(n => n.User)

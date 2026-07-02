@@ -212,7 +212,9 @@ namespace FitCore.DAL.Migrations
                     UserID = table.Column<int>(type: "int", nullable: false),
                     Content = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
                     Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Type = table.Column<int>(type: "int", nullable: false)
+                    Type = table.Column<int>(type: "int", nullable: false),
+                    IsRead = table.Column<bool>(type: "bit", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -251,13 +253,14 @@ namespace FitCore.DAL.Migrations
                 name: "UserRoles",
                 columns: table => new
                 {
-                    RoleID = table.Column<int>(type: "int", nullable: false),
-                    UserID = table.Column<int>(type: "int", nullable: false),
-                    Role = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    RoleID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Role = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    UserID = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_UserRoles", x => new { x.RoleID, x.UserID });
+                    table.PrimaryKey("PK_UserRoles", x => x.RoleID);
                     table.ForeignKey(
                         name: "FK_UserRoles_Users_UserID",
                         column: x => x.UserID,
@@ -364,6 +367,7 @@ namespace FitCore.DAL.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_InvoiceItems", x => x.InvoiceItemID);
+                    table.CheckConstraint("CK_InvoiceItem_OnlyOneTypeAllowed", "(ProductID IS NOT NULL AND ServiceID IS NULL) OR (ProductID IS NULL AND ServiceID IS NOT NULL)");
                     table.ForeignKey(
                         name: "FK_InvoiceItems_GymService_ServiceID",
                         column: x => x.ServiceID,

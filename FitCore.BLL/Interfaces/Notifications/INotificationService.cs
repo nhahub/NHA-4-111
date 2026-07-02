@@ -1,4 +1,6 @@
-﻿using System;
+﻿using FitCore.Shared.DTOs;
+using FitCore.Shared.DTOs.Notification;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +10,9 @@ namespace FitCore.BLL.Interfaces.Notifications
 {
     public interface INotificationService
     {
+        public Task<PaginationResponseDto<NotificationDto>> GetAllNotifications(int page, int pageSize);
+        public Task<bool> MarkAsReadAsync(int notificationId);
+        public Task MarkAllAsReadAsync();
 
     }
 }
