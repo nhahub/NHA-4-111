@@ -1,14 +1,11 @@
-﻿using FitCore.BLL.Interfaces.Notifications;
+﻿using FitCore.BLL.Exceptions;
+using FitCore.BLL.Interfaces.Notifications;
 using FitCore.DAL.Data.Models;
 using FitCore.DAL.Interfaces;
 using FitCore.Shared.DTOs;
 using FitCore.Shared.DTOs.Notification;
+using FitCore.Shared.Enums;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FitCore.BLL.Services.Notifications
 {
@@ -51,6 +48,105 @@ namespace FitCore.BLL.Services.Notifications
                 TotalCount = rowsCount,
                 Data = messageDtos
             };
+        }
+        public async Task<bool> MarkAsReadAsync(int notificationId)
+        {
+            //int userId = _currentService.UserId ?? throw new UnauthorizedAccessException("No user id assigned");
+            int userId = 1;
+
+            var notification = await _unitOfWork.GetRepository<Notification>().GetByIdAsync(notificationId);
+
+
+            if (notification == null || notification.UserID != userId) throw new KeyNotFoundException("no notification with this id");
+
+            if (!notification.IsRead)
+            {
+                notification.IsRead = true;
+                _unitOfWork.GetRepository<Notification>().Update(notification);
+                await _unitOfWork.SaveChangesAsync();
+            }
+
+            return true;
+        }
+
+        public async Task MarkAllAsReadAsync()
+        {
+            int userId = 1;
+            //int userId = _currentService.UserId ?? throw new UnauthorizedAccessException("No branch id assigned");
+
+            var unreadNotifications = await _unitOfWork.GetRepository<Notification>()
+                .GetAllAsIQueryable()
+                .Where(n => n.UserID == userId && !n.IsRead)
+                .ToListAsync();
+
+            if (unreadNotifications.Any())
+            {
+                foreach (var notification in unreadNotifications)
+                {
+                    notification.IsRead = true;                    
+                }
+                _unitOfWork.GetRepository<Notification>().UpdateRange(unreadNotifications);
+                await _unitOfWork.SaveChangesAsync();
+            }
+        }
+
+        public async Task<bool> SendNotification(RequestNotificationDto notificationDto, List<UserRoles> RecieveUserRoles)
+        {
+            int userId = 1;
+            //int userId = _currentService.UserId ?? throw new UnauthorizedAccessException("No user id assigned");
+            
+            var SentUserRoles =await _unitOfWork.GetRepository<User>().GetByIdAsIQueryable(userId)
+                .Select(x=> x.UserRoles)
+                .FirstOrDefaultAsync();
+
+            foreach (var role in RecieveUserRoles)
+            {
+                if (role == UserRoles.Member)
+                {
+                    throw new BusinessRuleException("Member can't push notifications");
+                }
+            }
+
+            if (notificationDto == null)
+            {
+                throw new ArgumentNullException("Notification fields are empty, please fill required fields");
+            }
+
+            var users = _unitOfWork.GetRepository<User>().GetAllAsIQueryable().Include(x=> x.UserRoles);
+
+            List<Notification> notifications = new List<Notification>();
+            
+            foreach (var user in users)
+            { 
+                foreach(var UserRole in user.UserRoles)
+                {
+                    foreach (var role in RecieveUserRoles)
+                    {
+                        if (role == UserRole.Role)
+                        {                           
+                            Notification notification = new Notification()
+                            {
+                                CreatedAt = DateTime.UtcNow,
+                                Content = notificationDto.Message,
+                                Title = notificationDto.Title,
+                                IsRead = false,
+                                Type = NotificationTypeEnum.Announcement,
+                                UserID = user.UserID,
+                            };
+                            notifications.Add(notification);
+                        }
+                    }
+                }
+            }
+            await _unitOfWork.GetRepository<Notification>().AddRangeAsync(notifications);
+            int affectedRows= await _unitOfWork.SaveChangesAsync();    
+
+            if (affectedRows <= 0)
+            {
+                return false;
+            }
+            return true;
+            
         }
     }
 }

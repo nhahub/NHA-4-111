@@ -7,7 +7,7 @@ public class UserRoleConfiguration : IEntityTypeConfiguration<UserRole>
 {
     public void Configure(EntityTypeBuilder<UserRole> builder)
     {
-        builder.HasKey(ur => new { ur.RoleID, ur.UserID });
+        builder.HasKey(ur => ur.RoleID);
 
         builder.Property(x => x.Role).HasConversion<string>();
 
