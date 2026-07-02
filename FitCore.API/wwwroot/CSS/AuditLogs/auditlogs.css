@@ -56,7 +56,6 @@ min-width: 220px;
 min-width: 160px;
 cursor: pointer;
 }
-
 .search-input:focus,
 .filter-select:focus {
 border-color: var(--primary-blue);
