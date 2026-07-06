@@ -14,7 +14,7 @@ namespace FitCore.BLL.Services.Notifications
     {
         public async Task<PaginationResponseDto<NotificationDto>> GetAllNotifications(int page, int pageSize)
         {
-            int userId = 1;
+            int userId = 2;
             //int userId = _currentService.UserId ?? throw new UnauthorizedAccessException("No user id assigned");
             if (page <= 0) page = 1;
 
@@ -32,7 +32,6 @@ namespace FitCore.BLL.Services.Notifications
 
             var messageDtos = await messages.Select(x => new NotificationDto
             {
-                Id = x.NotificationID,
                 Title = x.Title,
                 IsRead = x.IsRead,
                 CreatedAt = x.CreatedAt,
