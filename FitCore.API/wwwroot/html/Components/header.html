@@ -1,15 +1,26 @@
-﻿<header class="top-header">
-    <!--<div class="header-search">
-        <i class='bx bx-search search-icon'></i>
-        <input type="text" placeholder="Search logs, modules, or staff..." class="global-search-input">
-    </div>-->
+﻿<div class="top-header">
+    <button class="icon-btn sidebar-toggle-btn" id="sidebarToggleBtn" aria-label="Toggle menu">
+        <i class="fa-solid fa-bars"></i>
+    </button>
 
     <div class="header-actions">
-        <button class="icon-btn"><i class='bx bx-bell'></i></button>
-        <button class="icon-btn"><i class='bx bx-time-five'></i></button>
+        <button class="icon-btn" aria-label="Notifications">
+            <i class="fa-regular fa-bell"></i>
+            <span class="dot"></span>
+        </button>
+        <button class="icon-btn" id="themeToggleBtn" aria-label="Toggle dark mode">
+            <i class="fa-solid fa-moon"></i>
+        </button>
 
-        <div class="user-profile">
-            <div class="avatar">RM</div>
-        </div>
+        <div class="header-divider"></div>
+
+        <a href="/html/Profile/profile.html" class="profile-chip" id="profileChip">
+            <div class="avatar" id="headerAvatar"><i class="fa-solid fa-user"></i></div>
+            <!--<div class="chip-meta">
+                <span class="chip-name" id="headerName">Loading…</span>
+                <span class="chip-role" id="headerRole">--</span>
+            </div>-->
+            <i class="fa-solid fa-chevron-down"></i>
+        </a>
     </div>
-</header>
+</div>
