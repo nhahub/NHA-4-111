@@ -1,8 +1,10 @@
 using FitCore.API.Middlewares;
 using FitCore.BLL.Interfaces.AuditLogs;
 using FitCore.BLL.Interfaces.Notifications;
+using FitCore.BLL.Interfaces.Profile;
 using FitCore.BLL.Services.AuditLogs;
 using FitCore.BLL.Services.Notifications;
+using FitCore.BLL.Services.Profile;
 using FitCore.DAL.Data;
 using FitCore.DAL.Data.Contexts;
 using FitCore.DAL.Interfaces;
@@ -25,22 +27,19 @@ namespace FitCore.API
             //builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<IAuditLogsService, AuditLogService>();
             builder.Services.AddScoped<INotificationService, NotificationService>();
+            builder.Services.AddScoped<IProfileService, ProfileService>();
             builder.Services.AddHttpContextAccessor();
 
 
             #region Added Hangfire
-            //var hangfireEnabled = builder.Configuration.GetValue("Hangfire:Enabled", true) && !usesSqlite;
-            //if (hangfireEnabled)
-            //{
-                builder.Services.AddHangfire(config => config.SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
-                .UseSimpleAssemblyNameTypeSerializer() //when create job use simple service name not full name with version and Public Key Token
-                .UseRecommendedSerializerSettings()
-                .UseSqlServerStorage(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-                builder.Services.AddHangfireServer();
+            builder.Services.AddHangfire(config => config.SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+            .UseSimpleAssemblyNameTypeSerializer() //when create job use simple service name not full name with version and Public Key Token
+            .UseRecommendedSerializerSettings()
+            .UseSqlServerStorage(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+            builder.Services.AddHangfireServer();
             #endregion
-
-
 
             // Add services to the container.
             builder.Services.AddControllers();
@@ -87,7 +86,7 @@ namespace FitCore.API
                 app.UseSwaggerUI();
             }
             app.UseHangfireDashboard("/hangfire");
-            //app.UseHttpsRedirection();
+            app.UseHttpsRedirection();
 
             app.UseAuthentication(); 
             app.UseAuthorization();            

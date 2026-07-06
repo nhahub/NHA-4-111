@@ -97,6 +97,29 @@ button {
 /* ============================================================
    Sidebar
 ============================================================ */
+.sidebar-header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.brand-mark {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-md);
+    background-color: var(--primary-blue-soft);
+    color: var(--primary-blue);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+}
 #sidebar-container {
     width: 260px;
     flex-shrink: 0;
@@ -202,57 +225,25 @@ button {
 /* ============================================================
    Header
 ============================================================ */
-#header-container {
-    width: 100%;
-}
-
 .top-header {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    justify-content: right; /* was: end → this pushes everything to the left */
+    align-items: center; /* was: end (that was a vertical-centering bug) */
+    gap: var(--space-4);
     padding: var(--space-4) var(--space-10);
-    background-color: var(--bg-main);
+    background-color: var(--bg-card);
     border-bottom: 1px solid var(--border-color);
 }
-
-.header-search {
-    position: relative;
-    width: 400px;
-}
-
-    .header-search .search-icon {
-        position: absolute;
-        left: 12px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: var(--text-muted);
-        font-size: var(--fs-base);
-    }
-
-.global-search-input {
-    width: 100%;
-    padding: 10px 10px 10px 36px;
-    border: 1px solid transparent;
-    background-color: var(--bg-card);
-    border-radius: var(--radius-md);
-    box-shadow: var(--shadow-sm);
-    outline: none;
-    font-size: var(--fs-base);
-    color: var(--text-main);
-    transition: border-color var(--transition-fast);
-}
-
-    .global-search-input:focus {
-        border-color: var(--primary-blue);
-    }
 
 .header-actions {
     display: flex;
     align-items: center;
-    gap: var(--space-4);
+    gap: var(--space-3);
+    margin-left: auto;
 }
 
 .icon-btn {
+    position: relative;
     background: transparent;
     border: none;
     font-size: var(--fs-lg);
@@ -266,14 +257,84 @@ button {
     transition: background-color var(--transition-fast);
 }
 
-    .icon-btn:hover {
-        background-color: var(--bg-hover);
-    }
+.icon-btn:hover {
+    background-color: var(--bg-hover);
+}
 
+.icon-btn .dot {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: var(--status-red);
+    border: 2px solid var(--bg-card);
+}
+
+.sidebar-toggle-btn {
+    display: none; /* only needed once sidebar collapses on mobile */
+}
+
+.header-divider {
+    width: 1px;
+    height: 24px;
+    background-color: var(--border-color);
+}
+
+/* Profile chip — renamed inner classes so they never collide with
+   .profile-meta/.profile-name used on the Profile page itself */
+.profile-chip {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: 6px 10px 6px 6px;
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    transition: background-color var(--transition-fast);
+}
+
+.profile-chip:hover {
+    background-color: var(--bg-hover);
+}
+
+.profile-chip > i {
+    color: var(--text-faint);
+    font-size: var(--fs-sm);
+}
+
+.chip-meta {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+}
+
+.chip-name {
+    font-size: var(--fs-sm);
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.chip-role {
+    font-size: var(--fs-xs);
+    color: var(--text-muted);
+}
+
+@media (max-width: 720px) {
+    .sidebar-toggle-btn {
+        display: flex;
+    }
+}
+a.profile-chip {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* تصميم دايرة الأفاتار الأساسية */
 .avatar {
     width: 36px;
     height: 36px;
-    border-radius: var(--radius-full);
+    border-radius: 50%;
     background-color: var(--avatar-bg);
     color: var(--avatar-text);
     display: flex;
@@ -281,25 +342,8 @@ button {
     justify-content: center;
     font-weight: 600;
     font-size: var(--fs-sm);
-    cursor: pointer;
+    flex-shrink: 0; /* عشان الدايرة متتبططش */
 }
-
-/* Small avatar used inside table rows (audit logs "user-cell") */
-.avatar-sm {
-    width: 28px;
-    height: 28px;
-    border-radius: var(--radius-full);
-    background-color: var(--avatar-bg);
-    color: var(--avatar-text);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-size: var(--fs-xs);
-    font-weight: 600;
-    margin-right: var(--space-2);
-    flex-shrink: 0;
-}
-
 /* ============================================================
    Shared buttons & badges (reused across pages)
 ============================================================ */
@@ -314,13 +358,13 @@ button {
     transition: background-color var(--transition-fast), transform var(--transition-fast);
 }
 
-    .btn-primary:hover {
-        background-color: var(--primary-blue-hover);
-    }
+.btn-primary:hover {
+    background-color: var(--primary-blue-hover);
+}
 
-    .btn-primary:active {
-        transform: translateY(1px);
-    }
+.btn-primary:active {
+    transform: translateY(1px);
+}
 
 .btn-outline {
     background-color: var(--bg-card);
@@ -333,10 +377,10 @@ button {
     transition: border-color var(--transition-fast), background-color var(--transition-fast);
 }
 
-    .btn-outline:hover {
-        background-color: var(--bg-hover);
-        border-color: var(--border-color-strong);
-    }
+.btn-outline:hover {
+    background-color: var(--bg-hover);
+    border-color: var(--border-color-strong);
+}
 
 .badge {
     display: inline-block;
