@@ -6,13 +6,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+
 namespace FitCore.DAL.Data.Models
 {
-    public class Membership : IAuditable
+    public class Membership : IAuditable, ISoftDelete
     {
         public int MembershipID { get; set; }
-        public int UserId { get; set; }
-        public User User { get; set; } = null!;
+
+        public int MemberProfileId { get; set; }
+        public MemberProfile MemberProfile { get; set; } = null!;
 
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
@@ -22,6 +24,8 @@ namespace FitCore.DAL.Data.Models
         public bool IsAutoRenew { get; set; }
 
         public int GymServiceId { get; set; }
-        public GymService GymService { get; set; }
+        public GymService? GymService { get; set; }
+        public bool IsDeleted { get; set; } = false;
+        public DateTime? DeletedAt { get; set; }
     }
 }
