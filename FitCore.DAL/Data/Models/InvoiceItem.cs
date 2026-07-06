@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace FitCore.DAL.Data.Models
 {
-    public class InvoiceItem : IAuditable
+    public class InvoiceItem : IAuditable, ISoftDelete
     {
         public int InvoiceItemID { get; set; }
         public int InvoiceID { get; set; }
@@ -23,5 +23,7 @@ namespace FitCore.DAL.Data.Models
         public int Quantity { get; set; }// 1 if service
         public decimal LineTotal { get; set; }
         public decimal SellPrice { get; set; }
+        public bool IsDeleted { get; set; } = false;
+        public DateTime? DeletedAt { get; set; }
     }
 }

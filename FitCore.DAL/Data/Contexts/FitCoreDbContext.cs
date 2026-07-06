@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Security.AccessControl;
 using System.Text;
 using System.Text.Json;
@@ -58,6 +59,10 @@ namespace FitCore.DAL.Data.Contexts
         public DbSet<Inventory> Inventories { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<GymService> GymService { get; set; }
+        public DbSet<Cart> Cart { get; set; }
+        public DbSet<CartItem> CartItem { get; set; }
+        public DbSet<GymServiceClass> GymServiceClass { get; set; }
+
 
 
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
@@ -179,7 +184,25 @@ namespace FitCore.DAL.Data.Contexts
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(FitCoreDbContext).Assembly);
-           
+
+            foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+            {
+                if (typeof(ISoftDelete).IsAssignableFrom(entityType.ClrType))
+                {
+                    modelBuilder.Entity(entityType.ClrType)
+                        .Property(nameof(ISoftDelete.IsDeleted))
+                        .HasDefaultValue(false);
+
+                    var parameter = Expression.Parameter(entityType.ClrType, "e");
+                    var filterBody = Expression.Equal(
+                        Expression.Property(parameter, nameof(ISoftDelete.IsDeleted)),
+                        Expression.Constant(false)
+                    );
+                    var lambda = Expression.Lambda(filterBody, parameter);
+                    modelBuilder.Entity(entityType.ClrType).HasQueryFilter(lambda);
+                }
+            }
+
         }
     }
 }

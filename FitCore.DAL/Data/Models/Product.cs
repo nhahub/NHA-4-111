@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FitCore.DAL.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace FitCore.DAL.Data.Models
 {
-    public class Product
+    public class Product : ISoftDelete
     {
         public int ProductID { get; set; }
         public string Name { get; set; } = string.Empty;
@@ -17,6 +18,10 @@ namespace FitCore.DAL.Data.Models
 
         public int CategoryId { get; set; }
         public Category Category { get; set; }
+        public bool IsDeleted { get; set; } = false;
+        public DateTime? DeletedAt { get; set; }
+        public int? SupplierID { get; set; }
+        public Supplier? Supplier { get; set; }
         public ICollection<Inventory> Inventories { get; set; } = new List<Inventory>();
         
         public ICollection<InvoiceItem> InvoiceItems { get; set; } = new List<InvoiceItem>();        

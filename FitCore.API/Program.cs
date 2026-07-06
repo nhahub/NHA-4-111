@@ -94,6 +94,27 @@ namespace FitCore.API
             
             app.MapControllers();
 
+            var shouldSeed = builder.Configuration.GetValue<bool>("SeedData");
+
+            if (shouldSeed)
+            {
+                using (var scope = app.Services.CreateScope())
+                {
+                    var services = scope.ServiceProvider;
+                    try
+                    {
+                        var context = services.GetRequiredService<FitCoreDbContext>();
+
+                        await ContextSeed.SeedAllAsync(context);
+                    }
+                    catch (Exception ex)
+                    {
+                        var logger = services.GetRequiredService<ILogger<Program>>();
+                        logger.LogError(ex, "حصلت مشكلة أثناء تنزيل الداتا الافتراضية (Seeding).");
+                    }
+                }
+            }
+
             app.Run();
         }
     }

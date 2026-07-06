@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace FitCore.DAL.Data.Models
 {
-    public class Inventory : IAuditable
+    public class Inventory : IAuditable,  ISoftDelete
     {
         public int Id { get; set; }
         public DateTime? ExpiryDate { get; set; }
@@ -17,5 +17,7 @@ namespace FitCore.DAL.Data.Models
 
         public int ProductId { get; set; }
         public Product Product { get; set; }
+        public bool IsDeleted { get; set; } = false;
+        public DateTime? DeletedAt { get; set; }
     }
 }

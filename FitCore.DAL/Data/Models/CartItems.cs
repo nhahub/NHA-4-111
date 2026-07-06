@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace FitCore.DAL.Data.Models
 {
-    public class CartItem : IAuditable
+    public class CartItem : IAuditable , ISoftDelete
     {
         public int CartItemID { get; set; }
 
@@ -19,6 +19,8 @@ namespace FitCore.DAL.Data.Models
         public Product Product { get; set; } = null!;
 
         public int Quantity { get; set; }
+        public bool IsDeleted { get; set; } = false;
+        public DateTime? DeletedAt { get; set; }
 
     }
 }
