@@ -82,9 +82,10 @@ namespace FitCore.BLL.Services.Notifications
             {
                 foreach (var notification in unreadNotifications)
                 {
-                    notification.IsRead = true;                    
+                    notification.IsRead = true;
+                    _unitOfWork.GetRepository<Notification>().Update(notification);
                 }
-                _unitOfWork.GetRepository<Notification>().UpdateRange(unreadNotifications);
+                
                 await _unitOfWork.SaveChangesAsync();
             }
         }
@@ -118,7 +119,7 @@ namespace FitCore.BLL.Services.Notifications
 
             var users = _unitOfWork.GetRepository<User>().GetAllAsIQueryable().Include(x=> x.UserRoles);
 
-            List<Notification> notifications = new List<Notification>();
+           
             
             foreach (var user in users)
             { 
@@ -137,12 +138,12 @@ namespace FitCore.BLL.Services.Notifications
                                 Type = NotificationTypeEnum.Announcement,
                                 UserID = user.UserID,
                             };
-                            notifications.Add(notification);
+                            await _unitOfWork.GetRepository<Notification>().AddAsync(notification);
                         }
                     }
                 }
             }
-            await _unitOfWork.GetRepository<Notification>().AddRangeAsync(notifications);
+            
             int affectedRows= await _unitOfWork.SaveChangesAsync();    
 
             if (affectedRows <= 0)
@@ -159,7 +160,6 @@ namespace FitCore.BLL.Services.Notifications
                 .GetAllAsIQueryable()
                 .ToListAsync();
 
-            List<Notification> notifications = new List<Notification>();
             foreach (var membership in memberShips)
             {
                 if(membership.EndDate <= DateTime.UtcNow)
@@ -173,10 +173,9 @@ namespace FitCore.BLL.Services.Notifications
                         Type = NotificationTypeEnum.MembershipExpiration,
                         UserID = membership.UserId,
                     };
-                    notifications.Add(notification);
+                    await _unitOfWork.GetRepository<Notification>().AddAsync(notification);
                 }
             }
-            await _unitOfWork.GetRepository<Notification>().AddRangeAsync(notifications);
             await _unitOfWork.SaveChangesAsync();
         }
 
