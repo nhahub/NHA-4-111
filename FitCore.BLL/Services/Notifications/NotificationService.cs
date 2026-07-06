@@ -1,5 +1,6 @@
 ﻿using FitCore.BLL.Exceptions;
 using FitCore.BLL.Interfaces.Notifications;
+using FitCore.DAL.Data.Contexts;
 using FitCore.DAL.Data.Models;
 using FitCore.DAL.Interfaces;
 using FitCore.Shared.DTOs;
@@ -9,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FitCore.BLL.Services.Notifications
 {
-    public class NotificationService(IUnitOfWork _unitOfWork) : INotificationService
+    public class NotificationService(FitCoreDbContext DbContext) : INotificationService
     {
         public async Task<PaginationResponseDto<NotificationDto>> GetAllNotifications(int page, int pageSize)
         {
@@ -21,7 +22,7 @@ namespace FitCore.BLL.Services.Notifications
 
             if (pageSize > maxPageSize) pageSize = maxPageSize;
 
-            var query = _unitOfWork.GetRepository<Notification>().GetAllAsIQueryable()
+            var query =DbContext.Set<Notification>()
                 .OrderByDescending(x => x.CreatedAt).Where(x => x.UserID == userId);
 
             var rowsCount = query.Count();
@@ -53,7 +54,7 @@ namespace FitCore.BLL.Services.Notifications
             //int userId = _currentService.UserId ?? throw new UnauthorizedAccessException("No user id assigned");
             int userId = 1;
 
-            var notification = await _unitOfWork.GetRepository<Notification>().GetByIdAsync(notificationId);
+            var notification = await DbContext.Set<Notification>().Where(x => x.NotificationID == notificationId).FirstOrDefaultAsync();
 
 
             if (notification == null || notification.UserID != userId) throw new KeyNotFoundException("no notification with this id");
@@ -61,8 +62,8 @@ namespace FitCore.BLL.Services.Notifications
             if (!notification.IsRead)
             {
                 notification.IsRead = true;
-                _unitOfWork.GetRepository<Notification>().Update(notification);
-                await _unitOfWork.SaveChangesAsync();
+                DbContext.Set<Notification>().Update(notification);
+                await DbContext.SaveChangesAsync();
             }
 
             return true;
@@ -73,8 +74,7 @@ namespace FitCore.BLL.Services.Notifications
             int userId = 1;
             //int userId = _currentService.UserId ?? throw new UnauthorizedAccessException("No branch id assigned");
 
-            var unreadNotifications = await _unitOfWork.GetRepository<Notification>()
-                .GetAllAsIQueryable()
+            var unreadNotifications = await DbContext.Set<Notification>()
                 .Where(n => n.UserID == userId && !n.IsRead)
                 .ToListAsync();
 
@@ -83,10 +83,10 @@ namespace FitCore.BLL.Services.Notifications
                 foreach (var notification in unreadNotifications)
                 {
                     notification.IsRead = true;
-                    _unitOfWork.GetRepository<Notification>().Update(notification);
+                    DbContext.Set<Notification>().Update(notification);                    
                 }
-                
-                await _unitOfWork.SaveChangesAsync();
+
+                await DbContext.SaveChangesAsync();
             }
         }
 
@@ -95,7 +95,7 @@ namespace FitCore.BLL.Services.Notifications
             int userId = 3;
             //int userId = _currentService.UserId ?? throw new UnauthorizedAccessException("No user id assigned");
             
-            var SentUserRoles =await _unitOfWork.GetRepository<User>().GetByIdAsIQueryable(userId)
+            var SentUserRoles =await DbContext.Set<User>().Where(x => x.UserID == userId)
                 .Select(x=> x.UserRoles)
                 .FirstOrDefaultAsync();
             
@@ -117,10 +117,8 @@ namespace FitCore.BLL.Services.Notifications
                 throw new ArgumentNullException("Notification fields are empty, please fill required fields");
             }
 
-            var users = _unitOfWork.GetRepository<User>().GetAllAsIQueryable().Include(x=> x.UserRoles);
-
+            var users = DbContext.Set<User>().Include(x=> x.UserRoles).AsQueryable();
            
-            
             foreach (var user in users)
             { 
                 foreach(var UserRole in user.UserRoles)
@@ -138,13 +136,13 @@ namespace FitCore.BLL.Services.Notifications
                                 Type = NotificationTypeEnum.Announcement,
                                 UserID = user.UserID,
                             };
-                            await _unitOfWork.GetRepository<Notification>().AddAsync(notification);
+                            await DbContext.Set<Notification>().AddAsync(notification);
                         }
                     }
                 }
             }
             
-            int affectedRows= await _unitOfWork.SaveChangesAsync();    
+            int affectedRows= await DbContext.SaveChangesAsync();
 
             if (affectedRows <= 0)
             {
@@ -156,8 +154,7 @@ namespace FitCore.BLL.Services.Notifications
 
         public async Task MemberExpiryNotification()
         {
-            var memberShips = await _unitOfWork.GetRepository<Membership>()
-                .GetAllAsIQueryable()
+            var memberShips = await DbContext.Set<Membership>()
                 .ToListAsync();
 
             foreach (var membership in memberShips)
@@ -173,10 +170,10 @@ namespace FitCore.BLL.Services.Notifications
                         Type = NotificationTypeEnum.MembershipExpiration,
                         UserID = membership.UserId,
                     };
-                    await _unitOfWork.GetRepository<Notification>().AddAsync(notification);
+                    await DbContext.Set<Notification>().AddAsync(notification);
                 }
             }
-            await _unitOfWork.SaveChangesAsync();
+            int affectedRows = await DbContext.SaveChangesAsync();
         }
 
 

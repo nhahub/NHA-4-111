@@ -1,7 +1,7 @@
 ﻿using FitCore.BLL.Interfaces.AuditLogs;
+using FitCore.DAL.Data.Contexts;
 using FitCore.DAL.Data.Models;
 using FitCore.DAL.Interfaces;
-using FitCore.DAL.Repositories;
 using FitCore.Shared.DTOs;
 using FitCore.Shared.DTOs.AuditLogs;
 using FitCore.Shared.Enums;
@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FitCore.BLL.Services.AuditLogs
 {
-    public class AuditLogService(IUnitOfWork unitOfWork) : IAuditLogsService
+    public class AuditLogService(FitCoreDbContext DbContext) : IAuditLogsService
     {
         public async Task<PaginationResponseDto<AuditLogsDto>> ViewAllAudits
             (int page, int pageSize, string? searchTerm = null,
@@ -22,7 +22,7 @@ namespace FitCore.BLL.Services.AuditLogs
 
             if (pageSize > maxPageSize) pageSize = maxPageSize;
 
-            var query = unitOfWork.GetRepository<AuditLog>().GetAllAsIQueryable().Include(x => x.User).AsQueryable();
+            var query = DbContext.Set<AuditLog>().Include(x => x.User).AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(searchTerm))
             {
