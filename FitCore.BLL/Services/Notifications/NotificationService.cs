@@ -179,5 +179,7 @@ namespace FitCore.BLL.Services.Notifications
             await _unitOfWork.GetRepository<Notification>().AddRangeAsync(notifications);
             await _unitOfWork.SaveChangesAsync();
         }
+
+
     }
 }
