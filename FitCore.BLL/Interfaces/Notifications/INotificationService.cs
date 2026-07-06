@@ -17,6 +17,8 @@ namespace FitCore.BLL.Interfaces.Notifications
         public Task<bool> SendNotification(RequestNotificationDto notificationDto);
 
         public Task MemberExpiryNotification();
+        public Task LowStockNotification();
+        public Task ExpiryProductsNotification();
 
     }
 }

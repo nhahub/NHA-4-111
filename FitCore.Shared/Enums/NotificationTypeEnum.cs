@@ -11,6 +11,7 @@ namespace FitCore.Shared.Enums
         MembershipExpiration,
         productExpiry,
         Announcement,
+        LowStock,
 
     }
 }

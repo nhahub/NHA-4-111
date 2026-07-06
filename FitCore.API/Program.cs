@@ -6,7 +6,6 @@ using FitCore.BLL.Services.Notifications;
 using FitCore.DAL.Data;
 using FitCore.DAL.Data.Contexts;
 using FitCore.DAL.Interfaces;
-using FitCore.DAL.Repositories;
 using Hangfire;
 using Microsoft.EntityFrameworkCore;
 
@@ -23,7 +22,7 @@ namespace FitCore.API
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
             // 2. Unit of Work 
-            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+            //builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<IAuditLogsService, AuditLogService>();
             builder.Services.AddScoped<INotificationService, NotificationService>();
             builder.Services.AddHttpContextAccessor();
@@ -64,6 +63,16 @@ namespace FitCore.API
                     "check-MemberShip-expiration",
                     () => notificationService.MemberExpiryNotification(),
                     Cron.Daily(1)
+                );
+                recurringJobManager.AddOrUpdate(
+                    "check-Low-Stock",
+                    () => notificationService.LowStockNotification(),
+                    Cron.Daily(3)
+                );
+                recurringJobManager.AddOrUpdate(
+                    "check-Near-Expiry-Products",
+                    () => notificationService.ExpiryProductsNotification(),
+                    Cron.Daily(5)
                 );
             }
 
