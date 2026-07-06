@@ -176,6 +176,90 @@ namespace FitCore.BLL.Services.Notifications
             int affectedRows = await DbContext.SaveChangesAsync();
         }
 
+        public async Task LowStockNotification()
+        {
+            var lowStockProducts = await DbContext.Products
+            .Select(p => new
+            {
+                ProductId = p.ProductID,
+                ProductName = p.Name,
+                p.ReorderLevel,
+                TotalQuantity = p.Inventories.Sum(i => i.Quantity)
+            })
+            .Where(x => x.TotalQuantity <= x.ReorderLevel)
+            .ToListAsync();
 
+
+            var adminIds = await DbContext.Users
+            .Where(u => u.UserRoles.Any(ur => ur.Role == UserRoles.Admin))
+            .Select(u => u.UserID)
+            .ToListAsync();
+
+            if (!adminIds.Any())
+                return;
+
+            foreach (var adminId in adminIds)
+            {
+                foreach (var product in lowStockProducts)
+                {
+                    Notification notification = new Notification()
+                    {
+                        Title = "Low Stock",
+                        CreatedAt = DateTime.UtcNow,
+                        IsRead = false,
+                        UserID = adminId,
+                        Content = $"The Product: {product.ProductName} is under reorder level.",
+                        Type = NotificationTypeEnum.LowStock
+                    };
+                    await DbContext.Notifications.AddAsync(notification);
+                }
+            }
+
+            await DbContext.SaveChangesAsync();
+
+        }
+
+        public async Task ExpiryProductsNotification()
+        {
+            var expiryThreshold = DateTime.UtcNow.AddDays(30);
+
+            var expiringInventories = await DbContext.Inventories
+                .Include(i => i.Product)
+                .Where(i => i.ExpiryDate != null && i.ExpiryDate <= expiryThreshold)
+                .ToListAsync();
+
+            if (!expiringInventories.Any())
+                return;
+
+            var adminIds = await DbContext.Users
+                .Where(u => u.UserRoles.Any(ur => ur.Role == UserRoles.Admin))
+                .Select(u => u.UserID)
+                .ToListAsync();
+
+            if (!adminIds.Any())
+                return;
+
+            var notificationsToInsert = new List<Notification>();
+
+            foreach (var item in expiringInventories)
+            {
+                foreach (var adminId in adminIds)
+                {
+                    notificationsToInsert.Add( new Notification
+                    {
+                        UserID = adminId,
+                        Title = "Product Near Expiry",
+                        Content = $"The Product: {item.Product.Name} will expire in {item.ExpiryDate?.ToString("yyyy-MM-dd")}. Available Quantity from this product with this expiry" +
+                        $": {item.Quantity}.",
+                        CreatedAt = DateTime.UtcNow,
+                        IsRead = false,
+                        Type = NotificationTypeEnum.productExpiry,
+                    });
+                }
+            }
+
+            await DbContext.Notifications.AddRangeAsync(notificationsToInsert);
+            await DbContext.SaveChangesAsync();
+        }
     }
 }
