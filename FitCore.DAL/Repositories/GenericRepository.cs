@@ -22,38 +22,38 @@ namespace FitCore.DAL.Repositories
             return await _context.Set<T>().FindAsync(id);
         }
 
-        //public async Task<IEnumerable<T>> GetAllAsync()
-        //{
-        //    return await _context.Set<t>().ToListAsync();
-        //}
+        public async Task<IEnumerable<T>> GetAllAsync()
+        {
+            return await _context.Set<T>().ToListAsync();
+        }
 
         public async Task AddAsync(T entity)
         {
             await _context.AddAsync(entity);
         }
-        public async Task AddRangeAsync(IEnumerable<T> entities)
-        {
-            await _context.AddRangeAsync(entities);
-        }
+        //public async Task AddRangeAsync(IEnumerable<T> entities)
+        //{
+        //    await _context.AddRangeAsync(entities);
+        //}
 
         public void Update(T entity)
         {
             _context.Update(entity);
         }
 
-        public void UpdateRange(IEnumerable<T> entities)
-        {
-            _context.UpdateRange(entities);
-        }
+        //public void UpdateRange(IEnumerable<T> entities)
+        //{
+        //    _context.UpdateRange(entities);
+        //}
 
         public void Delete(T entity)
         {
             _context.Remove(entity);
         }
-        public void DeleteRange(IEnumerable<T> entities)
-        {
-            _context.RemoveRange(entities);
-        }
+        //public void DeleteRange(IEnumerable<T> entities)
+        //{
+        //    _context.RemoveRange(entities);
+        //}
 
 
         public IQueryable<T> GetAllAsIQueryable()
