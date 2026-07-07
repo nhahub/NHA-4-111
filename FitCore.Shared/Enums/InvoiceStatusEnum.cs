@@ -8,7 +8,7 @@ namespace FitCore.Shared.Enums
 {
     public enum InvoiceStatus
     {
-        Completed,
-
+        Pending = 1,
+        Completed = 2
     }
 }
