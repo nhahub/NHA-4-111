@@ -35,4 +35,13 @@ namespace FitCore.Shared.DTOs.User
     {
         public UserRoles Role { get; set; }
     }
+
+    public class EditUserDto
+    {
+        public string FullName { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string PhoneNumber { get; set; } = string.Empty;
+        public TrainerDto? TrainerDto { get; set; }
+
+    }
 }

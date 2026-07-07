@@ -127,8 +127,22 @@ button {
     border-right: 1px solid var(--border-color);
     display: flex;
     flex-direction: column;
+    height: 100vh;
+    overflow-y: auto;
+}
+    /* تجميل شكل الـ Scrollbar الخاص بالـ Sidebar */
+#sidebar-container::-webkit-scrollbar {
+    width: 6px;
 }
 
+#sidebar-container::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+#sidebar-container::-webkit-scrollbar-thumb {
+    background-color: var(--border-color-strong);
+    border-radius: var(--radius-full);
+}
 .sidebar {
     display: flex;
     flex-direction: column;
@@ -261,15 +275,32 @@ button {
     background-color: var(--bg-hover);
 }
 
-.icon-btn .dot {
-    position: absolute;
-    top: 6px;
-    right: 6px;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background-color: var(--status-red);
-    border: 2px solid var(--bg-card);
+    .icon-btn .dot {
+        position: absolute;
+        top: 2px; /* رفعناها لفوق شوية */
+        right: 2px; /* جبناها يمين شوية */
+        width: 12px; /* كبرنا العرض (كان 8) */
+        height: 12px; /* كبرنا الطول (كان 8) */
+        border-radius: 50%;
+        background-color: var(--status-red);
+        border: 2px solid var(--bg-card);
+        /* حركة النبض لزيادة الانتباه */
+        animation: pulse-dot 2s infinite;
+    }
+
+/* Keyframes الخاصة بحركة النبض */
+@keyframes pulse-dot {
+    0% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+    }
+
+    70% {
+        box-shadow: 0 0 0 6px rgba(239, 68, 68, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+    }
 }
 
 .sidebar-toggle-btn {
@@ -321,9 +352,26 @@ button {
 }
 
 @media (max-width: 720px) {
+    /* Show the hamburger icon */
     .sidebar-toggle-btn {
         display: flex;
     }
+
+    /* Detach the sidebar and hide it off-screen to the left */
+    #sidebar-container {
+        position: fixed;
+        top: 0;
+        left: -300px; /* Moves it completely out of view */
+        height: 100vh;
+        z-index: 1000; /* Ensures it sits on top of everything else */
+        transition: left var(--transition-base);
+        box-shadow: var(--shadow-lg);
+    }
+
+        /* This class will be toggled by JavaScript to slide the sidebar in */
+        #sidebar-container.open {
+            left: 0;
+        }
 }
 a.profile-chip {
     text-decoration: none;

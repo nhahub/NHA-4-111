@@ -10,5 +10,6 @@ namespace FitCore.BLL.Interfaces.Profile
     public interface IProfileService
     {
         public Task<UserDto> GetProfile();
+        public Task EditProfile(EditUserDto userDto);
     }
 }

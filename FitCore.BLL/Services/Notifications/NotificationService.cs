@@ -32,6 +32,7 @@ namespace FitCore.BLL.Services.Notifications
 
             var messageDtos = await messages.Select(x => new NotificationDto
             {
+                Id = x.NotificationID,
                 Title = x.Title,
                 IsRead = x.IsRead,
                 CreatedAt = x.CreatedAt,
@@ -51,9 +52,9 @@ namespace FitCore.BLL.Services.Notifications
         public async Task<bool> MarkAsReadAsync(int notificationId)
         {
             //int userId = _currentService.UserId ?? throw new UnauthorizedAccessException("No user id assigned");
-            int userId = 1;
+            int userId = 2;
 
-            var notification = await DbContext.Set<Notification>().Where(x => x.NotificationID == notificationId).FirstOrDefaultAsync();
+            var notification = await DbContext.Notifications.FirstOrDefaultAsync(x => x.NotificationID == notificationId);
 
 
             if (notification == null || notification.UserID != userId) throw new KeyNotFoundException("no notification with this id");
@@ -61,7 +62,7 @@ namespace FitCore.BLL.Services.Notifications
             if (!notification.IsRead)
             {
                 notification.IsRead = true;
-                DbContext.Set<Notification>().Update(notification);
+                DbContext.Notifications.Update(notification);
                 await DbContext.SaveChangesAsync();
             }
 
@@ -70,7 +71,7 @@ namespace FitCore.BLL.Services.Notifications
 
         public async Task MarkAllAsReadAsync()
         {
-            int userId = 1;
+            int userId = 2;
             //int userId = _currentService.UserId ?? throw new UnauthorizedAccessException("No branch id assigned");
 
             var unreadNotifications = await DbContext.Set<Notification>()
@@ -259,6 +260,19 @@ namespace FitCore.BLL.Services.Notifications
 
             await DbContext.Notifications.AddRangeAsync(notificationsToInsert);
             await DbContext.SaveChangesAsync();
+        }
+
+        public async Task<int> GetUnReadNotificationsCount()
+        {
+            int userId = 2;
+            //int userId = _currentService.UserId ?? throw new UnauthorizedAccessException("No branch id assigned");
+
+            int count = await DbContext.Notifications
+             .Where(n => !n.IsRead && n.UserID == userId)
+            //.Where(n => !n.IsRead)
+            .CountAsync();
+
+            return count;
         }
     }
 }

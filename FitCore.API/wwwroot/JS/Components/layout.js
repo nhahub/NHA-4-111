@@ -33,12 +33,35 @@ document.addEventListener("DOMContentLoaded", () => {
         })
         .catch(error => console.error('Error loading sidebar:', error));
 
-    // بنستدعي الهيدر، ولما يخلص (then) بنشغل كود الإشعارات
+    // بنستدعي الهيدر، ولما يخلص (then) بنشغل الكود بتاعنا
     loadComponent('header-container', '/HTML/Components/header.html').then(() => {
-        // السطر ده هيشتغل فقط بعد ما الهيدر يترسم في الشاشة
+
+        // 1. تشغيل نظام الإشعارات
         if (typeof initNotificationSystem === 'function') {
             initNotificationSystem();
         }
+
+        // 2. تعريف المتغيرات الخاصة بالقائمة الجانبية
+        const toggleBtn = document.querySelector('.sidebar-toggle-btn');
+        const sidebar = document.getElementById('sidebar-container');
+
+        // 3. كود فتح وقفل القائمة الجانبية من الزرار
+        if (toggleBtn && sidebar) {
+            toggleBtn.addEventListener('click', () => {
+                sidebar.classList.toggle('open');
+            });
+        }
+
+        // 4. كود مراقبة الكليك بره القائمة الجانبية (مكانه هنا ممتاز) 👇
+        document.addEventListener('click', (event) => {
+            // لو الـ Sidebar مفتوح، والدوسة مكنتش جواه، ومكنتش على الزرار نفسه
+            if (sidebar && sidebar.classList.contains('open') && toggleBtn) {
+                if (!sidebar.contains(event.target) && !toggleBtn.contains(event.target)) {
+                    sidebar.classList.remove('open');
+                }
+            }
+        });
+
     });
 });
 
@@ -77,7 +100,7 @@ function initNotificationSystem() {
     // 3. Mark All as Read
     markAllReadBtn.addEventListener('click', async () => {
         try {
-            await fetch('/api/Notification/mark-all-read', { method: 'PUT' });
+            await fetch('/api/Notification/mark-all-read', { method: 'PATCH' });
 
             // نخلي كل الإشعارات اللي في الشاشة مقروءة
             document.querySelectorAll('.notification-item.unread').forEach(item => {
@@ -91,6 +114,7 @@ function initNotificationSystem() {
 
     // نحمل أول صفحة في الخلفية عشان نعرف في إشعارات جديدة ولا لأ
     fetchNotifications(1);
+    setInterval(pollUnreadCount, 30000);
 }
 
 // دالة جلب الإشعارات من الـ API
@@ -161,18 +185,21 @@ function renderNotifications(notifications, append) {
             </div>
         `;
 
-        // إيفنت عشان يقرأ الإشعار لما تدوسي عليه
         item.addEventListener('click', async () => {
-            if (!isRead && item.classList.contains('unread')) {
+            if (item.classList.contains('unread')) {
                 try {
-                    await fetch(`/api/Notification/mark-as-read/${id}`, { method: 'PUT' });
-                    item.classList.remove('unread');
+                    const response = await fetch(`/api/Notification/mark-as-read/${id}`, { method: 'PATCH' });
 
-                    // نقلل عدد الإشعارات الغير مقروءة 
-                    const currentBadge = document.getElementById('unreadBadge');
-                    if (currentBadge.style.display !== 'none') {
-                        // Logic بسيط لإخفاء النقطة لو قرأنا كل حاجة
-                        // (يفضل تعملي دالة منفصلة بتعمل Check لعدد الـ unread المتبقي)
+                    if (response.ok) {
+                        item.classList.remove('unread'); // 1. نشيل اللون 
+
+                        // 👇 2. السطرين الجداد: نعد الإشعارات اللي لسه زرقاء ونحدث النقطة فوراً
+                        const remainingUnread = document.querySelectorAll('.notification-item.unread').length;
+                        updateBadge(remainingUnread);
+
+                    } else {
+                        console.error("Error from backend:", await response.text());
+                        alert("Failed to mark as read! Check console.");
                     }
                 } catch (err) { console.error(err); }
             }
@@ -216,4 +243,23 @@ function getNotificationStyle(type) {
 
     // الأيقونة الافتراضية لو جيه نوع غريب
     return { icon: 'fa-solid fa-bell', colorClass: 'icon-info' };
+}
+
+
+// دالة بتسأل السيرفر كل فترة في إشعارات جديدة ولا لأ (بعد التحديث)
+async function pollUnreadCount() {
+    try {
+        // بننادي على الـ Endpoint الجديد اللي بيرجع الرقم بس
+        const response = await fetch(`/api/Notification/UnRead-Count`);
+
+        if (response.ok) {
+            const data = await response.json();
+
+            // هياخد الـ Value سواء الباك إند بعتها سمول أو كابيتال
+            const count = data.unreadCount ?? data.UnreadCount ?? 0;
+            updateBadge(count);
+        }
+    } catch (error) {
+        console.error("Error polling unread count:", error);
+    }
 }

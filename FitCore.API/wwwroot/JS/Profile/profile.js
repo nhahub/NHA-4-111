@@ -154,7 +154,7 @@ function formatDate(value) {
 
 // Normalizes status whether it arrives as a string ("Active") or a numeric enum (0,1,2,3)
 function normalizeStatus(status) {
-    const map = { 0: "Active", 1: "Inactive", 2: "Suspended", 3: "Pending" };
+    const map = { 0: "In Active", 1: "Active", 2: "Suspended", 3: "Pending" };
     const label = typeof status === "number" ? (map[status] || "Unknown") : (status || "Unknown");
     return label;
 }
@@ -222,8 +222,7 @@ function renderQrCode(data) {
 // ------------------------------------------------------------
 function bindActions() {
     document.getElementById("editProfileBtn")?.addEventListener("click", () => {
-        // Hook this up to your edit-profile route/modal
-        window.location.href = "/profile/edit";
+        window.location.href = "/HTML/Profile/editprofile.html";
     });
 
     document.getElementById("shareProfileBtn")?.addEventListener("click", async () => {

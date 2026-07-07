@@ -20,5 +20,7 @@ namespace FitCore.BLL.Interfaces.Notifications
         public Task LowStockNotification();
         public Task ExpiryProductsNotification();
 
+        public Task<int> GetUnReadNotificationsCount();
+
     }
 }
