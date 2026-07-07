@@ -1,4 +1,5 @@
-﻿using FitCore.Shared.Enums;
+﻿using FitCore.DAL.Interfaces;
+using FitCore.Shared.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace FitCore.DAL.Data.Models
 {
-    public class Payment
+    public class Payment : ISoftDelete
     {
         public int PaymentID { get; set; }
         public int InvoiceID { get; set; }
@@ -20,5 +21,7 @@ namespace FitCore.DAL.Data.Models
         public DateTime PaymentDate { get; set; }
         public PaymentMethod PaymentMethod { get; set; }
         public string TransactionReference { get; set; } = string.Empty;
+        public bool IsDeleted { get; set; } = false;
+        public DateTime? DeletedAt { get; set; }
     }
 }

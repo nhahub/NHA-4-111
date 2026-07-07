@@ -167,7 +167,7 @@ namespace FitCore.BLL.Services.Notifications
                         Title = "MemberShip Expiration",
                         IsRead = false,
                         Type = NotificationTypeEnum.MembershipExpiration,
-                        UserID = membership.UserId,
+                        UserID = membership.MemberProfile.UserID,
                     };
                     await DbContext.Set<Notification>().AddAsync(notification);
                 }

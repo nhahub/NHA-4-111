@@ -1,4 +1,5 @@
-﻿using FitCore.Shared.Enums;
+﻿using FitCore.DAL.Interfaces;
+using FitCore.Shared.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace FitCore.DAL.Data.Models
 {
-    public class GymService
+    public class GymService : ISoftDelete
     {
         public int ServiceID { get; set; }
         public string Name { get; set; } = string.Empty;
@@ -15,6 +16,8 @@ namespace FitCore.DAL.Data.Models
         public ServiceCategory Category { get; set; }
 
         public int DurationInDays { get; set; }
+        public bool IsDeleted { get; set; } = false;
+        public DateTime? DeletedAt { get; set; }
 
         public ICollection<InvoiceItem> InvoicesItems { get; set; } = new List<InvoiceItem>();
         public ICollection<Membership> Memberships { get; set; } = new List<Membership>();

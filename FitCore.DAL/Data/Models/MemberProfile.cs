@@ -5,17 +5,20 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+
 namespace FitCore.DAL.Data.Models
 {
-    public class MemberProfile : IAuditable
+    public class MemberProfile : IAuditable, ISoftDelete
     {
         public int UserID { get; set; }
         public User User { get; set; } = null!;
 
         public string QRCodeData { get; set; } = string.Empty;
+        public bool IsDeleted { get; set; } = false;
+        public DateTime? DeletedAt { get; set; }
 
-        public ICollection<Membership> Memberships { get; set; } = new List<Membership>();
+        public Membership? Membership { get; set; }
+
         public ICollection<Attendance> Attendances { get; set; } = new List<Attendance>();
-
     }
 }

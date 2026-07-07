@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace FitCore.DAL.Data.Models
 {
-    public class ClassSchedule : IAuditable
+    public class ClassSchedule : IAuditable, ISoftDelete
     {
         public int Id { get; set; }
         public int ClassID { get; set; }
@@ -15,5 +15,7 @@ namespace FitCore.DAL.Data.Models
         public DayOfWeek Day { get; set; }
         public TimeSpan StartTime { get; set; }
         public TimeSpan EndTime { get; set; }
+        public bool IsDeleted { get; set; } = false;
+        public DateTime? DeletedAt { get; set; }
     }
 }
