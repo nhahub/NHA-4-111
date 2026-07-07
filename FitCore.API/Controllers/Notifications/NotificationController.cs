@@ -45,5 +45,12 @@ namespace FitCore.API.Controllers.Notifications
             
             return Ok(result);
         }
+
+        [HttpGet("UnRead-Count")]
+        public async Task<IActionResult> GetUnReadCount()
+        {
+            var result = await _notificationService.GetUnReadNotificationsCount();
+            return Ok(result);
+        }
     }
 }

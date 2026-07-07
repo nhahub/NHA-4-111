@@ -1,6 +1,8 @@
-﻿using FitCore.BLL.Interfaces.Profile;
+﻿using FitCore.BLL.Exceptions;
+using FitCore.BLL.Interfaces.Profile;
 using FitCore.DAL.Data.Contexts;
 using FitCore.Shared.DTOs.User;
+using FitCore.Shared.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace FitCore.BLL.Services.Profile
@@ -57,6 +59,57 @@ namespace FitCore.BLL.Services.Profile
 
             return userDto;
 
+        }
+
+        public async Task EditProfile(EditUserDto userDto)
+        {
+            var errors = new List<string>();
+
+            if (userDto == null)
+            {
+                errors.Add("The submitted profile data is completely empty.");
+                throw new ValidationException(errors);
+            }
+
+            int userId = 3;
+            //int userId = _currentService.UserId ?? throw new UnauthorizedAccessException("No user id assigned");
+
+            var user = await dbContext.Users
+                .Include(x => x.UserRoles)
+                .Include(x => x.Trainer)
+                .FirstOrDefaultAsync(x => x.UserID == userId);
+
+            if (user == null)
+            {
+                throw new KeyNotFoundException("User profile not found.");
+            }
+
+            // تحديث البيانات الأساسية
+            user.Email = userDto.Email;
+            user.PhoneNumber = userDto.PhoneNumber;
+            user.FullName = userDto.FullName;
+
+            if (user.Trainer != null)
+            {
+                if (userDto.TrainerDto == null)
+                {
+                    errors.Add("Trainer information is required for trainer accounts.");
+                }
+                else
+                {
+                    user.Trainer.Specialization = userDto.TrainerDto.Specialization ?? "N/A";
+                    user.Trainer.Bio = userDto.TrainerDto.Bio ?? "N/A";
+                    user.Trainer.WorkingHours = userDto.TrainerDto.WorkingHours ?? "N/A";
+                }
+            }
+
+            if (errors.Any())
+            {
+                throw new ValidationException(errors);
+            }
+
+            dbContext.Users.Update(user);
+            await dbContext.SaveChangesAsync();
         }
     }
 }

@@ -319,28 +319,49 @@
 }
 
 @media (max-width: 720px) {
-    #sidebar-container {
-        display: none;
-    }
-
     .profile-page {
         padding: var(--space-5);
     }
 
+    /* 1. نخلي الكارت الرئيسي يوسط كل حاجة */
     .profile-hero {
         flex-direction: column;
-        align-items: flex-start;
+        align-items: center; /* توسيط بدل flex-start */
+        text-align: center; /* توسيط الكلام */
         padding: var(--space-5);
     }
 
+    /* 2. السر هنا: نخلي الأفاتار والاسم تحت بعض بدل جنب بعض */
+    .profile-hero-left {
+        flex-direction: column;
+        align-items: center;
+        gap: var(--space-3);
+    }
+
+    /* 3. نصغر خط الاسم شوية عشان مايهربش بره الشاشة */
+    .profile-hero-info h1 {
+        font-size: var(--fs-lg);
+    }
+
+    /* 4. توسيط البادجات والمعلومات (زي الإيميل والرقم) */
+    .profile-badges,
+    .profile-meta {
+        justify-content: center;
+    }
+
+    /* تظبيط الأزرار زي ما إنتي كنتي عاملاها */
     .profile-hero-actions {
         width: 100%;
+        margin-top: var(--space-4); /* مسافة فوق الأزرار */
     }
 
         .profile-hero-actions button {
             flex: 1;
         }
 
+    /* =====================================
+       باقي كود التيكت بتاعك سليم وزي ما هو 
+    ===================================== */
     .ticket {
         flex-direction: column;
     }
