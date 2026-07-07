@@ -407,9 +407,9 @@ a.profile-chip {
     cursor: pointer;
 }
 
-    .text-btn:hover {
-        text-decoration: underline;
-    }
+.text-btn:hover {
+    text-decoration: underline;
+}
 
 .panel-body {
     flex: 1;
