@@ -33,5 +33,6 @@ namespace FitCore.DAL.Data.Models
 
         // ✅ التعديل التاني: رصيد الحصص المتبقية
         public int? RemainingSessions { get; set; }
+        public ICollection<Attendance> Attendances { get; set; } = new List<Attendance>();
     }
 }
