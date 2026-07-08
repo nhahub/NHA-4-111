@@ -38,10 +38,9 @@ namespace FitCore.BLL.Services
                     UserID = userId,
                     IssueDate = DateTime.UtcNow,
                     TotalAmount = 0,
-                    InvoiceStatus = InvoiceStatus.Pending,
+                    InvoiceStatus = FitCore.Shared.Enums.InvoiceStatus.Pending,
                     Description = "Checkout Invoice"
                 };
-
                 await _context.Invoices.AddAsync(invoice);
                 await _context.SaveChangesAsync();
 
@@ -54,7 +53,7 @@ namespace FitCore.BLL.Services
                         var invoiceItem = new InvoiceItem
                         {
                             InvoiceID = invoice.InvoiceID,
-                            ItemType = InvoiceItemType.Product,
+                            ItemType = FitCore.Shared.Enums.InvoiceItemType.Product,
                             ProductID = cartItem.ProductID,
                             ItemName = "Product",
                             Quantity = cartItem.Quantity,
@@ -65,6 +64,7 @@ namespace FitCore.BLL.Services
                         totalAmount += invoiceItem.LineTotal;
                         await _context.InvoiceItems.AddAsync(invoiceItem);
                     }
+
                     _context.CartItem.RemoveRange(cart.CartItems);
                 }
 
@@ -73,7 +73,7 @@ namespace FitCore.BLL.Services
                     var invoiceItem = new InvoiceItem
                     {
                         InvoiceID = invoice.InvoiceID,
-                        ItemType = InvoiceItemType.MembershipPlan,
+                        ItemType = FitCore.Shared.Enums.InvoiceItemType.MembershipPlan,
                         ServiceID = gymServiceId.Value,
                         ItemName = "Gym Subscription",
                         Quantity = 1,
@@ -94,6 +94,7 @@ namespace FitCore.BLL.Services
                         IsAutoRenew = false,
                         InvoiceID = invoice.InvoiceID
                     };
+
                     await _context.Memberships.AddAsync(membership);
                 }
 
