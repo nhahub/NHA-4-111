@@ -17,7 +17,7 @@ namespace FitCore.DAL.Data.Models
         public bool IsDeleted { get; set; } = false;
         public DateTime? DeletedAt { get; set; }
 
-        public Membership? Membership { get; set; }
+        public ICollection<Membership> Memberships { get; set; } = new List<Membership>();
 
         public ICollection<Attendance> Attendances { get; set; } = new List<Attendance>();
         public ICollection<ClassBooking> ClassBookings { get; set; } = new List<ClassBooking>();
