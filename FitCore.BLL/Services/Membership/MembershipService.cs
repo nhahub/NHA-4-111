@@ -43,7 +43,8 @@ namespace FitCore.BLL.Services
 
             var membership = new Membership
             {
-                MemberProfileId = member.MemberProfileId, 
+                MemberProfileId = member.UserID,
+
                 GymServiceId = dto.GymServiceId,
                 ClassID = dto.ClassId,
                 StartDate = startDate,
@@ -51,7 +52,7 @@ namespace FitCore.BLL.Services
                 Status = MemberShipStatus.Active,
                 RemainingSessions = remainingSessions,
                 IsAutoRenew = dto.IsAutoRenew,
-                CreatedAt =DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow
             };
 
             await DbContext.Set<Membership>().AddAsync(membership);
@@ -106,6 +107,48 @@ namespace FitCore.BLL.Services
             var affected = await DbContext.SaveChangesAsync();
 
             return affected > 0;
+        }
+        public async Task<bool> UnfreezeMembershipAsync(int membershipId)
+        {
+            var membership = await DbContext.Set<Membership>().FirstOrDefaultAsync(m => m.MembershipID == membershipId);
+
+            if (membership == null) throw new KeyNotFoundException("Membership not found.");
+            if (membership.Status != MemberShipStatus.Freezed)
+                throw new BusinessRuleException("Membership is not currently frozen.");
+
+            if (membership.FreezeEndDate.HasValue && membership.FreezeEndDate.Value > DateTime.UtcNow)
+            {
+                var unusedFreezeDays = (membership.FreezeEndDate.Value - DateTime.UtcNow).Days;
+                membership.EndDate = membership.EndDate.AddDays(-unusedFreezeDays);
+            }
+
+            membership.Status = MemberShipStatus.Active;
+            membership.FreezeStartDate = null;
+            membership.FreezeEndDate = null;
+
+            DbContext.Set<Membership>().Update(membership);
+            return await DbContext.SaveChangesAsync() > 0;
+        }
+        public async Task AutoUnfreezeExpiredFreezesAsync()
+        {
+            var currentDate = DateTime.UtcNow;
+
+            var expiredFreezes = await DbContext.Set<Membership>()
+                .Where(m => m.Status == MemberShipStatus.Freezed && m.FreezeEndDate <= currentDate)
+                .ToListAsync();
+
+            foreach (var membership in expiredFreezes)
+            {
+                membership.Status = MemberShipStatus.Active;
+                membership.FreezeStartDate = null;
+                membership.FreezeEndDate = null;
+            }
+
+            if (expiredFreezes.Any())
+            {
+                DbContext.Set<Membership>().UpdateRange(expiredFreezes);
+                await DbContext.SaveChangesAsync();
+            }
         }
         public async Task<PaginationResponseDto<AdminMembershipDto>> GetAllActiveMembershipsForAdminAsync(int page, int pageSize)
         {
