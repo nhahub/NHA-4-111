@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trainers & Staff | Fit Core</title>
+    <link rel="stylesheet" href="/CSS/style.css">
+    <link rel="stylesheet" href="/CSS/management.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+</head>
+<body>
+
+    <div id="sidebar-container"></div>
+
+    <main class="main-content">
+        <div id="header-container"></div>
+
+        <div class="page-content">
+            <div class="page-header">
+                <div>
+                    <span class="badge">STAFF ADMINISTRATION</span>
+                    <h1>Trainers & Receptionists</h1>
+                    <p class="subtitle">Create staff profiles, set trainer working hours, and assign trainers to classes.</p>
+                </div>
+            </div>
+
+            <div id="msgBanner" class="msg-banner"></div>
+
+            <!-- Create staff profile -->
+            <div class="card">
+                <h2>Create Trainer / Receptionist Profile</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" id="staffFullName" class="text-input">
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="staffEmail" class="text-input">
+                    </div>
+                    <div class="form-group">
+                        <label>Phone Number</label>
+                        <input type="text" id="staffPhone" class="text-input">
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="staffPassword" class="text-input">
+                    </div>
+                    <div class="form-group">
+                        <label>Role</label>
+                        <select id="staffRole">
+                            <option value="Trainer">Trainer</option>
+                            <option value="Receptionist">Receptionist</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-grid" id="trainerOnlyFields">
+                    <div class="form-group">
+                        <label>Specialization</label>
+                        <input type="text" id="staffSpecialization" class="text-input" placeholder="e.g. Strength & Conditioning">
+                    </div>
+                    <div class="form-group">
+                        <label>Bio</label>
+                        <input type="text" id="staffBio" class="text-input" placeholder="Short bio">
+                    </div>
+                </div>
+                <button class="btn-primary" id="createStaffBtn">Create Profile</button>
+            </div>
+
+            <!-- Working hours -->
+            <div class="card">
+                <h2>Trainer Working Hours</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Trainer</label>
+                        <select id="workingHoursTrainerSelect"></select>
+                    </div>
+                </div>
+                <div id="workingHoursRows"></div>
+                <button class="btn-outline btn-sm" id="addWorkingHourRowBtn">+ Add Time Slot</button>
+                <br><br>
+                <button class="btn-primary" id="saveWorkingHoursBtn">Save Working Hours</button>
+            </div>
+
+            <!-- Trainers list -->
+            <div class="filters-bar">
+                <input type="text" id="searchInput" placeholder="Search trainers by name or specialization..." class="search-input">
+                <button id="applyBtn" class="btn-primary">Search</button>
+            </div>
+
+            <div class="table-container">
+                <table id="trainersTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Specialization</th>
+                            <th>Working Hours</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+                <div class="pagination" id="paginationControls"></div>
+            </div>
+        </div>
+    </main>
+
+    <script src="/JS/Components/layout.js"></script>
+    <script src="/JS/Trainers/trainers.js"></script>
+</body>
+</html>

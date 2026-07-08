@@ -7,16 +7,15 @@ using System.Threading.Tasks;
 
 namespace FitCore.DAL.Data.Models
 {
-    public class ClassSchedule : IAuditable, ISoftDelete
+    public class TrainerWorkingHour : IAuditable
     {
         public int Id { get; set; }
-        public int ClassID { get; set; }
-        public Class Class { get; set; } = null!;
+
+        public int TrainerID { get; set; }
+        public Trainer Trainer { get; set; } = null!;
+
         public DayOfWeek Day { get; set; }
         public TimeSpan StartTime { get; set; }
         public TimeSpan EndTime { get; set; }
-        public bool IsDeleted { get; set; } = false;
-        public DateTime? DeletedAt { get; set; }
-        public ICollection<ClassBooking> Bookings { get; set; } = new List<ClassBooking>();
     }
 }

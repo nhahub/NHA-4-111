@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace FitCore.DAL.Data.Models
 {
-    public class Trainer : IAuditable, ISoftDelete
+    public class Trainer : IAuditable
     {
         public int TrainerID { get; set; }
         public int UserID { get; set; }
@@ -17,9 +17,9 @@ namespace FitCore.DAL.Data.Models
         public string Specialization { get; set; } = string.Empty;
         public string Bio { get; set; } = string.Empty;
         public string WorkingHours { get; set; } = string.Empty;
-        public bool IsDeleted { get; set; } = false;
-        public DateTime? DeletedAt { get; set; }
 
         public ICollection<Class> Classes { get; set; } = new List<Class>();
+        public ICollection<TrainerWorkingHour> WorkingHoursSchedule { get; set; } = new List<TrainerWorkingHour>();
+        public ICollection<PrivateSession> PrivateSessions { get; set; } = new List<PrivateSession>();
     }
 }
