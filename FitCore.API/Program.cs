@@ -1,8 +1,12 @@
 using FitCore.API.Middlewares;
 using FitCore.BLL.Interfaces.AuditLogs;
+using FitCore.BLL.Interfaces.Classes;
+using FitCore.BLL.Interfaces.Membership;
 using FitCore.BLL.Interfaces.Notifications;
 using FitCore.BLL.Interfaces.Profile;
+using FitCore.BLL.Services;
 using FitCore.BLL.Services.AuditLogs;
+using FitCore.BLL.Services.Classes;
 using FitCore.BLL.Services.Notifications;
 using FitCore.BLL.Services.Profile;
 using FitCore.DAL.Data;
@@ -10,8 +14,6 @@ using FitCore.DAL.Data.Contexts;
 using FitCore.DAL.Interfaces;
 using Hangfire;
 using Microsoft.EntityFrameworkCore;
-using FitCore.BLL.Interfaces.Classes;
-using FitCore.BLL.Services.Classes;
 namespace FitCore.API
 {
     public class Program
@@ -36,6 +38,7 @@ namespace FitCore.API
             builder.Services.AddScoped<INotificationService, NotificationService>();
             builder.Services.AddScoped<IProfileService, ProfileService>();
             builder.Services.AddScoped<IClassService, ClassService>();
+            builder.Services.AddScoped<IMembershipService, MembershipService>();
             builder.Services.AddHttpContextAccessor();
 
 

@@ -1,5 +1,6 @@
 ﻿using FitCore.BLL.Exceptions;
 using FitCore.BLL.Interfaces;
+using FitCore.BLL.Interfaces.Membership;
 using FitCore.DAL.Data.Contexts;
 using FitCore.DAL.Data.Models;
 using FitCore.Shared.DTOs;
@@ -9,9 +10,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FitCore.BLL.Services
 {
-    public class MembershipService(FitCoreDbContext DbContext)
+    public class MembershipService(FitCoreDbContext DbContext): IMembershipService
     {
-        public async Task<MembershipDto> CreateMembershipAsync(CreateMembershipDto dto)
+        private async Task<MembershipDto> CreateMembershipAsync(CreateMembershipDto dto)
         {
             var member = await DbContext.Set<MemberProfile>().FirstOrDefaultAsync(m => m.UserID == dto.UserId);
             if (member == null) throw new KeyNotFoundException("Member profile not found.");
@@ -29,9 +30,7 @@ namespace FitCore.BLL.Services
                 if (service == null) throw new KeyNotFoundException("Gym Service not found.");
 
                 endDate = startDate.AddDays(service.DurationInDays);
-
-                if (service.Category == ServiceCategory.Class)
-                    remainingSessions = service.AllowedSessionsCount;
+                remainingSessions = service.AllowedSessionsCount;
             }
             else
             {
@@ -44,7 +43,7 @@ namespace FitCore.BLL.Services
 
             var membership = new Membership
             {
-                MemberProfileId = member.UserID, 
+                MemberProfileId = member.MemberProfileId, 
                 GymServiceId = dto.GymServiceId,
                 ClassID = dto.ClassId,
                 StartDate = startDate,
@@ -154,6 +153,7 @@ namespace FitCore.BLL.Services
                 Data = data
             };
         }
+
         public async Task GenerateMembershipsFromInvoiceAsync(int invoiceId)
         {
             var invoice = await DbContext.Set<Invoice>()
@@ -162,7 +162,7 @@ namespace FitCore.BLL.Services
 
             if (invoice == null || invoice.InvoiceStatus != InvoiceStatus.Completed)
             {
-                return; 
+                return;
             }
 
             foreach (var item in invoice.InvoiceItems)
@@ -175,7 +175,16 @@ namespace FitCore.BLL.Services
                         GymServiceId = item.ServiceID.Value,
                         IsAutoRenew = false
                     };
-
+                    await CreateMembershipAsync(createDto);
+                }
+                else if (item.ClassID.HasValue)
+                {
+                    var createDto = new CreateMembershipDto
+                    {
+                        UserId = invoice.UserID,
+                        ClassId = item.ClassID.Value,
+                        IsAutoRenew = false
+                    };
                     await CreateMembershipAsync(createDto);
                 }
             }

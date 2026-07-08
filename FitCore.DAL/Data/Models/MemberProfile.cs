@@ -12,7 +12,7 @@ namespace FitCore.DAL.Data.Models
     {
         public int UserID { get; set; }
         public User User { get; set; } = null!;
-
+        public int MemberProfileId { get; set; }
         public string QRCodeData { get; set; } = string.Empty;
         public bool IsDeleted { get; set; } = false;
         public DateTime? DeletedAt { get; set; }
