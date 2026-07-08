@@ -23,5 +23,6 @@ namespace FitCore.DAL.Data.Models
         public ICollection<Attendance> Attendances { get; set; } = new List<Attendance>();
         public ICollection<GymServiceClass> GymServiceClasses { get; set; } = new List<GymServiceClass>();
         public ICollection<Membership> Memberships { get; set; } = new List<Membership>();
+        public ICollection<InvoiceItem> InvoicesItems { get; set; } = new List<InvoiceItem>();
     }
 }
