@@ -76,7 +76,6 @@ namespace FitCore.API
                     Cron.Daily(5)
                 );
             }
-
             app.UseDefaultFiles();
             app.UseStaticFiles();
 

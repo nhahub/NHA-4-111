@@ -1,0 +1,109 @@
+﻿.
+
+
+plans-page-wrapper {
+    padding: var(--space-6) var(--space-10);
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.plans-header-text {
+    text-align: center;
+    margin-bottom: var(--space-8);
+}
+
+    .plans-header-text h2 {
+        color: var(--primary-dark);
+        font-size: var(--fs-xl);
+        font-weight: 800;
+    }
+
+    .plans-header-text p {
+        color: var(--text-muted);
+        font-size: var(--fs-md);
+        margin-top: var(--space-2);
+    }
+
+.plans-grid {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-6);
+    flex-wrap: wrap;
+}
+
+.plan-card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: var(--space-6);
+    width: 320px;
+    text-align: center;
+    box-shadow: var(--shadow-sm);
+    transition: transform var(--transition-base), box-shadow var(--transition-base);
+    position: relative; /* عشان لو هنحط Badge */
+}
+
+    .plan-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-lg);
+    }
+
+.popular-plan {
+    border-color: var(--primary-blue);
+    box-shadow: var(--shadow-md);
+}
+
+.popular-badge {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: var(--primary-blue);
+    color: #fff;
+    padding: 4px 12px;
+    border-radius: var(--radius-full);
+    font-size: var(--fs-xs);
+    font-weight: 700;
+}
+
+.plan-icon {
+    font-size: 40px;
+    color: var(--primary-blue);
+    margin-bottom: var(--space-4);
+}
+
+.plan-card h3 {
+    color: var(--text-main);
+    font-size: var(--fs-lg);
+    margin-bottom: var(--space-3);
+}
+
+.plan-price {
+    font-size: 36px;
+    font-weight: 800;
+    color: var(--primary-dark);
+    margin-bottom: var(--space-5);
+}
+
+    .plan-price span {
+        font-size: var(--fs-sm);
+        color: var(--text-muted);
+        font-weight: 500;
+    }
+
+.plan-features {
+    list-style: none;
+    text-align: left;
+    margin-bottom: var(--space-6);
+}
+
+    .plan-features li {
+        color: var(--text-main);
+        margin-bottom: var(--space-3);
+        font-size: var(--fs-base);
+    }
+
+        .plan-features li i {
+            color: var(--status-green);
+            margin-right: var(--space-2);
+        }

@@ -1,0 +1,60 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Subscription Plans - Fit Core</title>
+    <!-- في أول الصفحة (عشان نربط الـ CSS): -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.1.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/CSS/style.css">
+    <link rel="stylesheet" href="/CSS/Subscriptions/Plans.css">
+</head>
+<body data-page="billing">
+
+    <div id="sidebar-container"></div>
+
+    <div class="main-content">
+        <div id="header-container"></div>
+
+        <div class="plans-page-wrapper">
+            <div class="plans-header-text">
+                <h2>Choose Your Subscription Plan</h2>
+                <p>Select the best membership plan that fits your goals.</p>
+            </div>
+
+            <div class="plans-grid">
+
+                <div class="plan-card">
+                    <div class="plan-icon"><i class="fa-solid fa-medal"></i></div>
+                    <h3>Monthly Plan</h3>
+                    <div class="plan-price">500 <span>EGP / month</span></div>
+                    <ul class="plan-features">
+                        <li><i class="fa-solid fa-check"></i> Full Gym Access</li>
+                        <li><i class="fa-solid fa-check"></i> Locker Included</li>
+                    </ul>
+                    <button class="btn-primary w-100" onclick="subscribeToPlan(1, 10, 5, 30, 500, 'Monthly Plan')">Subscribe Now</button>
+                </div>
+
+                <div class="plan-card popular-plan">
+                    <div class="popular-badge">Most Popular</div>
+                    <div class="plan-icon"><i class="fa-solid fa-crown"></i></div>
+                    <h3>Annual Plan</h3>
+                    <div class="plan-price">4500 <span>EGP / year</span></div>
+                    <ul class="plan-features">
+                        <li><i class="fa-solid fa-check"></i> Full Gym Access</li>
+                        <li><i class="fa-solid fa-check"></i> Free Personal Trainer (1st month)</li>
+                        <li><i class="fa-solid fa-check"></i> Spa & Sauna Access</li>
+                    </ul>
+                    <button class="btn-primary w-100" onclick="subscribeToPlan(1, 10, 6, 365, 4500, 'Annual Plan')">Subscribe Now</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- في آخر الصفحة (عشان نربط الـ JS): -->
+    <script src="/JS/Components/layout.js"></script>
+
+    <script src="/JS/Subscriptions/Plans.js"></script>
+</body>
+</html>
+</html>
