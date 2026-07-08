@@ -22,6 +22,7 @@ namespace FitCore.DAL.Data.Models
         public DateTime? FreezeStartDate { get; set; }
         public DateTime? FreezeEndDate { get; set; }
         public bool IsAutoRenew { get; set; }
+        public DateTime CreatedAt { get; set; }
 
         public int? GymServiceId { get; set; } ///////////
         public GymService? GymService { get; set; }
