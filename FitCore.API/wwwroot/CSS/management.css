@@ -1,0 +1,235 @@
+﻿/* ============================================================
+management.css — shared styles for Trainers & Classes pages
+Uses design tokens from style.css (must load after it).
+============================================================ */
+
+.page-content {
+    padding: var(--space-8) var(--space-10);
+}
+
+.page-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: var(--space-6);
+    flex-wrap: wrap;
+    gap: var(--space-4);
+}
+
+.page-header h1 {
+    font-size: var(--fs-xl);
+    font-weight: 800;
+    color: var(--text-main);
+    letter-spacing: -0.02em;
+    margin: var(--space-2) 0 4px 0;
+}
+
+.page-header .subtitle {
+    color: var(--text-muted);
+    font-size: var(--fs-md);
+}
+
+.filters-bar {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-bottom: var(--space-5);
+    flex-wrap: wrap;
+}
+
+.search-input,
+.filter-select,
+.text-input {
+    height: 40px;
+    padding: 0 var(--space-4);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    background-color: var(--bg-card);
+    font-size: var(--fs-base);
+    color: var(--text-main);
+    outline: none;
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.search-input {
+    flex: 1;
+    min-width: 220px;
+}
+
+.filter-select {
+    min-width: 160px;
+    cursor: pointer;
+}
+
+.search-input:focus,
+.filter-select:focus,
+.text-input:focus {
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 3px var(--primary-blue-soft);
+}
+
+.card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    padding: var(--space-6);
+    margin-bottom: var(--space-6);
+}
+
+.card h2 {
+    font-size: var(--fs-md);
+    font-weight: 700;
+    margin-bottom: var(--space-4);
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--space-4);
+    margin-bottom: var(--space-4);
+}
+
+.form-group label {
+    display: block;
+    font-size: var(--fs-sm);
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+}
+
+.form-group .text-input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 10px var(--space-4);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    font-size: var(--fs-base);
+    font-family: inherit;
+}
+
+.schedule-row {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr 1fr auto;
+    gap: var(--space-3);
+    align-items: end;
+    margin-bottom: var(--space-3);
+}
+
+.table-container {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+table thead th {
+    text-align: left;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: var(--text-faint);
+    text-transform: uppercase;
+    padding: var(--space-4) var(--space-5);
+    background-color: var(--bg-main);
+    border-bottom: 1px solid var(--border-color);
+    white-space: nowrap;
+}
+
+table tbody tr {
+    border-bottom: 1px solid var(--border-color);
+    transition: background-color var(--transition-fast);
+}
+
+table tbody tr:last-child {
+    border-bottom: none;
+}
+
+table tbody tr:hover {
+    background-color: var(--bg-hover);
+}
+
+table tbody td {
+    padding: var(--space-4) var(--space-5);
+    font-size: var(--fs-base);
+    color: var(--text-main);
+    vertical-align: middle;
+}
+
+.pill {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: var(--radius-full);
+    font-size: var(--fs-xs);
+    font-weight: 600;
+}
+
+.pill.active { background-color: var(--status-green-bg); color: var(--status-green); }
+.pill.inactive { background-color: var(--status-gray-bg); color: var(--status-gray); }
+.pill.booked { background-color: var(--status-blue-bg); color: var(--status-blue); }
+.pill.cancelled { background-color: var(--status-red-bg); color: var(--status-red); }
+.pill.full { background-color: var(--status-yellow-bg); color: var(--status-yellow); }
+
+.state-row td {
+    text-align: center;
+    padding: var(--space-10) var(--space-5) !important;
+    color: var(--text-muted);
+    font-size: var(--fs-md);
+}
+
+.state-row.is-error td {
+    color: var(--status-red);
+}
+
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    padding: var(--space-5);
+    border-top: 1px solid var(--border-color);
+}
+
+.pagination button {
+    min-width: 34px;
+    height: 34px;
+    padding: 0 8px;
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-card);
+    color: var(--text-muted);
+    border-radius: var(--radius-sm);
+    font-size: var(--fs-base);
+    font-weight: 500;
+}
+
+.pagination button.active {
+    background-color: var(--primary-blue);
+    border-color: var(--primary-blue);
+    color: #fff;
+}
+
+.msg-banner {
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-sm);
+    margin-bottom: var(--space-4);
+    font-size: var(--fs-sm);
+    font-weight: 500;
+    display: none;
+}
+
+.msg-banner.show { display: block; }
+.msg-banner.success { background-color: var(--status-green-bg); color: var(--status-green); }
+.msg-banner.error { background-color: var(--status-red-bg); color: var(--status-red); }
+
+.btn-sm {
+    height: 32px;
+    padding: 0 var(--space-3);
+    font-size: var(--fs-sm);
+}

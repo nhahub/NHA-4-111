@@ -20,5 +20,7 @@ namespace FitCore.DAL.Data.Models
         public Membership? Membership { get; set; }
 
         public ICollection<Attendance> Attendances { get; set; } = new List<Attendance>();
+        public ICollection<ClassBooking> ClassBookings { get; set; } = new List<ClassBooking>();
+        public ICollection<PrivateSession> PrivateSessions { get; set; } = new List<PrivateSession>();
     }
 }

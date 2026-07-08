@@ -10,7 +10,8 @@ using FitCore.DAL.Data.Contexts;
 using FitCore.DAL.Interfaces;
 using Hangfire;
 using Microsoft.EntityFrameworkCore;
-
+using FitCore.BLL.Interfaces.Classes;
+using FitCore.BLL.Services.Classes;
 namespace FitCore.API
 {
     public class Program
@@ -20,6 +21,12 @@ namespace FitCore.API
             var builder = WebApplication.CreateBuilder(args);
 
             // 1. Connection String & DbContext
+            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+            Console.WriteLine("=================================");
+            Console.WriteLine(connectionString ?? "NULL");
+            Console.WriteLine("=================================");
+
             builder.Services.AddDbContext<FitCoreDbContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -28,6 +35,7 @@ namespace FitCore.API
             builder.Services.AddScoped<IAuditLogsService, AuditLogService>();
             builder.Services.AddScoped<INotificationService, NotificationService>();
             builder.Services.AddScoped<IProfileService, ProfileService>();
+            builder.Services.AddScoped<IClassService, ClassService>();
             builder.Services.AddHttpContextAccessor();
 
 
@@ -43,6 +51,17 @@ namespace FitCore.API
 
             // Add services to the container.
             builder.Services.AddControllers();
+
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowFrontend", policy =>
+                {
+                    policy
+                        .AllowAnyOrigin()
+                        .AllowAnyHeader()
+                        .AllowAnyMethod();
+                });
+            });
 
             // OpenAPI & Swagger Configuration
             builder.Services.AddOpenApi();
@@ -87,6 +106,8 @@ namespace FitCore.API
             }
             app.UseHangfireDashboard("/hangfire");
             app.UseHttpsRedirection();
+
+            app.UseCors("AllowFrontend");
 
             app.UseAuthentication(); 
             app.UseAuthorization();            
