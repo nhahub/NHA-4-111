@@ -29,7 +29,9 @@ namespace FitCore.API
             builder.Services.AddScoped<INotificationService, NotificationService>();
             builder.Services.AddScoped<IProfileService, ProfileService>();
             builder.Services.AddHttpContextAccessor();
-
+            // Add Checkout and Subscription services
+            builder.Services.AddScoped<FitCore.BLL.Services.CheckoutService>();
+            builder.Services.AddScoped<FitCore.BLL.Services.payment.SubscriptionPaymentService>();
 
             #region Added Hangfire
 

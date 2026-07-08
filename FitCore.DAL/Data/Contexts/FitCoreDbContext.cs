@@ -204,5 +204,9 @@ namespace FitCore.DAL.Data.Contexts
             }
 
         }
+        protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+        {
+            configurationBuilder.Properties<decimal>().HavePrecision(18, 2);
+        }
     }
 }
