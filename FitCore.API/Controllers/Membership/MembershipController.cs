@@ -51,9 +51,10 @@ namespace FitCore.API.Controllers
         {
             try
             {
-                int userId = GetUserIdFromToken();
-                int profileId = await GetMemberProfileIdAsync(userId);
-                var memberships = await _membershipService.GetMemberMembershipsAsync(profileId);
+                //int userId = GetUserIdFromToken();
+                int userId = 2;
+                //int profileId = await GetMemberProfileIdAsync(userId);
+                var memberships = await _membershipService.GetMemberMembershipsAsync(userId);
 
                 return Ok(memberships);
             }
@@ -92,6 +93,24 @@ namespace FitCore.API.Controllers
                     return Ok(new { message = $"Membership frozen successfully for {freezeDays} days." });
 
                 return BadRequest(new { message = "Failed to freeze membership." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpPost("{id}/unfreeze")]
+        public async Task<IActionResult> UnfreezeMembership(int id)
+        {
+            try
+            {
+                var success = await _membershipService.UnfreezeMembershipAsync(id);
+
+                if (success)
+                    return Ok(new { message = "Membership unfrozen successfully." });
+
+                return BadRequest(new { message = "Failed to unfreeze membership." });
             }
             catch (Exception ex)
             {

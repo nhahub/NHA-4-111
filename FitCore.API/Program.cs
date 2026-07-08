@@ -79,6 +79,7 @@ namespace FitCore.API
             {
                 var recurringJobManager = scope.ServiceProvider.GetRequiredService<IRecurringJobManager>();
                 var notificationService = scope.ServiceProvider.GetRequiredService<INotificationService>();
+                var membershipService = scope.ServiceProvider.GetRequiredService<IMembershipService>();
 
                 recurringJobManager.AddOrUpdate(
                     "check-MemberShip-expiration",
@@ -94,6 +95,11 @@ namespace FitCore.API
                     "check-Near-Expiry-Products",
                     () => notificationService.ExpiryProductsNotification(),
                     Cron.Daily(5)
+                );
+                recurringJobManager.AddOrUpdate(
+                    "check-Froze-MemberShips",
+                    () => membershipService.AutoUnfreezeExpiredFreezesAsync(),
+                    Cron.Daily(6)
                 );
             }
 

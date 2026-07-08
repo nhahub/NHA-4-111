@@ -63,7 +63,7 @@ namespace FitCore.DAL.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Attendances");
+                    b.ToTable("Attendances", (string)null);
                 });
 
             modelBuilder.Entity("FitCore.DAL.Data.Models.AuditLog", b =>
@@ -109,7 +109,7 @@ namespace FitCore.DAL.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("AuditLogs");
+                    b.ToTable("AuditLogs", (string)null);
                 });
 
             modelBuilder.Entity("FitCore.DAL.Data.Models.Cart", b =>
@@ -136,7 +136,7 @@ namespace FitCore.DAL.Migrations
                     b.HasIndex("UserID")
                         .IsUnique();
 
-                    b.ToTable("Cart");
+                    b.ToTable("Cart", (string)null);
                 });
 
             modelBuilder.Entity("FitCore.DAL.Data.Models.CartItem", b =>
@@ -172,7 +172,7 @@ namespace FitCore.DAL.Migrations
 
                     b.HasIndex("ProductID");
 
-                    b.ToTable("CartItem");
+                    b.ToTable("CartItem", (string)null);
                 });
 
             modelBuilder.Entity("FitCore.DAL.Data.Models.Category", b =>
@@ -197,7 +197,7 @@ namespace FitCore.DAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Categories");
+                    b.ToTable("Categories", (string)null);
                 });
 
             modelBuilder.Entity("FitCore.DAL.Data.Models.Class", b =>
@@ -231,7 +231,7 @@ namespace FitCore.DAL.Migrations
 
                     b.HasIndex("TrainerID");
 
-                    b.ToTable("Classes");
+                    b.ToTable("Classes", (string)null);
                 });
 
             modelBuilder.Entity("FitCore.DAL.Data.Models.ClassBooking", b =>
@@ -265,7 +265,7 @@ namespace FitCore.DAL.Migrations
 
                     b.HasIndex("MemberUserId");
 
-                    b.ToTable("ClassBooking");
+                    b.ToTable("ClassBooking", (string)null);
                 });
 
             modelBuilder.Entity("FitCore.DAL.Data.Models.ClassSchedule", b =>
@@ -300,7 +300,7 @@ namespace FitCore.DAL.Migrations
 
                     b.HasIndex("ClassID");
 
-                    b.ToTable("ClassSchedule");
+                    b.ToTable("ClassSchedule", (string)null);
                 });
 
             modelBuilder.Entity("FitCore.DAL.Data.Models.GymService", b =>
@@ -341,7 +341,7 @@ namespace FitCore.DAL.Migrations
 
                     b.HasKey("ServiceID");
 
-                    b.ToTable("GymService");
+                    b.ToTable("GymService", (string)null);
                 });
 
             modelBuilder.Entity("FitCore.DAL.Data.Models.GymServiceClass", b =>
@@ -367,7 +367,7 @@ namespace FitCore.DAL.Migrations
 
                     b.HasIndex("ClassId");
 
-                    b.ToTable("GymServiceClass");
+                    b.ToTable("GymServiceClass", (string)null);
                 });
 
             modelBuilder.Entity("FitCore.DAL.Data.Models.Inventory", b =>
@@ -405,7 +405,7 @@ namespace FitCore.DAL.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("Inventories");
+                    b.ToTable("Inventories", (string)null);
                 });
 
             modelBuilder.Entity("FitCore.DAL.Data.Models.InventoryTransaction", b =>
@@ -450,7 +450,7 @@ namespace FitCore.DAL.Migrations
 
                     b.HasIndex("UserID");
 
-                    b.ToTable("InventoryTransactions");
+                    b.ToTable("InventoryTransactions", (string)null);
                 });
 
             modelBuilder.Entity("FitCore.DAL.Data.Models.InventoryTransactionItem", b =>
@@ -496,7 +496,7 @@ namespace FitCore.DAL.Migrations
 
                     b.HasIndex("TransactionID");
 
-                    b.ToTable("InventoryTransactionsItems");
+                    b.ToTable("InventoryTransactionsItems", (string)null);
                 });
 
             modelBuilder.Entity("FitCore.DAL.Data.Models.Invoice", b =>
@@ -539,7 +539,7 @@ namespace FitCore.DAL.Migrations
 
                     b.HasIndex("UserID");
 
-                    b.ToTable("Invoices");
+                    b.ToTable("Invoices", (string)null);
                 });
 
             modelBuilder.Entity("FitCore.DAL.Data.Models.InvoiceItem", b =>
@@ -600,7 +600,7 @@ namespace FitCore.DAL.Migrations
 
                     b.HasIndex("ServiceID");
 
-                    b.ToTable("InvoiceItems", t =>
+                    b.ToTable("InvoiceItems", null, t =>
                         {
                             t.HasCheckConstraint("CK_InvoiceItem_TypeAllowed", "(CASE WHEN ProductID IS NOT NULL THEN 1 ELSE 0 END +  CASE WHEN ServiceID IS NOT NULL THEN 1 ELSE 0 END +  CASE WHEN ClassID IS NOT NULL THEN 1 ELSE 0 END) = 1");
                         });
@@ -634,7 +634,7 @@ namespace FitCore.DAL.Migrations
                     b.HasIndex("MemberProfileId")
                         .IsUnique();
 
-                    b.ToTable("MemberProfiles");
+                    b.ToTable("MemberProfiles", (string)null);
                 });
 
             modelBuilder.Entity("FitCore.DAL.Data.Models.Membership", b =>
@@ -699,7 +699,7 @@ namespace FitCore.DAL.Migrations
 
                     b.HasIndex("UserID");
 
-                    b.ToTable("Memberships");
+                    b.ToTable("Memberships", (string)null);
                 });
 
             modelBuilder.Entity("FitCore.DAL.Data.Models.Notification", b =>
@@ -743,7 +743,7 @@ namespace FitCore.DAL.Migrations
 
                     b.HasIndex("UserID");
 
-                    b.ToTable("Notifications");
+                    b.ToTable("Notifications", (string)null);
                 });
 
             modelBuilder.Entity("FitCore.DAL.Data.Models.Payment", b =>
@@ -789,7 +789,7 @@ namespace FitCore.DAL.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Payments");
+                    b.ToTable("Payments", (string)null);
                 });
 
             modelBuilder.Entity("FitCore.DAL.Data.Models.PrivateSession", b =>
@@ -834,7 +834,7 @@ namespace FitCore.DAL.Migrations
 
                     b.HasIndex("TrainerID");
 
-                    b.ToTable("PrivateSession");
+                    b.ToTable("PrivateSession", (string)null);
                 });
 
             modelBuilder.Entity("FitCore.DAL.Data.Models.Product", b =>
@@ -884,7 +884,7 @@ namespace FitCore.DAL.Migrations
 
                     b.HasIndex("SupplierID");
 
-                    b.ToTable("Products");
+                    b.ToTable("Products", (string)null);
                 });
 
             modelBuilder.Entity("FitCore.DAL.Data.Models.Supplier", b =>
@@ -915,7 +915,7 @@ namespace FitCore.DAL.Migrations
 
                     b.HasKey("SupplierID");
 
-                    b.ToTable("Suppliers");
+                    b.ToTable("Suppliers", (string)null);
                 });
 
             modelBuilder.Entity("FitCore.DAL.Data.Models.Trainer", b =>
@@ -949,7 +949,7 @@ namespace FitCore.DAL.Migrations
                     b.HasIndex("UserID")
                         .IsUnique();
 
-                    b.ToTable("Trainers");
+                    b.ToTable("Trainers", (string)null);
                 });
 
             modelBuilder.Entity("FitCore.DAL.Data.Models.TrainerWorkingHour", b =>
@@ -976,7 +976,7 @@ namespace FitCore.DAL.Migrations
 
                     b.HasIndex("TrainerID");
 
-                    b.ToTable("TrainerWorkingHour");
+                    b.ToTable("TrainerWorkingHour", (string)null);
                 });
 
             modelBuilder.Entity("FitCore.DAL.Data.Models.User", b =>
@@ -1022,7 +1022,7 @@ namespace FitCore.DAL.Migrations
 
                     b.HasKey("UserID");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("FitCore.DAL.Data.Models.UserRole", b =>
@@ -1052,7 +1052,7 @@ namespace FitCore.DAL.Migrations
 
                     b.HasIndex("UserID");
 
-                    b.ToTable("UserRoles");
+                    b.ToTable("UserRoles", (string)null);
                 });
 
             modelBuilder.Entity("FitCore.DAL.Data.Models.Attendance", b =>

@@ -15,6 +15,8 @@ namespace FitCore.BLL.Interfaces.Membership
         public Task<bool> FreezeMembershipAsync(int membershipId, int freezeDays);
         public Task<PaginationResponseDto<AdminMembershipDto>> GetAllActiveMembershipsForAdminAsync(int page, int pageSize);
         public Task GenerateMembershipsFromInvoiceAsync(int invoiceId);
+        public Task<bool> UnfreezeMembershipAsync(int membershipId);
+        public Task AutoUnfreezeExpiredFreezesAsync();
 
     }
 }
