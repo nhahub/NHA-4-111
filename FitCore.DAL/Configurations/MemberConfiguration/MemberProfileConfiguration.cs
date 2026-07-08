@@ -11,6 +11,12 @@ namespace FitCore.DAL.Configurations.MemberConfiguration
         {
             builder.HasKey(m => m.UserID);
 
+            builder.Property(m => m.MemberProfileId)
+           .ValueGeneratedOnAdd();
+
+            builder.HasIndex(m => m.MemberProfileId)
+                   .IsUnique();
+
             builder.HasOne(m => m.User)
                 .WithOne(u => u.MemberProfile)
                 .HasForeignKey<MemberProfile>(m => m.UserID)
