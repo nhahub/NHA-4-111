@@ -23,12 +23,11 @@ namespace FitCore.DAL.Configurations.MemberConfiguration
                 .WithMany(mp => mp.Attendances)
                 .HasForeignKey(a => a.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
-
-            builder.HasOne(a => a.Class)
-                .WithMany(c => c.Attendances)
-                .HasForeignKey(a => a.ClassID)
-                .OnDelete(DeleteBehavior.Restrict)
-                .IsRequired(false);
+            
+            builder.HasOne(a => a.Membership)
+                   .WithMany(m => m.Attendances)
+                   .HasForeignKey(a => a.MembershipID)
+                   .OnDelete(DeleteBehavior.SetNull);
         }
     }
 }

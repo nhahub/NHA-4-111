@@ -14,8 +14,8 @@ namespace FitCore.DAL.Data.Models
         public int UserId { get; set; }
         public MemberProfile MemberProfile { get; set; } = null!;
 
-        public int? ClassID { get; set; }
-        public Class? Class { get; set; }
+        public int? MembershipID { get; set; }
+        public Membership? Membership { get; set; }
 
         public AttendenceType Type { get; set; }
         public DateTime CheckInTime { get; set; }
