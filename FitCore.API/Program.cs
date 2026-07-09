@@ -44,7 +44,7 @@ namespace FitCore.API
             builder.Services.AddScoped<IClassService, ClassService>();
             builder.Services.AddScoped<ITrainerService, TrainerService>();
             builder.Services.AddScoped<IPrivateSessionService, PrivateSessionService>();
-            builder.Services.AddHttpContextAccessor();
+            builder.Services.AddHttpContextAccessor(); 
 
 
             #region Added Hangfire
