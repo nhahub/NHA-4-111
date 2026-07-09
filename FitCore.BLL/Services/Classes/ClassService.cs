@@ -6,6 +6,7 @@ using FitCore.Shared.DTOs;
 using FitCore.Shared.DTOs.Classes;
 using FitCore.Shared.Enums;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace FitCore.BLL.Services.Classes
 {
@@ -15,39 +16,19 @@ namespace FitCore.BLL.Services.Classes
 
         public async Task<ClassDto> CreateClassAsync(CreateClassDto dto)
         {
-            if (dto == null)
-            {
-                throw new ArgumentNullException(nameof(dto), "Class fields are empty, please fill required fields");
-            }
+            ArgumentNullException.ThrowIfNull(dto);
 
-            if (string.IsNullOrWhiteSpace(dto.ClassName))
-            {
-                throw new ValidationException("Class name is required.");
-            }
-
-            if (dto.Capacity <= 0)
-            {
-                throw new ValidationException("Capacity must be greater than zero.");
-            }
-
-            if (!dto.Schedules.Any())
-            {
-                throw new ValidationException("At least one time slot must be defined for the class.");
-            }
+            if (string.IsNullOrWhiteSpace(dto.ClassName)) throw new ValidationException("Class name is required.");
+            if (dto.Capacity <= 0) throw new ValidationException("Capacity must be greater than zero.");
+            if (dto.Schedules == null || !dto.Schedules.Any()) throw new ValidationException("At least one schedule is required.");
 
             foreach (var slot in dto.Schedules)
             {
-                if (slot.EndTime <= slot.StartTime)
-                {
-                    throw new ValidationException("Schedule end time must be after start time.");
-                }
+                if (slot.EndTime <= slot.StartTime) throw new ValidationException("End time must be after start time.");
             }
 
             var trainer = await DbContext.Set<Trainer>().FirstOrDefaultAsync(t => t.TrainerID == dto.TrainerID);
-            if (trainer == null)
-            {
-                throw new KeyNotFoundException("No trainer found with this id.");
-            }
+            if (trainer == null) throw new KeyNotFoundException("No trainer found with this id.");
 
             var gymClass = new Class
             {
@@ -56,12 +37,7 @@ namespace FitCore.BLL.Services.Classes
                 Capacity = dto.Capacity,
                 TrainerID = dto.TrainerID,
                 Status = ClassStatus.Active,
-                Schedules = dto.Schedules.Select(s => new ClassSchedule
-                {
-                    Day = s.Day,
-                    StartTime = s.StartTime,
-                    EndTime = s.EndTime,
-                }).ToList()
+                Schedules = dto.Schedules.Select(s => new ClassSchedule { Day = s.Day, StartTime = s.StartTime, EndTime = s.EndTime }).ToList()
             };
 
             await DbContext.Set<Class>().AddAsync(gymClass);
@@ -132,11 +108,7 @@ namespace FitCore.BLL.Services.Classes
                 .Include(c => c.Schedules)
                 .FirstOrDefaultAsync(c => c.ClassID == classId);
 
-            if (gymClass == null)
-            {
-                throw new KeyNotFoundException("No class found with this id.");
-            }
-
+            if (gymClass == null) throw new KeyNotFoundException("No class found with this id.");
             return MapToDto(gymClass, gymClass.Trainer);
         }
 
@@ -260,7 +232,7 @@ namespace FitCore.BLL.Services.Classes
             var member = await DbContext.Set<MemberProfile>().FirstOrDefaultAsync(m => m.UserID == memberUserId);
             if (member == null)
             {
-                throw new KeyNotFoundException("No member profile found for this user.");
+                throw new BusinessRuleException($"No member profile found for user id {memberUserId}.");
             }
 
             var schedule = await DbContext.Set<ClassSchedule>()

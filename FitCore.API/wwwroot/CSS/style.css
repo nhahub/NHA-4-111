@@ -94,6 +94,13 @@ button {
     cursor: pointer;
 }
 
+.container {
+    max-width: 1180px;
+    margin-inline: auto;
+}
+.primary-dark {
+    color: var(--primary-dark);
+}
 /* ============================================================
    Sidebar
 ============================================================ */

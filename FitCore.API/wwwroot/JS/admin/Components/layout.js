@@ -25,7 +25,7 @@ function setActiveSidebarLink() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-    fetch('/HTML/Components/sidebar.html')
+    fetch('/HTML/admin/Components/sidebar.html')
         .then(response => response.text())
         .then(html => {
             document.getElementById('sidebar-container').innerHTML = html;
@@ -34,7 +34,7 @@ document.addEventListener("DOMContentLoaded", () => {
         .catch(error => console.error('Error loading sidebar:', error));
 
     // بنستدعي الهيدر، ولما يخلص (then) بنشغل الكود بتاعنا
-    loadComponent('header-container', '/HTML/Components/header.html').then(() => {
+    loadComponent('header-container', '/HTML/admin/Components/header.html').then(() => {
 
         // 1. تشغيل نظام الإشعارات
         if (typeof initNotificationSystem === 'function') {
