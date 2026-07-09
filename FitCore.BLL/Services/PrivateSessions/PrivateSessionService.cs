@@ -12,32 +12,16 @@ namespace FitCore.BLL.Services.PrivateSessions
     {
         public async Task<PrivateSessionDto> CreatePrivateSessionAsync(CreatePrivateSessionDto dto)
         {
-            if (dto == null)
-            {
-                throw new ArgumentNullException(nameof(dto), "Private session fields are empty, please fill required fields");
-            }
+            ArgumentNullException.ThrowIfNull(dto);
 
-            if (dto.EndTime <= dto.StartTime)
-            {
-                throw new ValidationException("End time must be after start time.");
-            }
-
-            if (dto.SessionDate.Date < DateTime.UtcNow.Date)
-            {
-                throw new BusinessRuleException("Cannot schedule a private session in the past.");
-            }
+            if (dto.EndTime <= dto.StartTime) throw new ValidationException("End time must be after start time.");
+            if (dto.SessionDate.Date < DateTime.UtcNow.Date) throw new BusinessRuleException("Cannot schedule in the past.");
 
             var trainer = await DbContext.Set<Trainer>().Include(t => t.User).FirstOrDefaultAsync(t => t.TrainerID == dto.TrainerID);
-            if (trainer == null)
-            {
-                throw new KeyNotFoundException("No trainer found with this id.");
-            }
+            if (trainer == null) throw new KeyNotFoundException("No trainer found with this id.");
 
             var member = await DbContext.Set<MemberProfile>().Include(m => m.User).FirstOrDefaultAsync(m => m.UserID == dto.MemberUserId);
-            if (member == null)
-            {
-                throw new KeyNotFoundException("No member profile found for this user.");
-            }
+            if (member == null) throw new KeyNotFoundException("No member profile found for this user.");
 
             await EnsureTrainerAvailableAsync(dto.TrainerID, dto.SessionDate.Date, dto.StartTime, dto.EndTime, null);
 
@@ -48,9 +32,8 @@ namespace FitCore.BLL.Services.PrivateSessions
                 SessionDate = dto.SessionDate.Date,
                 StartTime = dto.StartTime,
                 EndTime = dto.EndTime,
-                Notes = dto.Notes,
                 Status = PrivateSessionStatus.Scheduled,
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = DateTime.UtcNow
             };
 
             await DbContext.Set<PrivateSession>().AddAsync(session);

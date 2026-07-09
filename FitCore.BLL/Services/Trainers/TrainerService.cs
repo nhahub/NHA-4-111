@@ -15,63 +15,38 @@ namespace FitCore.BLL.Services.Trainers
     {
         public async Task<TrainerDto> CreateStaffAsync(CreateStaffDto dto)
         {
-            if (dto == null)
-            {
-                throw new ArgumentNullException(nameof(dto), "Staff fields are empty, please fill required fields");
-            }
+            ArgumentNullException.ThrowIfNull(dto);
 
             if (dto.Role != UserRoles.Trainer && dto.Role != UserRoles.Receptionist)
-            {
-                throw new BusinessRuleException("Only Trainer or Receptionist profiles can be created here.");
-            }
+                throw new BusinessRuleException("Only Trainer or Receptionist roles are allowed.");
 
-            if (string.IsNullOrWhiteSpace(dto.FullName) || string.IsNullOrWhiteSpace(dto.Email) || string.IsNullOrWhiteSpace(dto.Password))
-            {
-                throw new ValidationException("Full name, email and password are required.");
-            }
+            if (string.IsNullOrWhiteSpace(dto.FullName) || string.IsNullOrWhiteSpace(dto.Email))
+                throw new ValidationException("Full name and email are required.");
 
-            var emailExists = await DbContext.Users.AnyAsync(u => u.Email == dto.Email);
-            if (emailExists)
-            {
-                throw new BusinessRuleException("A user with this email already exists.");
-            }
+            if (await DbContext.Users.AnyAsync(u => u.Email == dto.Email))
+                throw new BusinessRuleException("Email already exists.");
 
             var user = new User
             {
                 FullName = dto.FullName,
                 Email = dto.Email,
-                PhoneNumber = dto.PhoneNumber,
                 PasswordHash = HashPassword(dto.Password),
                 Status = UserStatus.Active,
-                JoinDate = DateTime.UtcNow,
+                JoinDate = DateTime.UtcNow
             };
 
             user.UserRoles.Add(new UserRole { Role = dto.Role });
-
             if (dto.Role == UserRoles.Trainer)
             {
-                user.Trainer = new Trainer
-                {
-                    Specialization = dto.Specialization,
-                    Bio = dto.Bio,
-                };
+                user.Trainer = new Trainer { Specialization = dto.Specialization, Bio = dto.Bio };
             }
 
             await DbContext.Users.AddAsync(user);
             await DbContext.SaveChangesAsync();
 
-            if (dto.Role == UserRoles.Receptionist)
-            {
-                return new TrainerDto
-                {
-                    UserID = user.UserID,
-                    FullName = user.FullName,
-                    Email = user.Email,
-                    PhoneNumber = user.PhoneNumber,
-                };
-            }
-
-            return MapToDto(user.Trainer!, user);
+            return dto.Role == UserRoles.Trainer
+                ? MapToDto(user.Trainer!, user)
+                : new TrainerDto { UserID = user.UserID, FullName = user.FullName, Email = user.Email };
         }
 
         public async Task<PaginationResponseDto<TrainerDto>> GetAllTrainersAsync(int page, int pageSize)
