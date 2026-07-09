@@ -52,8 +52,15 @@ namespace FitCore.DAL.Configurations.InvoiceConfiguration
                    .OnDelete(DeleteBehavior.SetNull)
                    .IsRequired(false);
 
-            builder.ToTable(t => t.HasCheckConstraint("CK_InvoiceItem_OnlyOneTypeAllowed",
-                "(ProductID IS NOT NULL AND ServiceID IS NULL) OR (ProductID IS NULL AND ServiceID IS NOT NULL)"));
+            builder.HasOne(i => i.Class)
+           .WithMany(i => i.InvoicesItems)
+           .HasForeignKey(i => i.ClassID)
+           .OnDelete(DeleteBehavior.Restrict);
+
+            builder.ToTable(t => t.HasCheckConstraint("CK_InvoiceItem_TypeAllowed",
+                "(CASE WHEN ProductID IS NOT NULL THEN 1 ELSE 0 END + " +
+                " CASE WHEN ServiceID IS NOT NULL THEN 1 ELSE 0 END + " +
+                " CASE WHEN ClassID IS NOT NULL THEN 1 ELSE 0 END) = 1"));
         }
     }
 }

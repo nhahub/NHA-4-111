@@ -19,6 +19,8 @@ namespace FitCore.DAL.Data.Models
 
         public int? ServiceID { get; set; }
         public GymService? GymService { get; set; }
+        public int? ClassID { get; set; }
+        public Class? Class { get; set; }
         public string ItemName { get; set; } = string.Empty;
         public int Quantity { get; set; }// 1 if service
         public decimal LineTotal { get; set; }

@@ -3,9 +3,10 @@
     const saveBtn = document.getElementById("saveBtn");
     const goBackBtn = document.getElementById("goBackBtn");
     const errorContainer = document.getElementById("errorContainer");
-
-    const isTrainerCheck = document.getElementById("isTrainerCheck");
     const trainerSection = document.getElementById("trainerSection");
+
+    // متغير هنحفظ فيه حالة اليوزر (هل هو مدرب ولا لأ) بناءً على الباك إند
+    let isUserTrainer = false;
 
     async function loadCurrentProfileData() {
         try {
@@ -14,14 +15,17 @@
             if (response.ok) {
                 const data = await response.json();
 
+                // ملء البيانات الأساسية
                 document.getElementById("fullName").value = data.fullName || data.FullName || '';
                 document.getElementById("email").value = data.email || data.Email || '';
                 document.getElementById("phoneNumber").value = data.phoneNumber || data.PhoneNumber || '';
 
+                // هنا السيستم بيتحقق: لو الباك إند باعت TrainerDto، يبقى ده مدرب
                 const trainerData = data.trainerDto || data.TrainerDto;
-                if (trainerData) {
-                    isTrainerCheck.checked = true;
-                    trainerSection.classList.remove("hidden");
+
+                if (trainerData != null) {
+                    isUserTrainer = true; // نحدث المتغير
+                    trainerSection.classList.remove("hidden"); // نظهر خانات المدرب
 
                     document.getElementById("specialization").value = trainerData.specialization || trainerData.Specialization || '';
                     document.getElementById("workingHours").value = trainerData.workingHours || trainerData.WorkingHours || '';
@@ -41,14 +45,6 @@
         window.history.back();
     });
 
-    isTrainerCheck.addEventListener("change", (e) => {
-        if (e.target.checked) {
-            trainerSection.classList.remove("hidden");
-        } else {
-            trainerSection.classList.add("hidden");
-        }
-    });
-
     form.addEventListener("submit", async (e) => {
         e.preventDefault();
 
@@ -59,10 +55,11 @@
             fullName: document.getElementById("fullName").value.trim(),
             email: document.getElementById("email").value.trim(),
             phoneNumber: document.getElementById("phoneNumber").value.trim(),
-            trainerDto: null 
+            trainerDto: null
         };
 
-        if (isTrainerCheck.checked) {
+        // لو المتغير ده بـ true (يعني هو أصلاً مدرب)، نبعت بياناته الجديدة
+        if (isUserTrainer) {
             payload.trainerDto = {
                 specialization: document.getElementById("specialization").value.trim(),
                 workingHours: document.getElementById("workingHours").value.trim(),

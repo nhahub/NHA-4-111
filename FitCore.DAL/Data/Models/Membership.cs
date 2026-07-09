@@ -22,10 +22,18 @@ namespace FitCore.DAL.Data.Models
         public DateTime? FreezeStartDate { get; set; }
         public DateTime? FreezeEndDate { get; set; }
         public bool IsAutoRenew { get; set; }
+        public DateTime CreatedAt { get; set; }
 
-        public int GymServiceId { get; set; }
+        public int? GymServiceId { get; set; } ///////////
         public GymService? GymService { get; set; }
         public bool IsDeleted { get; set; } = false;
         public DateTime? DeletedAt { get; set; }
+
+        public int? ClassID { get; set; }
+        public Class? Class { get; set; }
+
+        // ✅ التعديل التاني: رصيد الحصص المتبقية
+        public int? RemainingSessions { get; set; }
+        public ICollection<Attendance> Attendances { get; set; } = new List<Attendance>();
     }
 }

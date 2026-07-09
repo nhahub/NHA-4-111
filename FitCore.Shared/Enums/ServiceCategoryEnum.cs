@@ -6,5 +6,5 @@ using System.Threading.Tasks;
 
 namespace FitCore.Shared.Enums
 {
-    public enum ServiceCategory { Membership, Class, Package }
+    public enum ServiceCategory { Membership, Package }
 }

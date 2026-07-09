@@ -17,9 +17,22 @@ namespace FitCore.DAL.Configurations
             builder.HasKey(x => x.MembershipID);
 
             builder.HasOne(m => m.MemberProfile)
-                   .WithOne(p => p.Membership)
-                   .HasForeignKey<Membership>(m => m.MemberProfileId)
-                   .OnDelete(DeleteBehavior.Cascade); 
+                   .WithMany(mp => mp.Memberships)
+                   .HasForeignKey(m => m.MemberProfileId)
+                   .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasOne(m => m.GymService)
+                   .WithMany(g => g.Memberships)
+                   .HasForeignKey(m => m.GymServiceId)
+                   .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasOne(m => m.Class)
+                   .WithMany(c => c.Memberships)
+                   .HasForeignKey(m => m.ClassID)
+                   .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Property(m => m.RemainingSessions)
+                   .IsRequired(false); 
         }
     }
 }

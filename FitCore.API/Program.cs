@@ -1,9 +1,11 @@
 using FitCore.API.Middlewares;
 using FitCore.BLL.Interfaces.AuditLogs;
 using FitCore.BLL.Interfaces.Classes;
+using FitCore.BLL.Interfaces.Membership;
 using FitCore.BLL.Interfaces.Notifications;
 using FitCore.BLL.Interfaces.PrivateSessions;
 using FitCore.BLL.Interfaces.Profile;
+using FitCore.BLL.Services;
 using FitCore.BLL.Interfaces.Trainers;
 using FitCore.BLL.Interfaces.Trainers;
 using FitCore.BLL.Services.AuditLogs;
@@ -45,6 +47,8 @@ namespace FitCore.API
             builder.Services.AddScoped<ITrainerService, TrainerService>();
             builder.Services.AddScoped<IPrivateSessionService, PrivateSessionService>();
             builder.Services.AddHttpContextAccessor(); 
+            builder.Services.AddScoped<IMembershipService, MembershipService>();
+            builder.Services.AddHttpContextAccessor();
 
 
             #region Added Hangfire
@@ -84,6 +88,7 @@ namespace FitCore.API
             {
                 var recurringJobManager = scope.ServiceProvider.GetRequiredService<IRecurringJobManager>();
                 var notificationService = scope.ServiceProvider.GetRequiredService<INotificationService>();
+                var membershipService = scope.ServiceProvider.GetRequiredService<IMembershipService>();
 
                 recurringJobManager.AddOrUpdate(
                     "check-MemberShip-expiration",
@@ -99,6 +104,11 @@ namespace FitCore.API
                     "check-Near-Expiry-Products",
                     () => notificationService.ExpiryProductsNotification(),
                     Cron.Daily(5)
+                );
+                recurringJobManager.AddOrUpdate(
+                    "check-Froze-MemberShips",
+                    () => membershipService.AutoUnfreezeExpiredFreezesAsync(),
+                    Cron.Daily(6)
                 );
             }
 
