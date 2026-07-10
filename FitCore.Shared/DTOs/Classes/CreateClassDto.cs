@@ -8,6 +8,7 @@ namespace FitCore.Shared.DTOs.Classes
         public string Description { get; set; } = string.Empty;
         public int Capacity { get; set; }
         public int TrainerID { get; set; }
+        public int NumberOfSessions { get; set; }
 
         public ICollection<ClassScheduleDto> Schedules { get; set; } = new List<ClassScheduleDto>();
     }

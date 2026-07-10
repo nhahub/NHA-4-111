@@ -30,10 +30,7 @@
 
   <ItemGroup>
     <Folder Include="wwwroot\html\Receptionist\" />
-    <Folder Include="wwwroot\html\Trainer\" />
-    <Folder Include="wwwroot\Images\" />
     <Folder Include="wwwroot\JS\Receptionist\" />
-    <Folder Include="wwwroot\JS\Trainer\" />
   </ItemGroup>
 
 </Project>
