@@ -20,8 +20,8 @@ namespace FitCore.BLL.Services.Classes
 
             if (string.IsNullOrWhiteSpace(dto.ClassName)) throw new ValidationException("Class name is required.");
             if (dto.Capacity <= 0) throw new ValidationException("Capacity must be greater than zero.");
+            if (dto.NumberOfSessions <= 0) throw new ValidationException("Number of sessions must be greater than zero.");
             if (dto.Schedules == null || !dto.Schedules.Any()) throw new ValidationException("At least one schedule is required.");
-
             foreach (var slot in dto.Schedules)
             {
                 if (slot.EndTime <= slot.StartTime) throw new ValidationException("End time must be after start time.");
@@ -35,6 +35,7 @@ namespace FitCore.BLL.Services.Classes
                 ClassName = dto.ClassName,
                 Description = dto.Description,
                 Capacity = dto.Capacity,
+                NumberOfSessions = dto.NumberOfSessions,
                 TrainerID = dto.TrainerID,
                 Status = ClassStatus.Active,
                 Schedules = dto.Schedules.Select(s => new ClassSchedule { Day = s.Day, StartTime = s.StartTime, EndTime = s.EndTime }).ToList()
@@ -63,9 +64,15 @@ namespace FitCore.BLL.Services.Classes
                 throw new ValidationException("Capacity must be greater than zero.");
             }
 
+            if (dto.NumberOfSessions <= 0)
+            {
+                throw new ValidationException("Number of sessions must be greater than zero.");
+            }
+
             gymClass.ClassName = dto.ClassName;
             gymClass.Description = dto.Description;
             gymClass.Capacity = dto.Capacity;
+            gymClass.NumberOfSessions = dto.NumberOfSessions;
             gymClass.Status = dto.Status;
 
             DbContext.Set<Class>().Update(gymClass);
@@ -355,6 +362,7 @@ namespace FitCore.BLL.Services.Classes
                 ClassName = gymClass.ClassName,
                 Description = gymClass.Description,
                 Capacity = gymClass.Capacity,
+                NumberOfSessions = gymClass.NumberOfSessions,
                 Status = gymClass.Status,
                 TrainerID = gymClass.TrainerID,
                 TrainerName = trainer?.User?.FullName ?? string.Empty,
