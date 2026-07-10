@@ -96,10 +96,16 @@ button {
 
 .container {
     max-width: 1180px;
-    margin-inline: auto;
+/*    margin-inline: auto;*/
 }
 .primary-dark {
     color: var(--primary-dark);
+}
+.bg-blue-soft {
+    background: var( --primary-blue-soft);
+}
+.primary-blue-soft {
+    color: var( --primary-blue-soft);
 }
 /* ============================================================
    Sidebar
