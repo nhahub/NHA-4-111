@@ -25,7 +25,7 @@ namespace FitCore.DAL.Data.Models
         public int? AllowedVisits { get; set; }
         public int ConsumedVisits { get; set; } = 0;
 
-        public int GymServiceId { get; set; }
+        public int? GymServiceId { get; set; }
         public GymService? GymService { get; set; }
 
         public bool IsDeleted { get; set; } = false;

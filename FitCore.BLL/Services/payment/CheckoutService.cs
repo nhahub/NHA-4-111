@@ -17,15 +17,15 @@ namespace FitCore.BLL.Services
             _context = context;
         }
 
-        public async Task<bool> ProcessCheckoutAsync(int userId, int? memberProfileId = null, int? gymServiceId = null)
+        public async Task<bool> ProcessCheckoutAsync(int userId, int? memberProfileId = null, int? gymServiceId = null, int? classId = null)
         {
-            var cart = await _context.Cart
+            var cart = await _context.Carts
                 .Include(c => c.CartItems)
                 .ThenInclude(ci => ci.Product)
                 .FirstOrDefaultAsync(c => c.UserID == userId);
 
             bool hasCartItems = cart != null && cart.CartItems.Any();
-            bool hasSubscription = memberProfileId.HasValue && gymServiceId.HasValue;
+            bool hasSubscription = memberProfileId.HasValue && (gymServiceId.HasValue || classId.HasValue);
 
             if (!hasCartItems && !hasSubscription)
                 return false;
@@ -48,7 +48,7 @@ namespace FitCore.BLL.Services
 
                 if (hasCartItems)
                 {
-                    foreach (var cartItem in cart.CartItems)
+                    foreach (var cartItem in cart!.CartItems)
                     {
                         var invoiceItem = new InvoiceItem
                         {
@@ -65,7 +65,7 @@ namespace FitCore.BLL.Services
                         await _context.InvoiceItems.AddAsync(invoiceItem);
                     }
 
-                    _context.CartItem.RemoveRange(cart.CartItems);
+                    _context.CartItems.RemoveRange(cart.CartItems);
                 }
 
                 if (hasSubscription)
