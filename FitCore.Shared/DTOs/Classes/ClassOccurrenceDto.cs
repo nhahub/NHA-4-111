@@ -10,12 +10,11 @@ namespace FitCore.Shared.DTOs.Classes
         public string TrainerName { get; set; } = string.Empty;
 
         public int ClassScheduleID { get; set; }
-        public DateTime SessionDate { get; set; }
         public TimeSpan StartTime { get; set; }
         public TimeSpan EndTime { get; set; }
+        public DateTime Day { get; set; }
 
         public int Capacity { get; set; }
         public int BookedCount { get; set; }
-        public int AvailableSpots => Capacity - BookedCount;
     }
 }

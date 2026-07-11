@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace FitCore.DAL.Data.Models
 {
-    public class PrivateSession : IAuditable
+    public class PrivateSession : IAuditable,ISoftDelete
     {
         public int PrivateSessionID { get; set; }
 
@@ -26,5 +26,7 @@ namespace FitCore.DAL.Data.Models
         public string Notes { get; set; } = string.Empty;
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public bool IsDeleted { get; set; }
+        public DateTime? DeletedAt { get; set; }
     }
 }

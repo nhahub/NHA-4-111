@@ -28,6 +28,8 @@ namespace FitCore.DAL.Configurations.MemberConfiguration
                    .WithMany(m => m.Attendances)
                    .HasForeignKey(a => a.MembershipID)
                    .OnDelete(DeleteBehavior.SetNull);
+
+            builder.HasQueryFilter(b => !b.IsDeleted);
         }
     }
 }

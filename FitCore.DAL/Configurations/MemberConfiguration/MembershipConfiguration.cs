@@ -32,7 +32,9 @@ namespace FitCore.DAL.Configurations
                    .OnDelete(DeleteBehavior.Restrict);
 
             builder.Property(m => m.RemainingSessions)
-                   .IsRequired(false); 
+                   .IsRequired(false);
+
+            builder.HasQueryFilter(b => !b.IsDeleted);
         }
     }
 }

@@ -18,6 +18,8 @@ namespace FitCore.DAL.Configurations.ClassConfiguration
                    .WithMany(c => c.Schedules)
                    .HasForeignKey(cs => cs.ClassID)
                    .OnDelete(DeleteBehavior.Cascade);
+            
+            builder.HasQueryFilter(b => !b.IsDeleted);
         }
     }
 }

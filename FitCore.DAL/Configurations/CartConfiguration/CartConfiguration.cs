@@ -12,6 +12,7 @@ public class CartConfiguration : IEntityTypeConfiguration<Cart>
                .WithOne(u => u.Cart) 
                .HasForeignKey<Cart>(c => c.UserID)
                .OnDelete(DeleteBehavior.Cascade);
+        builder.HasQueryFilter(b => !b.IsDeleted);
     }
 }
 
@@ -34,5 +35,6 @@ public class CartItemConfiguration : IEntityTypeConfiguration<CartItem>
                .WithMany()
                .HasForeignKey(ci => ci.ProductID)
                .OnDelete(DeleteBehavior.Restrict);
+        builder.HasQueryFilter(b => !b.IsDeleted);
     }
 }

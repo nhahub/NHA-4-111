@@ -63,9 +63,9 @@ namespace FitCore.API.Controllers.Classes
 
         // TODO: memberUserId should come from the authenticated user's context once auth is wired in.
         [HttpPost("book")]
-        public async Task<IActionResult> BookClass([FromQuery] int memberUserId, BookClassDto dto)
+        public async Task<IActionResult> BookClass([FromQuery] int memberUserId, int classId)
         {
-            var result = await classService.BookClassAsync(memberUserId, dto);
+            var result = await classService.BookClassAsync(memberUserId, classId);
             return Ok(result);
         }
 

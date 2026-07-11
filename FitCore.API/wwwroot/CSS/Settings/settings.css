@@ -1,6 +1,4 @@
-﻿/* ============================================================
-   Page Layout (عشان نظبط المسافات اللي كانت ضايعة)
-============================================================ */
+﻿
 .page-content {
     padding: var(--space-6) var(--space-8);
     max-width: 1200px;
@@ -12,23 +10,24 @@
     margin-bottom: var(--space-6);
 }
 
-    .page-header h1 {
-        font-size: var(--fs-xl);
-        color: var(--primary-dark);
-        margin-bottom: var(--space-2);
-    }
+.page-header h1 {
+    font-size: var(--fs-xl);
+    color: var(--primary-dark);
+    margin-bottom: var(--space-2);
+}
 
 .subtitle {
     color: var(--text-muted);
     font-size: var(--fs-base);
 }
 
-/* ============================================================
-   Settings Card (Push Notifications Only)
-============================================================ */
+
 .settings-container {
-    max-width: 450px; /* بيخلي الكارت ملموم ومش فارد بعرض الشاشة */
+    max-width: 1000px;
     margin-top: var(--space-4);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: var(--space-6);
 }
 
 .settings-card {
@@ -37,8 +36,13 @@
     border: 1px solid var(--border-color);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-direction: column;
 }
-
+.bg-green {
+    background-color: var(--status-green-bg, #dcfce7);
+    color: var(--status-green, #16a34a);
+}
 .settings-card-header {
     display: flex;
     align-items: center;
@@ -46,12 +50,12 @@
     margin-bottom: var(--space-5);
 }
 
-    .settings-card-header h3 {
-        margin: 0;
-        font-size: var(--fs-lg);
-        color: var(--primary-dark);
-        font-weight: 700;
-    }
+.settings-card-header h3 {
+    margin: 0;
+    font-size: var(--fs-lg);
+    color: var(--primary-dark);
+    font-weight: 700;
+}
 
 .icon-wrapper {
     width: 48px;
@@ -67,7 +71,12 @@
     background-color: var(--status-blue-bg);
     color: var(--status-blue);
 }
-
+.settings-card-body {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
 .settings-card-body p {
     color: var(--text-muted);
     font-size: var(--fs-sm);

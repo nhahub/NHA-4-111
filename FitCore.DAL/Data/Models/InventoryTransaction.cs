@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace FitCore.DAL.Data.Models
 {
-    public class InventoryTransaction : IAuditable, ISoftDelete
+    public class InventoryTransaction : IAuditable
     {
         public int TransactionID { get; set; }
         public int UserID { get; set; }
@@ -19,8 +19,6 @@ namespace FitCore.DAL.Data.Models
 
         public string ReferenceNumber { get; set; } = string.Empty;
         public string Notes { get; set; } = string.Empty;
-        public bool IsDeleted { get; set; } = false;
-        public DateTime? DeletedAt { get; set; }
 
         public ICollection<InventoryTransactionItem> TransactionItems { get; set; } = new List<InventoryTransactionItem>();
     }

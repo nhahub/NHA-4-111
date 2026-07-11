@@ -11,6 +11,7 @@ namespace FitCore.Shared.Enums
         Booked,
         Cancelled,
         Attended,
-        NoShow
+        NoShow,
+        Paid
     }
 }

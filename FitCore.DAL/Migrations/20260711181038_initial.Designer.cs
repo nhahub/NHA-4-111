@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FitCore.DAL.Migrations
 {
     [DbContext(typeof(FitCoreDbContext))]
-    [Migration("20260702214220_relation gym service")]
-    partial class relationgymservice
+    [Migration("20260711181038_initial")]
+    partial class initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -41,6 +41,17 @@ namespace FitCore.DAL.Migrations
                     b.Property<int?>("ClassID")
                         .HasColumnType("int");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<int?>("MembershipID")
+                        .HasColumnType("int");
+
                     b.Property<int>("Type")
                         .HasColumnType("int");
 
@@ -50,6 +61,8 @@ namespace FitCore.DAL.Migrations
                     b.HasKey("AttendanceID");
 
                     b.HasIndex("ClassID");
+
+                    b.HasIndex("MembershipID");
 
                     b.HasIndex("UserId");
 
@@ -94,6 +107,53 @@ namespace FitCore.DAL.Migrations
                     b.ToTable("AuditLogs");
                 });
 
+            modelBuilder.Entity("FitCore.DAL.Data.Models.Booking", b =>
+                {
+                    b.Property<int>("BookingID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("BookingID"));
+
+                    b.Property<int?>("ClassID")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("GymServiceId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<int>("MemberUserId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.HasKey("BookingID");
+
+                    b.HasIndex("ClassID");
+
+                    b.HasIndex("GymServiceId");
+
+                    b.HasIndex("MemberUserId");
+
+                    b.ToTable("Bookings", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_Booking_ClassOrService_Exclusive", "(ClassID IS NOT NULL AND GymServiceId IS NULL) OR (ClassID IS NULL AND GymServiceId IS NOT NULL)");
+                        });
+                });
+
             modelBuilder.Entity("FitCore.DAL.Data.Models.Cart", b =>
                 {
                     b.Property<int>("CartID")
@@ -101,6 +161,14 @@ namespace FitCore.DAL.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CartID"));
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
                     b.Property<int>("UserID")
                         .HasColumnType("int");
@@ -110,7 +178,7 @@ namespace FitCore.DAL.Migrations
                     b.HasIndex("UserID")
                         .IsUnique();
 
-                    b.ToTable("Cart");
+                    b.ToTable("Carts");
                 });
 
             modelBuilder.Entity("FitCore.DAL.Data.Models.CartItem", b =>
@@ -123,6 +191,14 @@ namespace FitCore.DAL.Migrations
 
                     b.Property<int>("CartID")
                         .HasColumnType("int");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
                     b.Property<int>("ProductID")
                         .HasColumnType("int");
@@ -138,7 +214,7 @@ namespace FitCore.DAL.Migrations
 
                     b.HasIndex("ProductID");
 
-                    b.ToTable("CartItem");
+                    b.ToTable("CartItems");
                 });
 
             modelBuilder.Entity("FitCore.DAL.Data.Models.Category", b =>
@@ -148,6 +224,14 @@ namespace FitCore.DAL.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -174,9 +258,20 @@ namespace FitCore.DAL.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<int>("NumberOfSessions")
+                        .HasColumnType("int");
 
                     b.Property<int>("Status")
                         .HasMaxLength(20)
@@ -206,8 +301,16 @@ namespace FitCore.DAL.Migrations
                     b.Property<int>("Day")
                         .HasColumnType("int");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<TimeSpan>("EndTime")
                         .HasColumnType("time");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
                     b.Property<TimeSpan>("StartTime")
                         .HasColumnType("time");
@@ -227,14 +330,25 @@ namespace FitCore.DAL.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ServiceID"));
 
+                    b.Property<int>("AllowedSessionsCount")
+                        .HasColumnType("int");
+
                     b.Property<string>("Category")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("DurationInDays")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasDefaultValue(0);
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -246,7 +360,7 @@ namespace FitCore.DAL.Migrations
 
                     b.HasKey("ServiceID");
 
-                    b.ToTable("GymService");
+                    b.ToTable("GymServices");
                 });
 
             modelBuilder.Entity("FitCore.DAL.Data.Models.Inventory", b =>
@@ -263,8 +377,16 @@ namespace FitCore.DAL.Migrations
                     b.Property<DateTime>("DateAdded")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<DateTime?>("ExpiryDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
                     b.Property<int>("ProductId")
                         .HasColumnType("int");
@@ -362,6 +484,9 @@ namespace FitCore.DAL.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("InvoiceID"));
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(500)
@@ -370,6 +495,11 @@ namespace FitCore.DAL.Migrations
                     b.Property<string>("InvoiceStatus")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
                     b.Property<DateTime>("IssueDate")
                         .ValueGeneratedOnAdd()
@@ -397,8 +527,19 @@ namespace FitCore.DAL.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("InvoiceItemID"));
 
+                    b.Property<int?>("ClassID")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<int>("InvoiceID")
                         .HasColumnType("int");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
                     b.Property<string>("ItemName")
                         .IsRequired()
@@ -428,6 +569,8 @@ namespace FitCore.DAL.Migrations
 
                     b.HasKey("InvoiceItemID");
 
+                    b.HasIndex("ClassID");
+
                     b.HasIndex("InvoiceID");
 
                     b.HasIndex("ProductID");
@@ -436,20 +579,37 @@ namespace FitCore.DAL.Migrations
 
                     b.ToTable("InvoiceItems", t =>
                         {
-                            t.HasCheckConstraint("CK_InvoiceItem_OnlyOneTypeAllowed", "(ProductID IS NOT NULL AND ServiceID IS NULL) OR (ProductID IS NULL AND ServiceID IS NOT NULL)");
+                            t.HasCheckConstraint("CK_InvoiceItem_TypeAllowed", "(CASE WHEN ProductID IS NOT NULL THEN 1 ELSE 0 END +  CASE WHEN ServiceID IS NOT NULL THEN 1 ELSE 0 END +  CASE WHEN ClassID IS NOT NULL THEN 1 ELSE 0 END) = 1");
                         });
                 });
 
             modelBuilder.Entity("FitCore.DAL.Data.Models.MemberProfile", b =>
                 {
-                    b.Property<int>("UserID")
+                    b.Property<int>("MemberProfileId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MemberProfileId"));
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
                     b.Property<string>("QRCodeData")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("UserID");
+                    b.Property<int>("UserID")
+                        .HasColumnType("int");
+
+                    b.HasKey("MemberProfileId");
+
+                    b.HasIndex("UserID")
+                        .IsUnique();
 
                     b.ToTable("MemberProfiles");
                 });
@@ -462,6 +622,15 @@ namespace FitCore.DAL.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MembershipID"));
 
+                    b.Property<int?>("ClassID")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime2");
 
@@ -471,32 +640,41 @@ namespace FitCore.DAL.Migrations
                     b.Property<DateTime?>("FreezeStartDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("GymServiceId")
+                    b.Property<int?>("GymServiceId")
                         .HasColumnType("int");
 
                     b.Property<bool>("IsAutoRenew")
                         .HasColumnType("bit");
 
-                    b.Property<int?>("MemberProfileUserID")
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<int>("MemberProfileId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("RemainingSessions")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("Status")
-                        .HasMaxLength(20)
                         .HasColumnType("int");
 
-                    b.Property<int>("UserId")
+                    b.Property<int?>("UserID")
                         .HasColumnType("int");
 
                     b.HasKey("MembershipID");
 
+                    b.HasIndex("ClassID");
+
                     b.HasIndex("GymServiceId");
 
-                    b.HasIndex("MemberProfileUserID");
+                    b.HasIndex("MemberProfileId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserID");
 
                     b.ToTable("Memberships");
                 });
@@ -548,8 +726,16 @@ namespace FitCore.DAL.Migrations
                     b.Property<decimal>("AmountPaid")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<int>("InvoiceID")
                         .HasColumnType("int");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
                     b.Property<DateTime>("PaymentDate")
                         .HasColumnType("datetime2");
@@ -575,6 +761,59 @@ namespace FitCore.DAL.Migrations
                     b.ToTable("Payments");
                 });
 
+            modelBuilder.Entity("FitCore.DAL.Data.Models.PrivateSession", b =>
+                {
+                    b.Property<int>("PrivateSessionID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PrivateSessionID"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<TimeSpan>("EndTime")
+                        .HasColumnType("time");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<int>("MemberUserId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Notes")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime>("SessionDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<TimeSpan>("StartTime")
+                        .HasColumnType("time");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TrainerID")
+                        .HasColumnType("int");
+
+                    b.HasKey("PrivateSessionID");
+
+                    b.HasIndex("MemberUserId");
+
+                    b.HasIndex("TrainerID");
+
+                    b.ToTable("PrivateSessions");
+                });
+
             modelBuilder.Entity("FitCore.DAL.Data.Models.Product", b =>
                 {
                     b.Property<int>("ProductID")
@@ -593,9 +832,17 @@ namespace FitCore.DAL.Migrations
                     b.Property<decimal>("CurrentSellPrice")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -605,9 +852,14 @@ namespace FitCore.DAL.Migrations
                     b.Property<int>("ReorderLevel")
                         .HasColumnType("int");
 
+                    b.Property<int?>("SupplierID")
+                        .HasColumnType("int");
+
                     b.HasKey("ProductID");
 
                     b.HasIndex("CategoryId");
+
+                    b.HasIndex("SupplierID");
 
                     b.ToTable("Products");
                 });
@@ -624,6 +876,14 @@ namespace FitCore.DAL.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
                     b.Property<string>("SupplierPhone")
                         .IsRequired()
@@ -648,6 +908,14 @@ namespace FitCore.DAL.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
                     b.Property<string>("Specialization")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -669,6 +937,41 @@ namespace FitCore.DAL.Migrations
                     b.ToTable("Trainers");
                 });
 
+            modelBuilder.Entity("FitCore.DAL.Data.Models.TrainerWorkingHour", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Day")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<TimeSpan>("EndTime")
+                        .HasColumnType("time");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<TimeSpan>("StartTime")
+                        .HasColumnType("time");
+
+                    b.Property<int>("TrainerID")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TrainerID");
+
+                    b.ToTable("TrainerWorkingHours");
+                });
+
             modelBuilder.Entity("FitCore.DAL.Data.Models.User", b =>
                 {
                     b.Property<int>("UserID")
@@ -676,6 +979,9 @@ namespace FitCore.DAL.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserID"));
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -686,6 +992,11 @@ namespace FitCore.DAL.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
                     b.Property<DateTime>("JoinDate")
                         .HasColumnType("datetime2");
@@ -715,6 +1026,14 @@ namespace FitCore.DAL.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("RoleID"));
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
                     b.Property<string>("Role")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -731,10 +1050,14 @@ namespace FitCore.DAL.Migrations
 
             modelBuilder.Entity("FitCore.DAL.Data.Models.Attendance", b =>
                 {
-                    b.HasOne("FitCore.DAL.Data.Models.Class", "Class")
+                    b.HasOne("FitCore.DAL.Data.Models.Class", null)
                         .WithMany("Attendances")
-                        .HasForeignKey("ClassID")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("ClassID");
+
+                    b.HasOne("FitCore.DAL.Data.Models.Membership", "Membership")
+                        .WithMany("Attendances")
+                        .HasForeignKey("MembershipID")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("FitCore.DAL.Data.Models.MemberProfile", "MemberProfile")
                         .WithMany("Attendances")
@@ -742,9 +1065,9 @@ namespace FitCore.DAL.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("Class");
-
                     b.Navigation("MemberProfile");
+
+                    b.Navigation("Membership");
                 });
 
             modelBuilder.Entity("FitCore.DAL.Data.Models.AuditLog", b =>
@@ -754,6 +1077,31 @@ namespace FitCore.DAL.Migrations
                         .HasForeignKey("UserId");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("FitCore.DAL.Data.Models.Booking", b =>
+                {
+                    b.HasOne("FitCore.DAL.Data.Models.Class", "Class")
+                        .WithMany("Bookings")
+                        .HasForeignKey("ClassID")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("FitCore.DAL.Data.Models.GymService", "GymService")
+                        .WithMany("Bookings")
+                        .HasForeignKey("GymServiceId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("FitCore.DAL.Data.Models.MemberProfile", "MemberProfile")
+                        .WithMany("Bookings")
+                        .HasForeignKey("MemberUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Class");
+
+                    b.Navigation("GymService");
+
+                    b.Navigation("MemberProfile");
                 });
 
             modelBuilder.Entity("FitCore.DAL.Data.Models.Cart", b =>
@@ -861,6 +1209,11 @@ namespace FitCore.DAL.Migrations
 
             modelBuilder.Entity("FitCore.DAL.Data.Models.InvoiceItem", b =>
                 {
+                    b.HasOne("FitCore.DAL.Data.Models.Class", "Class")
+                        .WithMany("InvoicesItems")
+                        .HasForeignKey("ClassID")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("FitCore.DAL.Data.Models.Invoice", "Invoice")
                         .WithMany("InvoiceItems")
                         .HasForeignKey("InvoiceID")
@@ -876,6 +1229,8 @@ namespace FitCore.DAL.Migrations
                         .WithMany("InvoicesItems")
                         .HasForeignKey("ServiceID")
                         .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Class");
 
                     b.Navigation("GymService");
 
@@ -897,25 +1252,31 @@ namespace FitCore.DAL.Migrations
 
             modelBuilder.Entity("FitCore.DAL.Data.Models.Membership", b =>
                 {
+                    b.HasOne("FitCore.DAL.Data.Models.Class", "Class")
+                        .WithMany("Memberships")
+                        .HasForeignKey("ClassID")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("FitCore.DAL.Data.Models.GymService", "GymService")
                         .WithMany("Memberships")
                         .HasForeignKey("GymServiceId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("FitCore.DAL.Data.Models.MemberProfile", "MemberProfile")
+                        .WithMany("Memberships")
+                        .HasForeignKey("MemberProfileId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("FitCore.DAL.Data.Models.MemberProfile", null)
+                    b.HasOne("FitCore.DAL.Data.Models.User", null)
                         .WithMany("Memberships")
-                        .HasForeignKey("MemberProfileUserID");
+                        .HasForeignKey("UserID");
 
-                    b.HasOne("FitCore.DAL.Data.Models.User", "User")
-                        .WithMany("Memberships")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                    b.Navigation("Class");
 
                     b.Navigation("GymService");
 
-                    b.Navigation("User");
+                    b.Navigation("MemberProfile");
                 });
 
             modelBuilder.Entity("FitCore.DAL.Data.Models.Notification", b =>
@@ -948,6 +1309,25 @@ namespace FitCore.DAL.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("FitCore.DAL.Data.Models.PrivateSession", b =>
+                {
+                    b.HasOne("FitCore.DAL.Data.Models.MemberProfile", "MemberProfile")
+                        .WithMany("PrivateSessions")
+                        .HasForeignKey("MemberUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("FitCore.DAL.Data.Models.Trainer", "Trainer")
+                        .WithMany("PrivateSessions")
+                        .HasForeignKey("TrainerID")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("MemberProfile");
+
+                    b.Navigation("Trainer");
+                });
+
             modelBuilder.Entity("FitCore.DAL.Data.Models.Product", b =>
                 {
                     b.HasOne("FitCore.DAL.Data.Models.Category", "Category")
@@ -956,7 +1336,14 @@ namespace FitCore.DAL.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("FitCore.DAL.Data.Models.Supplier", "Supplier")
+                        .WithMany("Products")
+                        .HasForeignKey("SupplierID")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.Navigation("Category");
+
+                    b.Navigation("Supplier");
                 });
 
             modelBuilder.Entity("FitCore.DAL.Data.Models.Trainer", b =>
@@ -968,6 +1355,17 @@ namespace FitCore.DAL.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("FitCore.DAL.Data.Models.TrainerWorkingHour", b =>
+                {
+                    b.HasOne("FitCore.DAL.Data.Models.Trainer", "Trainer")
+                        .WithMany("WorkingHoursSchedule")
+                        .HasForeignKey("TrainerID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Trainer");
                 });
 
             modelBuilder.Entity("FitCore.DAL.Data.Models.UserRole", b =>
@@ -995,11 +1393,19 @@ namespace FitCore.DAL.Migrations
                 {
                     b.Navigation("Attendances");
 
+                    b.Navigation("Bookings");
+
+                    b.Navigation("InvoicesItems");
+
+                    b.Navigation("Memberships");
+
                     b.Navigation("Schedules");
                 });
 
             modelBuilder.Entity("FitCore.DAL.Data.Models.GymService", b =>
                 {
+                    b.Navigation("Bookings");
+
                     b.Navigation("InvoicesItems");
 
                     b.Navigation("Memberships");
@@ -1021,7 +1427,16 @@ namespace FitCore.DAL.Migrations
                 {
                     b.Navigation("Attendances");
 
+                    b.Navigation("Bookings");
+
                     b.Navigation("Memberships");
+
+                    b.Navigation("PrivateSessions");
+                });
+
+            modelBuilder.Entity("FitCore.DAL.Data.Models.Membership", b =>
+                {
+                    b.Navigation("Attendances");
                 });
 
             modelBuilder.Entity("FitCore.DAL.Data.Models.Product", b =>
@@ -1033,9 +1448,18 @@ namespace FitCore.DAL.Migrations
                     b.Navigation("InvoiceItems");
                 });
 
+            modelBuilder.Entity("FitCore.DAL.Data.Models.Supplier", b =>
+                {
+                    b.Navigation("Products");
+                });
+
             modelBuilder.Entity("FitCore.DAL.Data.Models.Trainer", b =>
                 {
                     b.Navigation("Classes");
+
+                    b.Navigation("PrivateSessions");
+
+                    b.Navigation("WorkingHoursSchedule");
                 });
 
             modelBuilder.Entity("FitCore.DAL.Data.Models.User", b =>

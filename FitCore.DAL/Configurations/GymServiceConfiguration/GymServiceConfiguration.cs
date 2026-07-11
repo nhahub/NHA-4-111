@@ -24,6 +24,8 @@ public class GymServiceConfiguration : IEntityTypeConfiguration<GymService>
                .IsRequired()
                .HasDefaultValue(0);
 
+        builder.HasQueryFilter(b => !b.IsDeleted);
+
 
     }
 }

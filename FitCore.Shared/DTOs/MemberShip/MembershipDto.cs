@@ -5,7 +5,8 @@ namespace FitCore.Shared.DTOs.MemberShip
 {
     public class CreateMembershipDto
     {
-        public int UserId { get; set; }
+        //public int UserId { get; set; }
+        public int MemberProfileId { get; set; }
 
         public int? GymServiceId { get; set; }
         public int? ClassId { get; set; }
