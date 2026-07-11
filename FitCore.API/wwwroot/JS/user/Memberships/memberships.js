@@ -57,9 +57,6 @@
 
             const remaining = m.remainingSessions !== null ? m.remainingSessions : 'Unlimited';
 
-            // =====================================
-            // منطق عرض الزرار المناسب (التعديل هنا)
-            // =====================================
             let actionBtnHtml = '';
             if (statusText === 'Active') {
                 actionBtnHtml = `<button class="btn-outline btn-freeze btn-small" onclick="openFreezeModal(${m.membershipID})">Freeze</button>`;
@@ -78,7 +75,7 @@
                 <td><span class="badge ${statusBadgeClass}">${statusText}</span></td>
                 <td>${remaining}</td>
                 <td class="action-buttons">
-                    <a href="/HTML/Memberships/membership-details.html?id=${m.membershipID}" class="btn-outline btn-small">View</a>
+                    <a href="/html/user/Memberships/membership-details.html?id=${m.membershipID}" class="btn-outline btn-small">View</a>
                     ${actionBtnHtml}
                 </td>
             `;
@@ -93,11 +90,8 @@
         freezeModal.classList.remove('hidden');
     };
 
-    // =====================================
-    // الفانكشن الجديدة بتاعت فك التجميد
-    // =====================================
+
     window.unfreezeMembership = async function (membershipId) {
-        // رسالة تأكيد سريعة لليوزر
         if (!confirm("Are you sure you want to unfreeze this membership now? The end date will be adjusted accordingly.")) {
             return;
         }
@@ -113,7 +107,7 @@
 
             if (response.ok) {
                 alert("Membership unfrozen successfully!");
-                loadMemberships(); // نعيد تحميل الجدول عشان الزرار والحالة يتغيروا
+                loadMemberships();
             } else {
                 const errData = await response.json();
                 alert(errData.message || "Failed to unfreeze membership.");
@@ -161,7 +155,7 @@
                 if (response.ok) {
                     alert("Membership frozen successfully!");
                     closeModal();
-                    loadMemberships(); // نعيد تحميل الجدول
+                    loadMemberships(); 
                 } else {
                     const errData = await response.json();
                     freezeError.textContent = errData.message || "Failed to freeze membership.";
@@ -178,16 +172,12 @@
         });
     }
 
-    // ==========================================
-    // 🚀 التوجيه الذكي: إحنا في أي صفحة؟
-    // ==========================================
 
-    // 1. لو إحنا في صفحة الجدول (memberships.html)
     if (tableBody) {
         loadMemberships();
     }
 
-    // 2. لو إحنا في صفحة التفاصيل (membership-details.html)
+
     const detailsContainer = document.getElementById("membershipDetailsContainer");
 
     if (detailsContainer) {
