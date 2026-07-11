@@ -52,7 +52,9 @@ namespace FitCore.API
             builder.Services.AddScoped<IMembershipService, MembershipService>();
             builder.Services.AddScoped<IGymServiceService, GymServiceService>();
             builder.Services.AddHttpContextAccessor();
-
+            // Add Checkout and Subscription services
+            builder.Services.AddScoped<FitCore.BLL.Services.CheckoutService>();
+            builder.Services.AddScoped<FitCore.BLL.Services.payment.SubscriptionPaymentService>();
 
             #region Added Hangfire
 
@@ -114,7 +116,6 @@ namespace FitCore.API
                     Cron.Daily(6)
                 );
             }
-
             app.UseDefaultFiles();
             app.UseStaticFiles();
 

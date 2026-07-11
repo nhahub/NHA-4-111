@@ -1,11 +1,6 @@
 ﻿using FitCore.DAL.Interfaces;
 using FitCore.Shared.Enums;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 
 namespace FitCore.DAL.Data.Models
 {
@@ -16,6 +11,9 @@ namespace FitCore.DAL.Data.Models
         public int MemberProfileId { get; set; }
         public MemberProfile MemberProfile { get; set; } = null!;
 
+        public int? InvoiceID { get; set; }
+        public Invoice? Invoice { get; set; }
+
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public MemberShipStatus Status { get; set; }
@@ -24,8 +22,12 @@ namespace FitCore.DAL.Data.Models
         public bool IsAutoRenew { get; set; }
         public DateTime CreatedAt { get; set; }
 
-        public int? GymServiceId { get; set; } 
+        public int? AllowedVisits { get; set; }
+        public int ConsumedVisits { get; set; } = 0;
+
+        public int? GymServiceId { get; set; }
         public GymService? GymService { get; set; }
+
         public bool IsDeleted { get; set; } = false;
         public DateTime? DeletedAt { get; set; }
 

@@ -31,6 +31,8 @@ namespace FitCore.DAL.Configurations
                    .HasForeignKey(m => m.ClassID)
                    .OnDelete(DeleteBehavior.Restrict);
 
+            builder.HasOne(m => m.Invoice).WithMany(x => x.Memberships).HasForeignKey(x => x.InvoiceID).OnDelete(DeleteBehavior.Restrict);
+
             builder.Property(m => m.RemainingSessions)
                    .IsRequired(false);
 
