@@ -23,6 +23,8 @@ namespace FitCore.DAL.Configurations.ProductConfiguration
                .WithMany(p => p.Inventories)
                .HasForeignKey(i => i.ProductId)
                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasQueryFilter(b => !b.IsDeleted);
         }
     }
 }

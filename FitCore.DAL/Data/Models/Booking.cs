@@ -8,20 +8,25 @@ using System.Threading.Tasks;
 
 namespace FitCore.DAL.Data.Models
 {
-    public class ClassBooking : IAuditable
+    public class Booking : IAuditable, ISoftDelete
     {
         public int BookingID { get; set; }
 
-        public int ClassScheduleID { get; set; }
-        public ClassSchedule ClassSchedule { get; set; } = null!;
+        public int? ClassID { get; set; }
+        public Class? Class { get; set; } = null!;
+
+        public int? GymServiceId { get; set; }
+        public GymService? GymService { get; set; }
 
         public int MemberUserId { get; set; }
         public MemberProfile MemberProfile { get; set; } = null!;
 
-        // The concrete calendar date of the class occurrence being booked
-        public DateTime SessionDate { get; set; }
+        //public DateTime SessionDate { get; set; }
 
         public BookingStatus Status { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        
+        public bool IsDeleted { get; set; }
+        public DateTime? DeletedAt { get; set; }
     }
 }

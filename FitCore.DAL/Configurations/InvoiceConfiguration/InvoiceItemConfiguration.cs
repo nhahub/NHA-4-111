@@ -61,6 +61,8 @@ namespace FitCore.DAL.Configurations.InvoiceConfiguration
                 "(CASE WHEN ProductID IS NOT NULL THEN 1 ELSE 0 END + " +
                 " CASE WHEN ServiceID IS NOT NULL THEN 1 ELSE 0 END + " +
                 " CASE WHEN ClassID IS NOT NULL THEN 1 ELSE 0 END) = 1"));
+
+            builder.HasQueryFilter(b => !b.IsDeleted);
         }
     }
 }

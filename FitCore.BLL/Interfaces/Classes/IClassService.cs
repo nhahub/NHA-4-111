@@ -14,7 +14,7 @@ namespace FitCore.BLL.Interfaces.Classes
         // Members browsing available class occurrences within a date range
         Task<PaginationResponseDto<ClassOccurrenceDto>> BrowseClassesAsync(DateTime fromDate, DateTime toDate, int page, int pageSize);
 
-        Task<ClassBookingDto> BookClassAsync(int memberUserId, BookClassDto dto);
+        public Task<ClassBookingDto> BookClassAsync(int memberUserId, int classId);
         Task<bool> CancelBookingAsync(int memberUserId, int bookingId);
         Task<ICollection<ClassBookingDto>> GetMemberBookingsAsync(int memberUserId);
     }

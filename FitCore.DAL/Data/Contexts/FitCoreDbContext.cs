@@ -58,11 +58,12 @@ namespace FitCore.DAL.Data.Contexts
         public DbSet<AuditLog> AuditLogs { get; set; }
         public DbSet<Inventory> Inventories { get; set; }
         public DbSet<Category> Categories { get; set; }
-        public DbSet<GymService> GymService { get; set; }
-        public DbSet<Cart> Cart { get; set; }
-        public DbSet<CartItem> CartItem { get; set; }
-        public DbSet<GymServiceClass> GymServiceClass { get; set; }
-
+        public DbSet<GymService> GymServices { get; set; }
+        public DbSet<Cart> Carts { get; set; }
+        public DbSet<CartItem> CartItems { get; set; }
+        public DbSet<PrivateSession> PrivateSessions { get; set; }
+        public DbSet<Booking> Bookings { get; set; }
+        public DbSet<TrainerWorkingHour> TrainerWorkingHours { get; set; }
 
 
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

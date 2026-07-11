@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace FitCore.DAL.Data.Models
 {
-    public class AuditLog : ISoftDelete
+    public class AuditLog
     {
         public int Id { get; set; }
         public required string EntityName { get; set; }
@@ -19,7 +19,5 @@ namespace FitCore.DAL.Data.Models
 
         public int? UserId { get; set; }
         public virtual User User { get; set; }
-        public bool IsDeleted { get; set; } = false;
-        public DateTime? DeletedAt { get; set; }
     }
 }

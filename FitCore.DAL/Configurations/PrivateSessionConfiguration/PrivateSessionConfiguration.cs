@@ -25,6 +25,8 @@ namespace FitCore.DAL.Configurations.PrivateSessionConfiguration
                 .WithMany(mp => mp.PrivateSessions)
                 .HasForeignKey(p => p.MemberUserId)
                 .OnDelete(DeleteBehavior.Restrict);
+            
+            builder.HasQueryFilter(b => !b.IsDeleted);
         }
     }
 }

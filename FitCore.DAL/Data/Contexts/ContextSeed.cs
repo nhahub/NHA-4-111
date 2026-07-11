@@ -30,7 +30,7 @@ namespace FitCore.DAL.Data
                 await context.SaveChangesAsync();
             }
 
-            if (!await context.GymService.AnyAsync())
+            if (!await context.GymServices.AnyAsync())
             {
                 var defaultServices = new List<GymService>
                 {
@@ -49,7 +49,7 @@ namespace FitCore.DAL.Data
                         Category = ServiceCategory.Package 
                     }
                 };
-                await context.GymService.AddRangeAsync(defaultServices);
+                await context.GymServices.AddRangeAsync(defaultServices);
                 await context.SaveChangesAsync();
             }
         }

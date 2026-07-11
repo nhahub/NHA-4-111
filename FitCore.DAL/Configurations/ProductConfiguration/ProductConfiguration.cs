@@ -29,6 +29,8 @@ namespace FitCore.DAL.Configurations.ProductConfiguration
                 .WithMany(x => x.Products)
                 .HasForeignKey(x => x.SupplierID)
                 .OnDelete(DeleteBehavior.SetNull);
+
+            builder.HasQueryFilter(b => !b.IsDeleted);
         }
     }
 }
