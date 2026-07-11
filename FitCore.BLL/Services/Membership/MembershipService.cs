@@ -14,7 +14,7 @@ namespace FitCore.BLL.Services
     {
         private async Task<MembershipDto> CreateMembershipAsync(CreateMembershipDto dto)
         {
-            var member = await DbContext.Set<MemberProfile>().FirstOrDefaultAsync(m => m.UserID == dto.UserId);
+            var member = await DbContext.Set<MemberProfile>().FirstOrDefaultAsync(m => m.MemberProfileId == dto.MemberProfileId);
             if (member == null) throw new KeyNotFoundException("Member profile not found.");
 
             if (dto.GymServiceId == null && dto.ClassId == null)
@@ -23,7 +23,8 @@ namespace FitCore.BLL.Services
             var startDate = DateTime.UtcNow;
             DateTime endDate;
             int? remainingSessions = null;
-
+            Membership membership;
+            
             if (dto.GymServiceId.HasValue)
             {
                 var service = await DbContext.Set<GymService>().FirstOrDefaultAsync(s => s.ServiceID == dto.GymServiceId.Value);
@@ -31,6 +32,20 @@ namespace FitCore.BLL.Services
 
                 endDate = startDate.AddDays(service.DurationInDays);
                 remainingSessions = service.AllowedSessionsCount;
+
+                membership = new Membership
+                {
+                    MemberProfileId = member.MemberProfileId,
+
+                    GymServiceId = dto.GymServiceId,
+                    ClassID = null,
+                    StartDate = startDate,
+                    EndDate = endDate,
+                    Status = MemberShipStatus.Active,
+                    RemainingSessions = remainingSessions,
+                    IsAutoRenew = dto.IsAutoRenew,
+                    CreatedAt = DateTime.UtcNow
+                };
             }
             else
             {
@@ -38,22 +53,22 @@ namespace FitCore.BLL.Services
                 if (gymClass == null) throw new KeyNotFoundException("Class not found.");
 
                 endDate = startDate.AddDays(30);
-                remainingSessions = 8;
+                remainingSessions = gymClass.NumberOfSessions;
+
+                membership = new Membership
+                {
+                    MemberProfileId = member.MemberProfileId,
+
+                    GymServiceId = null,
+                    ClassID = dto.ClassId,
+                    StartDate = startDate,
+                    EndDate = endDate,
+                    Status = MemberShipStatus.Active,
+                    RemainingSessions = remainingSessions,
+                    IsAutoRenew = dto.IsAutoRenew,
+                    CreatedAt = DateTime.UtcNow
+                };
             }
-
-            var membership = new Membership
-            {
-                MemberProfileId = member.UserID,
-
-                GymServiceId = dto.GymServiceId,
-                ClassID = dto.ClassId,
-                StartDate = startDate,
-                EndDate = endDate,
-                Status = MemberShipStatus.Active,
-                RemainingSessions = remainingSessions,
-                IsAutoRenew = dto.IsAutoRenew,
-                CreatedAt = DateTime.UtcNow
-            };
 
             await DbContext.Set<Membership>().AddAsync(membership);
             await DbContext.SaveChangesAsync();
@@ -210,11 +225,16 @@ namespace FitCore.BLL.Services
 
             foreach (var item in invoice.InvoiceItems)
             {
+                int MemberProfileId = await DbContext.MemberProfiles
+                    .Where(x => x.UserID == invoice.UserID)
+                    .Select(x => x.MemberProfileId)
+                    .FirstOrDefaultAsync();
+
                 if (item.ServiceID.HasValue)
                 {
                     var createDto = new CreateMembershipDto
                     {
-                        UserId = invoice.UserID,
+                        MemberProfileId = MemberProfileId,
                         GymServiceId = item.ServiceID.Value,
                         IsAutoRenew = false
                     };
@@ -224,7 +244,7 @@ namespace FitCore.BLL.Services
                 {
                     var createDto = new CreateMembershipDto
                     {
-                        UserId = invoice.UserID,
+                        MemberProfileId = MemberProfileId,
                         ClassId = item.ClassID.Value,
                         IsAutoRenew = false
                     };
