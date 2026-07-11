@@ -9,18 +9,14 @@ namespace FitCore.DAL.Configurations.MemberConfiguration
     {
         public void Configure(EntityTypeBuilder<MemberProfile> builder)
         {
-            builder.HasKey(m => m.UserID);
-
-            builder.Property(m => m.MemberProfileId)
-           .ValueGeneratedOnAdd();
-
-            builder.HasIndex(m => m.MemberProfileId)
-                   .IsUnique();
+            builder.HasKey(m => m.MemberProfileId);
 
             builder.HasOne(m => m.User)
                 .WithOne(u => u.MemberProfile)
                 .HasForeignKey<MemberProfile>(m => m.UserID)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasQueryFilter(b => !b.IsDeleted);
         }
     }
 }

@@ -16,6 +16,7 @@ namespace FitCore.DAL.Configurations.SupplierConfiguration
             builder.HasKey(c =>c.SupplierID);
             builder.Property(s => s.CompanyName).IsRequired().HasMaxLength(100);
             builder.Property(s => s.SupplierPhone).HasMaxLength(20);
+            builder.HasQueryFilter(b => !b.IsDeleted);
         }
     }
 }

@@ -17,6 +17,5 @@ namespace FitCore.DAL.Data.Models
         public TimeSpan EndTime { get; set; }
         public bool IsDeleted { get; set; } = false;
         public DateTime? DeletedAt { get; set; }
-        public ICollection<ClassBooking> Bookings { get; set; } = new List<ClassBooking>();
     }
 }

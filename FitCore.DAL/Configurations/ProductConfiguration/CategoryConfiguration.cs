@@ -10,7 +10,7 @@ namespace FitCore.DAL.Configurations.ProductConfiguration
         {
             builder.HasKey(x => x.Id);
 
-
+            builder.HasQueryFilter(b => !b.IsDeleted);
         }
     }
 }

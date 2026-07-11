@@ -31,6 +31,8 @@ namespace FitCore.DAL.Configurations.InvoiceConfiguration
                    .HasForeignKey(i => i.UserID)
                    .OnDelete(DeleteBehavior.Restrict);
 
+            builder.HasQueryFilter(b => !b.IsDeleted);
+
         }
     }
 }

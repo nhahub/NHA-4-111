@@ -17,7 +17,9 @@ namespace FitCore.DAL.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -25,7 +27,7 @@ namespace FitCore.DAL.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "GymService",
+                name: "GymServices",
                 columns: table => new
                 {
                     ServiceID = table.Column<int>(type: "int", nullable: false)
@@ -33,11 +35,14 @@ namespace FitCore.DAL.Migrations
                     Name = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     Category = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    DurationInDays = table.Column<int>(type: "int", nullable: false, defaultValue: 0)
+                    DurationInDays = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    AllowedSessionsCount = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_GymService", x => x.ServiceID);
+                    table.PrimaryKey("PK_GymServices", x => x.ServiceID);
                 });
 
             migrationBuilder.CreateTable(
@@ -47,7 +52,9 @@ namespace FitCore.DAL.Migrations
                     SupplierID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     CompanyName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    SupplierPhone = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false)
+                    SupplierPhone = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -65,7 +72,9 @@ namespace FitCore.DAL.Migrations
                     Email = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
                     PhoneNumber = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
-                    JoinDate = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    JoinDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -83,7 +92,10 @@ namespace FitCore.DAL.Migrations
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CurrentSellPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     ReorderLevel = table.Column<int>(type: "int", nullable: false),
-                    CategoryId = table.Column<int>(type: "int", nullable: false)
+                    CategoryId = table.Column<int>(type: "int", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    SupplierID = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -94,6 +106,12 @@ namespace FitCore.DAL.Migrations
                         principalTable: "Categories",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Products_Suppliers_SupplierID",
+                        column: x => x.SupplierID,
+                        principalTable: "Suppliers",
+                        principalColumn: "SupplierID",
+                        onDelete: ReferentialAction.SetNull);
                 });
 
             migrationBuilder.CreateTable(
@@ -121,18 +139,20 @@ namespace FitCore.DAL.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Cart",
+                name: "Carts",
                 columns: table => new
                 {
                     CartID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    UserID = table.Column<int>(type: "int", nullable: false)
+                    UserID = table.Column<int>(type: "int", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Cart", x => x.CartID);
+                    table.PrimaryKey("PK_Carts", x => x.CartID);
                     table.ForeignKey(
-                        name: "FK_Cart_Users_UserID",
+                        name: "FK_Carts_Users_UserID",
                         column: x => x.UserID,
                         principalTable: "Users",
                         principalColumn: "UserID",
@@ -172,7 +192,9 @@ namespace FitCore.DAL.Migrations
                     IssueDate = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
                     TotalAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     InvoiceStatus = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false)
+                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -189,12 +211,16 @@ namespace FitCore.DAL.Migrations
                 name: "MemberProfiles",
                 columns: table => new
                 {
+                    MemberProfileId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     UserID = table.Column<int>(type: "int", nullable: false),
-                    QRCodeData = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    QRCodeData = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_MemberProfiles", x => x.UserID);
+                    table.PrimaryKey("PK_MemberProfiles", x => x.MemberProfileId);
                     table.ForeignKey(
                         name: "FK_MemberProfiles_Users_UserID",
                         column: x => x.UserID,
@@ -236,7 +262,9 @@ namespace FitCore.DAL.Migrations
                     UserID = table.Column<int>(type: "int", nullable: false),
                     Specialization = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Bio = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
-                    WorkingHours = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false)
+                    WorkingHours = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -256,7 +284,9 @@ namespace FitCore.DAL.Migrations
                     RoleID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Role = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    UserID = table.Column<int>(type: "int", nullable: false)
+                    UserID = table.Column<int>(type: "int", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -279,7 +309,9 @@ namespace FitCore.DAL.Migrations
                     DateAdded = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Quantity = table.Column<int>(type: "int", nullable: false),
                     CostPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    ProductId = table.Column<int>(type: "int", nullable: false)
+                    ProductId = table.Column<int>(type: "int", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -293,26 +325,28 @@ namespace FitCore.DAL.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "CartItem",
+                name: "CartItems",
                 columns: table => new
                 {
                     CartItemID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     CartID = table.Column<int>(type: "int", nullable: false),
                     ProductID = table.Column<int>(type: "int", nullable: false),
-                    Quantity = table.Column<int>(type: "int", nullable: false, defaultValue: 1)
+                    Quantity = table.Column<int>(type: "int", nullable: false, defaultValue: 1),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_CartItem", x => x.CartItemID);
+                    table.PrimaryKey("PK_CartItems", x => x.CartItemID);
                     table.ForeignKey(
-                        name: "FK_CartItem_Cart_CartID",
+                        name: "FK_CartItems_Carts_CartID",
                         column: x => x.CartID,
-                        principalTable: "Cart",
+                        principalTable: "Carts",
                         principalColumn: "CartID",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_CartItem_Products_ProductID",
+                        name: "FK_CartItems_Products_ProductID",
                         column: x => x.ProductID,
                         principalTable: "Products",
                         principalColumn: "ProductID",
@@ -350,45 +384,6 @@ namespace FitCore.DAL.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "InvoiceItems",
-                columns: table => new
-                {
-                    InvoiceItemID = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    InvoiceID = table.Column<int>(type: "int", nullable: false),
-                    ItemType = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ProductID = table.Column<int>(type: "int", nullable: true),
-                    ServiceID = table.Column<int>(type: "int", nullable: true),
-                    ItemName = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    Quantity = table.Column<int>(type: "int", nullable: false, defaultValue: 1),
-                    LineTotal = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    SellPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_InvoiceItems", x => x.InvoiceItemID);
-                    table.CheckConstraint("CK_InvoiceItem_OnlyOneTypeAllowed", "(ProductID IS NOT NULL AND ServiceID IS NULL) OR (ProductID IS NULL AND ServiceID IS NOT NULL)");
-                    table.ForeignKey(
-                        name: "FK_InvoiceItems_GymService_ServiceID",
-                        column: x => x.ServiceID,
-                        principalTable: "GymService",
-                        principalColumn: "ServiceID",
-                        onDelete: ReferentialAction.SetNull);
-                    table.ForeignKey(
-                        name: "FK_InvoiceItems_Invoices_InvoiceID",
-                        column: x => x.InvoiceID,
-                        principalTable: "Invoices",
-                        principalColumn: "InvoiceID",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_InvoiceItems_Products_ProductID",
-                        column: x => x.ProductID,
-                        principalTable: "Products",
-                        principalColumn: "ProductID",
-                        onDelete: ReferentialAction.SetNull);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Payments",
                 columns: table => new
                 {
@@ -399,7 +394,9 @@ namespace FitCore.DAL.Migrations
                     AmountPaid = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     PaymentDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     PaymentMethod = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    TransactionReference = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false)
+                    TransactionReference = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -419,31 +416,6 @@ namespace FitCore.DAL.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Memberships",
-                columns: table => new
-                {
-                    MembershipID = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    MemberID = table.Column<int>(type: "int", nullable: false),
-                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Status = table.Column<int>(type: "int", maxLength: 20, nullable: false),
-                    FreezeStartDate = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    FreezeEndDate = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    IsAutoRenew = table.Column<bool>(type: "bit", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Memberships", x => x.MembershipID);
-                    table.ForeignKey(
-                        name: "FK_Memberships_MemberProfiles_MemberID",
-                        column: x => x.MemberID,
-                        principalTable: "MemberProfiles",
-                        principalColumn: "UserID",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Classes",
                 columns: table => new
                 {
@@ -453,7 +425,10 @@ namespace FitCore.DAL.Migrations
                     ClassName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Capacity = table.Column<int>(type: "int", nullable: false),
-                    Status = table.Column<int>(type: "int", maxLength: 20, nullable: false)
+                    NumberOfSessions = table.Column<int>(type: "int", nullable: false),
+                    Status = table.Column<int>(type: "int", maxLength: 20, nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -467,30 +442,98 @@ namespace FitCore.DAL.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Attendances",
+                name: "PrivateSessions",
                 columns: table => new
                 {
-                    AttendanceID = table.Column<int>(type: "int", nullable: false)
+                    PrivateSessionID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    UserId = table.Column<int>(type: "int", nullable: false),
-                    ClassID = table.Column<int>(type: "int", nullable: true),
-                    Type = table.Column<int>(type: "int", nullable: false),
-                    CheckInTime = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()")
+                    TrainerID = table.Column<int>(type: "int", nullable: false),
+                    MemberUserId = table.Column<int>(type: "int", nullable: false),
+                    SessionDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    StartTime = table.Column<TimeSpan>(type: "time", nullable: false),
+                    EndTime = table.Column<TimeSpan>(type: "time", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    Notes = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Attendances", x => x.AttendanceID);
+                    table.PrimaryKey("PK_PrivateSessions", x => x.PrivateSessionID);
                     table.ForeignKey(
-                        name: "FK_Attendances_Classes_ClassID",
+                        name: "FK_PrivateSessions_MemberProfiles_MemberUserId",
+                        column: x => x.MemberUserId,
+                        principalTable: "MemberProfiles",
+                        principalColumn: "MemberProfileId",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_PrivateSessions_Trainers_TrainerID",
+                        column: x => x.TrainerID,
+                        principalTable: "Trainers",
+                        principalColumn: "TrainerID",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TrainerWorkingHours",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    TrainerID = table.Column<int>(type: "int", nullable: false),
+                    Day = table.Column<int>(type: "int", nullable: false),
+                    StartTime = table.Column<TimeSpan>(type: "time", nullable: false),
+                    EndTime = table.Column<TimeSpan>(type: "time", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TrainerWorkingHours", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_TrainerWorkingHours_Trainers_TrainerID",
+                        column: x => x.TrainerID,
+                        principalTable: "Trainers",
+                        principalColumn: "TrainerID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Bookings",
+                columns: table => new
+                {
+                    BookingID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ClassID = table.Column<int>(type: "int", nullable: true),
+                    GymServiceId = table.Column<int>(type: "int", nullable: true),
+                    MemberUserId = table.Column<int>(type: "int", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Bookings", x => x.BookingID);
+                    table.CheckConstraint("CK_Booking_ClassOrService_Exclusive", "(ClassID IS NOT NULL AND GymServiceId IS NULL) OR (ClassID IS NULL AND GymServiceId IS NOT NULL)");
+                    table.ForeignKey(
+                        name: "FK_Bookings_Classes_ClassID",
                         column: x => x.ClassID,
                         principalTable: "Classes",
                         principalColumn: "ClassID",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Attendances_MemberProfiles_UserId",
-                        column: x => x.UserId,
+                        name: "FK_Bookings_GymServices_GymServiceId",
+                        column: x => x.GymServiceId,
+                        principalTable: "GymServices",
+                        principalColumn: "ServiceID",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Bookings_MemberProfiles_MemberUserId",
+                        column: x => x.MemberUserId,
                         principalTable: "MemberProfiles",
-                        principalColumn: "UserID",
+                        principalColumn: "MemberProfileId",
                         onDelete: ReferentialAction.Restrict);
                 });
 
@@ -503,7 +546,9 @@ namespace FitCore.DAL.Migrations
                     ClassID = table.Column<int>(type: "int", nullable: false),
                     Day = table.Column<int>(type: "int", nullable: false),
                     StartTime = table.Column<TimeSpan>(type: "time", nullable: false),
-                    EndTime = table.Column<TimeSpan>(type: "time", nullable: false)
+                    EndTime = table.Column<TimeSpan>(type: "time", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -516,10 +561,148 @@ namespace FitCore.DAL.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "InvoiceItems",
+                columns: table => new
+                {
+                    InvoiceItemID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    InvoiceID = table.Column<int>(type: "int", nullable: false),
+                    ItemType = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ProductID = table.Column<int>(type: "int", nullable: true),
+                    ServiceID = table.Column<int>(type: "int", nullable: true),
+                    ClassID = table.Column<int>(type: "int", nullable: true),
+                    ItemName = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    Quantity = table.Column<int>(type: "int", nullable: false, defaultValue: 1),
+                    LineTotal = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    SellPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_InvoiceItems", x => x.InvoiceItemID);
+                    table.CheckConstraint("CK_InvoiceItem_TypeAllowed", "(CASE WHEN ProductID IS NOT NULL THEN 1 ELSE 0 END +  CASE WHEN ServiceID IS NOT NULL THEN 1 ELSE 0 END +  CASE WHEN ClassID IS NOT NULL THEN 1 ELSE 0 END) = 1");
+                    table.ForeignKey(
+                        name: "FK_InvoiceItems_Classes_ClassID",
+                        column: x => x.ClassID,
+                        principalTable: "Classes",
+                        principalColumn: "ClassID",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_InvoiceItems_GymServices_ServiceID",
+                        column: x => x.ServiceID,
+                        principalTable: "GymServices",
+                        principalColumn: "ServiceID",
+                        onDelete: ReferentialAction.SetNull);
+                    table.ForeignKey(
+                        name: "FK_InvoiceItems_Invoices_InvoiceID",
+                        column: x => x.InvoiceID,
+                        principalTable: "Invoices",
+                        principalColumn: "InvoiceID",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_InvoiceItems_Products_ProductID",
+                        column: x => x.ProductID,
+                        principalTable: "Products",
+                        principalColumn: "ProductID",
+                        onDelete: ReferentialAction.SetNull);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Memberships",
+                columns: table => new
+                {
+                    MembershipID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    MemberProfileId = table.Column<int>(type: "int", nullable: false),
+                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    FreezeStartDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    FreezeEndDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    IsAutoRenew = table.Column<bool>(type: "bit", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    GymServiceId = table.Column<int>(type: "int", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    ClassID = table.Column<int>(type: "int", nullable: true),
+                    RemainingSessions = table.Column<int>(type: "int", nullable: true),
+                    UserID = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Memberships", x => x.MembershipID);
+                    table.ForeignKey(
+                        name: "FK_Memberships_Classes_ClassID",
+                        column: x => x.ClassID,
+                        principalTable: "Classes",
+                        principalColumn: "ClassID",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Memberships_GymServices_GymServiceId",
+                        column: x => x.GymServiceId,
+                        principalTable: "GymServices",
+                        principalColumn: "ServiceID",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Memberships_MemberProfiles_MemberProfileId",
+                        column: x => x.MemberProfileId,
+                        principalTable: "MemberProfiles",
+                        principalColumn: "MemberProfileId",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Memberships_Users_UserID",
+                        column: x => x.UserID,
+                        principalTable: "Users",
+                        principalColumn: "UserID");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Attendances",
+                columns: table => new
+                {
+                    AttendanceID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserId = table.Column<int>(type: "int", nullable: false),
+                    MembershipID = table.Column<int>(type: "int", nullable: true),
+                    Type = table.Column<int>(type: "int", nullable: false),
+                    CheckInTime = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    ClassID = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Attendances", x => x.AttendanceID);
+                    table.ForeignKey(
+                        name: "FK_Attendances_Classes_ClassID",
+                        column: x => x.ClassID,
+                        principalTable: "Classes",
+                        principalColumn: "ClassID");
+                    table.ForeignKey(
+                        name: "FK_Attendances_MemberProfiles_UserId",
+                        column: x => x.UserId,
+                        principalTable: "MemberProfiles",
+                        principalColumn: "MemberProfileId",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Attendances_Memberships_MembershipID",
+                        column: x => x.MembershipID,
+                        principalTable: "Memberships",
+                        principalColumn: "MembershipID",
+                        onDelete: ReferentialAction.SetNull);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_Attendances_ClassID",
                 table: "Attendances",
                 column: "ClassID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Attendances_MembershipID",
+                table: "Attendances",
+                column: "MembershipID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Attendances_UserId",
@@ -532,20 +715,35 @@ namespace FitCore.DAL.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Cart_UserID",
-                table: "Cart",
-                column: "UserID",
-                unique: true);
+                name: "IX_Bookings_ClassID",
+                table: "Bookings",
+                column: "ClassID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_CartItem_CartID",
-                table: "CartItem",
+                name: "IX_Bookings_GymServiceId",
+                table: "Bookings",
+                column: "GymServiceId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Bookings_MemberUserId",
+                table: "Bookings",
+                column: "MemberUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CartItems_CartID",
+                table: "CartItems",
                 column: "CartID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_CartItem_ProductID",
-                table: "CartItem",
+                name: "IX_CartItems_ProductID",
+                table: "CartItems",
                 column: "ProductID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Carts_UserID",
+                table: "Carts",
+                column: "UserID",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Classes_TrainerID",
@@ -578,6 +776,11 @@ namespace FitCore.DAL.Migrations
                 column: "TransactionID");
 
             migrationBuilder.CreateIndex(
+                name: "IX_InvoiceItems_ClassID",
+                table: "InvoiceItems",
+                column: "ClassID");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_InvoiceItems_InvoiceID",
                 table: "InvoiceItems",
                 column: "InvoiceID");
@@ -598,9 +801,30 @@ namespace FitCore.DAL.Migrations
                 column: "UserID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Memberships_MemberID",
+                name: "IX_MemberProfiles_UserID",
+                table: "MemberProfiles",
+                column: "UserID",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Memberships_ClassID",
                 table: "Memberships",
-                column: "MemberID");
+                column: "ClassID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Memberships_GymServiceId",
+                table: "Memberships",
+                column: "GymServiceId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Memberships_MemberProfileId",
+                table: "Memberships",
+                column: "MemberProfileId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Memberships_UserID",
+                table: "Memberships",
+                column: "UserID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Notifications_UserID",
@@ -618,15 +842,35 @@ namespace FitCore.DAL.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_PrivateSessions_MemberUserId",
+                table: "PrivateSessions",
+                column: "MemberUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PrivateSessions_TrainerID",
+                table: "PrivateSessions",
+                column: "TrainerID");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Products_CategoryId",
                 table: "Products",
                 column: "CategoryId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Products_SupplierID",
+                table: "Products",
+                column: "SupplierID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Trainers_UserID",
                 table: "Trainers",
                 column: "UserID",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TrainerWorkingHours_TrainerID",
+                table: "TrainerWorkingHours",
+                column: "TrainerID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserRoles_UserID",
@@ -644,7 +888,10 @@ namespace FitCore.DAL.Migrations
                 name: "AuditLogs");
 
             migrationBuilder.DropTable(
-                name: "CartItem");
+                name: "Bookings");
+
+            migrationBuilder.DropTable(
+                name: "CartItems");
 
             migrationBuilder.DropTable(
                 name: "ClassSchedule");
@@ -659,46 +906,52 @@ namespace FitCore.DAL.Migrations
                 name: "InvoiceItems");
 
             migrationBuilder.DropTable(
-                name: "Memberships");
-
-            migrationBuilder.DropTable(
                 name: "Notifications");
 
             migrationBuilder.DropTable(
                 name: "Payments");
 
             migrationBuilder.DropTable(
-                name: "Suppliers");
+                name: "PrivateSessions");
+
+            migrationBuilder.DropTable(
+                name: "TrainerWorkingHours");
 
             migrationBuilder.DropTable(
                 name: "UserRoles");
 
             migrationBuilder.DropTable(
-                name: "Cart");
+                name: "Memberships");
 
             migrationBuilder.DropTable(
-                name: "Classes");
+                name: "Carts");
 
             migrationBuilder.DropTable(
                 name: "InventoryTransactions");
 
             migrationBuilder.DropTable(
-                name: "GymService");
-
-            migrationBuilder.DropTable(
                 name: "Products");
-
-            migrationBuilder.DropTable(
-                name: "MemberProfiles");
 
             migrationBuilder.DropTable(
                 name: "Invoices");
 
             migrationBuilder.DropTable(
-                name: "Trainers");
+                name: "Classes");
+
+            migrationBuilder.DropTable(
+                name: "GymServices");
+
+            migrationBuilder.DropTable(
+                name: "MemberProfiles");
 
             migrationBuilder.DropTable(
                 name: "Categories");
+
+            migrationBuilder.DropTable(
+                name: "Suppliers");
+
+            migrationBuilder.DropTable(
+                name: "Trainers");
 
             migrationBuilder.DropTable(
                 name: "Users");

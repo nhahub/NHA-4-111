@@ -22,6 +22,8 @@ namespace FitCore.DAL.Configurations.TrainerConfiguration
                 .WithOne(u => u.Trainer)
                 .HasForeignKey<Trainer>(t => t.UserID)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasQueryFilter(b => !b.IsDeleted);
         }
     }
 }

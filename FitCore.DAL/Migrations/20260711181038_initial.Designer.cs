@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FitCore.DAL.Migrations
 {
     [DbContext(typeof(FitCoreDbContext))]
-    [Migration("20260710023816_AddNumberOfSessionsToClass")]
-    partial class AddNumberOfSessionsToClass
+    [Migration("20260711181038_initial")]
+    partial class initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -84,20 +84,12 @@ namespace FitCore.DAL.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("EntityName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("EntityPrimaryKey")
                         .HasColumnType("int");
-
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
 
                     b.Property<string>("NewValue")
                         .HasColumnType("nvarchar(max)");
@@ -113,6 +105,53 @@ namespace FitCore.DAL.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("AuditLogs");
+                });
+
+            modelBuilder.Entity("FitCore.DAL.Data.Models.Booking", b =>
+                {
+                    b.Property<int>("BookingID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("BookingID"));
+
+                    b.Property<int?>("ClassID")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("GymServiceId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<int>("MemberUserId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.HasKey("BookingID");
+
+                    b.HasIndex("ClassID");
+
+                    b.HasIndex("GymServiceId");
+
+                    b.HasIndex("MemberUserId");
+
+                    b.ToTable("Bookings", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_Booking_ClassOrService_Exclusive", "(ClassID IS NOT NULL AND GymServiceId IS NULL) OR (ClassID IS NULL AND GymServiceId IS NOT NULL)");
+                        });
                 });
 
             modelBuilder.Entity("FitCore.DAL.Data.Models.Cart", b =>
@@ -139,7 +178,7 @@ namespace FitCore.DAL.Migrations
                     b.HasIndex("UserID")
                         .IsUnique();
 
-                    b.ToTable("Cart");
+                    b.ToTable("Carts");
                 });
 
             modelBuilder.Entity("FitCore.DAL.Data.Models.CartItem", b =>
@@ -175,7 +214,7 @@ namespace FitCore.DAL.Migrations
 
                     b.HasIndex("ProductID");
 
-                    b.ToTable("CartItem");
+                    b.ToTable("CartItems");
                 });
 
             modelBuilder.Entity("FitCore.DAL.Data.Models.Category", b =>
@@ -219,9 +258,17 @@ namespace FitCore.DAL.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
                     b.Property<int>("NumberOfSessions")
                         .HasColumnType("int");
@@ -238,40 +285,6 @@ namespace FitCore.DAL.Migrations
                     b.HasIndex("TrainerID");
 
                     b.ToTable("Classes");
-                });
-
-            modelBuilder.Entity("FitCore.DAL.Data.Models.ClassBooking", b =>
-                {
-                    b.Property<int>("BookingID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("BookingID"));
-
-                    b.Property<int>("ClassScheduleID")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETUTCDATE()");
-
-                    b.Property<int>("MemberUserId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("SessionDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.HasKey("BookingID");
-
-                    b.HasIndex("ClassScheduleID");
-
-                    b.HasIndex("MemberUserId");
-
-                    b.ToTable("ClassBooking");
                 });
 
             modelBuilder.Entity("FitCore.DAL.Data.Models.ClassSchedule", b =>
@@ -347,33 +360,7 @@ namespace FitCore.DAL.Migrations
 
                     b.HasKey("ServiceID");
 
-                    b.ToTable("GymService");
-                });
-
-            modelBuilder.Entity("FitCore.DAL.Data.Models.GymServiceClass", b =>
-                {
-                    b.Property<int>("ServiceId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ClassId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("AllowedAttendancesPerMonth")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
-
-                    b.HasKey("ServiceId", "ClassId");
-
-                    b.HasIndex("ClassId");
-
-                    b.ToTable("GymServiceClass");
+                    b.ToTable("GymServices");
                 });
 
             modelBuilder.Entity("FitCore.DAL.Data.Models.Inventory", b =>
@@ -422,14 +409,6 @@ namespace FitCore.DAL.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TransactionID"));
 
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
-
                     b.Property<string>("Notes")
                         .IsRequired()
                         .HasMaxLength(500)
@@ -471,14 +450,6 @@ namespace FitCore.DAL.Migrations
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
 
                     b.Property<int?>("ProductID")
                         .HasColumnType("int");
@@ -614,8 +585,11 @@ namespace FitCore.DAL.Migrations
 
             modelBuilder.Entity("FitCore.DAL.Data.Models.MemberProfile", b =>
                 {
-                    b.Property<int>("UserID")
+                    b.Property<int>("MemberProfileId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MemberProfileId"));
 
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime2");
@@ -625,19 +599,16 @@ namespace FitCore.DAL.Migrations
                         .HasColumnType("bit")
                         .HasDefaultValue(false);
 
-                    b.Property<int>("MemberProfileId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MemberProfileId"));
-
                     b.Property<string>("QRCodeData")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("UserID");
+                    b.Property<int>("UserID")
+                        .HasColumnType("int");
 
-                    b.HasIndex("MemberProfileId")
+                    b.HasKey("MemberProfileId");
+
+                    b.HasIndex("UserID")
                         .IsUnique();
 
                     b.ToTable("MemberProfiles");
@@ -724,14 +695,6 @@ namespace FitCore.DAL.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
-
                     b.Property<bool>("IsRead")
                         .HasColumnType("bit");
 
@@ -811,8 +774,16 @@ namespace FitCore.DAL.Migrations
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("GETUTCDATE()");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<TimeSpan>("EndTime")
                         .HasColumnType("time");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
                     b.Property<int>("MemberUserId")
                         .HasColumnType("int");
@@ -840,7 +811,7 @@ namespace FitCore.DAL.Migrations
 
                     b.HasIndex("TrainerID");
 
-                    b.ToTable("PrivateSession");
+                    b.ToTable("PrivateSessions");
                 });
 
             modelBuilder.Entity("FitCore.DAL.Data.Models.Product", b =>
@@ -937,6 +908,14 @@ namespace FitCore.DAL.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
                     b.Property<string>("Specialization")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -969,8 +948,16 @@ namespace FitCore.DAL.Migrations
                     b.Property<int>("Day")
                         .HasColumnType("int");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<TimeSpan>("EndTime")
                         .HasColumnType("time");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
                     b.Property<TimeSpan>("StartTime")
                         .HasColumnType("time");
@@ -982,7 +969,7 @@ namespace FitCore.DAL.Migrations
 
                     b.HasIndex("TrainerID");
 
-                    b.ToTable("TrainerWorkingHour");
+                    b.ToTable("TrainerWorkingHours");
                 });
 
             modelBuilder.Entity("FitCore.DAL.Data.Models.User", b =>
@@ -1092,6 +1079,31 @@ namespace FitCore.DAL.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("FitCore.DAL.Data.Models.Booking", b =>
+                {
+                    b.HasOne("FitCore.DAL.Data.Models.Class", "Class")
+                        .WithMany("Bookings")
+                        .HasForeignKey("ClassID")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("FitCore.DAL.Data.Models.GymService", "GymService")
+                        .WithMany("Bookings")
+                        .HasForeignKey("GymServiceId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("FitCore.DAL.Data.Models.MemberProfile", "MemberProfile")
+                        .WithMany("Bookings")
+                        .HasForeignKey("MemberUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Class");
+
+                    b.Navigation("GymService");
+
+                    b.Navigation("MemberProfile");
+                });
+
             modelBuilder.Entity("FitCore.DAL.Data.Models.Cart", b =>
                 {
                     b.HasOne("FitCore.DAL.Data.Models.User", "User")
@@ -1133,25 +1145,6 @@ namespace FitCore.DAL.Migrations
                     b.Navigation("Trainer");
                 });
 
-            modelBuilder.Entity("FitCore.DAL.Data.Models.ClassBooking", b =>
-                {
-                    b.HasOne("FitCore.DAL.Data.Models.ClassSchedule", "ClassSchedule")
-                        .WithMany("Bookings")
-                        .HasForeignKey("ClassScheduleID")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("FitCore.DAL.Data.Models.MemberProfile", "MemberProfile")
-                        .WithMany("ClassBookings")
-                        .HasForeignKey("MemberUserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("ClassSchedule");
-
-                    b.Navigation("MemberProfile");
-                });
-
             modelBuilder.Entity("FitCore.DAL.Data.Models.ClassSchedule", b =>
                 {
                     b.HasOne("FitCore.DAL.Data.Models.Class", "Class")
@@ -1161,25 +1154,6 @@ namespace FitCore.DAL.Migrations
                         .IsRequired();
 
                     b.Navigation("Class");
-                });
-
-            modelBuilder.Entity("FitCore.DAL.Data.Models.GymServiceClass", b =>
-                {
-                    b.HasOne("FitCore.DAL.Data.Models.Class", "Class")
-                        .WithMany("GymServiceClasses")
-                        .HasForeignKey("ClassId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("FitCore.DAL.Data.Models.GymService", "GymService")
-                        .WithMany("GymServiceClasses")
-                        .HasForeignKey("ServiceId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Class");
-
-                    b.Navigation("GymService");
                 });
 
             modelBuilder.Entity("FitCore.DAL.Data.Models.Inventory", b =>
@@ -1419,7 +1393,7 @@ namespace FitCore.DAL.Migrations
                 {
                     b.Navigation("Attendances");
 
-                    b.Navigation("GymServiceClasses");
+                    b.Navigation("Bookings");
 
                     b.Navigation("InvoicesItems");
 
@@ -1428,14 +1402,9 @@ namespace FitCore.DAL.Migrations
                     b.Navigation("Schedules");
                 });
 
-            modelBuilder.Entity("FitCore.DAL.Data.Models.ClassSchedule", b =>
-                {
-                    b.Navigation("Bookings");
-                });
-
             modelBuilder.Entity("FitCore.DAL.Data.Models.GymService", b =>
                 {
-                    b.Navigation("GymServiceClasses");
+                    b.Navigation("Bookings");
 
                     b.Navigation("InvoicesItems");
 
@@ -1458,7 +1427,7 @@ namespace FitCore.DAL.Migrations
                 {
                     b.Navigation("Attendances");
 
-                    b.Navigation("ClassBookings");
+                    b.Navigation("Bookings");
 
                     b.Navigation("Memberships");
 

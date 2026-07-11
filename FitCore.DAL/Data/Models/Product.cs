@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace FitCore.DAL.Data.Models
 {
-    public class Product : ISoftDelete
+    public class Product : IAuditable,ISoftDelete
     {
         public int ProductID { get; set; }
         public string Name { get; set; } = string.Empty;

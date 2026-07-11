@@ -18,6 +18,8 @@ namespace FitCore.DAL.Configurations.TrainerConfiguration
                 .WithMany(t => t.WorkingHoursSchedule)
                 .HasForeignKey(w => w.TrainerID)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasQueryFilter(b => !b.IsDeleted);
         }
     }
 }
