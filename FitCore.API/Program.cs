@@ -20,6 +20,8 @@ using FitCore.DAL.Data.Contexts;
 using FitCore.DAL.Interfaces;
 using Hangfire;
 using Microsoft.EntityFrameworkCore;
+using FitCore.BLL.Interfaces.GymService;
+using FitCore.BLL.Services.GymServices;
 namespace FitCore.API
 {
     public class Program
@@ -48,6 +50,7 @@ namespace FitCore.API
             builder.Services.AddScoped<IPrivateSessionService, PrivateSessionService>();
             builder.Services.AddHttpContextAccessor(); 
             builder.Services.AddScoped<IMembershipService, MembershipService>();
+            builder.Services.AddScoped<IGymServiceService, GymServiceService>();
             builder.Services.AddHttpContextAccessor();
 
 
