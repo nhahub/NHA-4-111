@@ -19,7 +19,7 @@ namespace FitCore.API.Controllers
         public async Task<IActionResult> ProcessCheckout(int userId)
         {
             var result = await _checkoutService.ProcessCheckoutAsync(userId);
-            if (result)
+            if (result != null)
                 return Ok(new { message = "Payment processed and invoice created successfully!" });
 
             return BadRequest(new { message = "Operation failed. The cart may be empty or the provided data is invalid." });
