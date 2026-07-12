@@ -1,3 +1,11 @@
+using FitCore.DAL.Data.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.IdentityModel.Tokens;
+using FitCore.BLL.Interfaces.Auth;
+using FitCore.BLL.Services.Auth;
+using System.Security.Claims;
+using System.Text;
 using FitCore.API.Middlewares;
 using FitCore.BLL.Interfaces.AuditLogs;
 using FitCore.BLL.Interfaces.Classes;
@@ -7,14 +15,14 @@ using FitCore.BLL.Interfaces.PrivateSessions;
 using FitCore.BLL.Interfaces.Profile;
 using FitCore.BLL.Services;
 using FitCore.BLL.Interfaces.Trainers;
-using FitCore.BLL.Interfaces.Trainers;
+
 using FitCore.BLL.Services.AuditLogs;
 using FitCore.BLL.Services.Classes;
 using FitCore.BLL.Services.Notifications;
 using FitCore.BLL.Services.PrivateSessions;
 using FitCore.BLL.Services.Profile;
 using FitCore.BLL.Services.Trainers;
-using FitCore.BLL.Services.Trainers;
+
 using FitCore.DAL.Data;
 using FitCore.DAL.Data.Contexts;
 using FitCore.DAL.Interfaces;
@@ -70,7 +78,33 @@ namespace FitCore.API
 
             builder.Services.AddHangfireServer();
             #endregion
+            // Auth
+            builder.Services.AddScoped<IAuthService, AuthService>();
+            builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
+            builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
+            var jwtSection = builder.Configuration.GetSection("JWT");
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidIssuer = jwtSection["ValidIssuer"],
+                    ValidateAudience = true,
+                    ValidAudience = jwtSection["ValidAudience"],
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSection["Secret"]!)),
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero,
+                    RoleClaimType = "role",
+                    NameClaimType = ClaimTypes.NameIdentifier
+                };
+            });
+            builder.Services.AddAuthorization();
             // Add services to the container.
             builder.Services.AddControllers();
 
@@ -88,7 +122,10 @@ namespace FitCore.API
             // OpenAPI & Swagger Configuration
             builder.Services.AddOpenApi();
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+            builder.Services.AddSwaggerGen(options =>
+            {
+                options.CustomSchemaIds(type => type.FullName);
+            });
 
 
             var app = builder.Build();
