@@ -239,11 +239,12 @@ namespace FitCore.BLL.Services.Classes
 
         public async Task<ClassBookingDto> BookClassAsync(int memberUserId, int classId)
         {
+
             var member = await DbContext.Set<MemberProfile>().FirstOrDefaultAsync(m => m.UserID == memberUserId);
             if (member == null)
                 throw new KeyNotFoundException("Member profile not found.");
 
-            #region class check
+
             var gymClass = await DbContext.Set<Class>()
                 .Include(c => c.Schedules)
                 .FirstOrDefaultAsync(c => c.ClassID == classId);
@@ -263,6 +264,7 @@ namespace FitCore.BLL.Services.Classes
                 throw new BusinessRuleException("This class has reached its maximum capacity and is fully booked.");
             }
 
+
             var hasActiveMembership = await DbContext.Set<Membership>().AnyAsync(m =>
                 m.MemberProfileId == member.MemberProfileId &&
                 m.ClassID == classId &&
@@ -271,8 +273,6 @@ namespace FitCore.BLL.Services.Classes
 
             if (hasActiveMembership)
                 throw new BusinessRuleException("You already have an active membership for this class.");
-
-            #endregion
 
             var alreadyInBooking = await DbContext.Set<Booking>().AnyAsync(b =>
                 b.MemberUserId == memberUserId &&
@@ -284,7 +284,7 @@ namespace FitCore.BLL.Services.Classes
 
             var booking = new Booking
             {
-                MemberUserId = memberUserId,
+                MemberUserId = memberUserId, 
                 ClassID = classId,
                 GymServiceId = null,
                 Status = BookingStatus.Booked,
@@ -293,6 +293,7 @@ namespace FitCore.BLL.Services.Classes
 
             await DbContext.Set<Booking>().AddAsync(booking);
             await DbContext.SaveChangesAsync();
+
 
             return new ClassBookingDto
             {
@@ -327,13 +328,15 @@ namespace FitCore.BLL.Services.Classes
 
         public async Task<ICollection<ClassBookingDto>> GetMemberBookingsAsync(int memberUserId)
         {
+            
             var bookings = await DbContext.Set<Booking>()
                 .Where(b => b.MemberUserId == memberUserId && b.ClassID != null)
                 .Include(b => b.Class)
-                 .ThenInclude(c => c.Schedules) 
+                    .ThenInclude(c => c.Schedules)
                 .OrderByDescending(b => b.BookingID)
                 .ToListAsync();
 
+            
             return bookings.Select(b => new ClassBookingDto
             {
                 BookingID = b.BookingID,
@@ -343,7 +346,6 @@ namespace FitCore.BLL.Services.Classes
                 ScheduleDetails = b.Class.Schedules
                     .Select(s => $"{s.Day}: {s.StartTime} - {s.EndTime}")
                     .ToList()
-
             }).ToList();
         }
 
@@ -354,7 +356,6 @@ namespace FitCore.BLL.Services.Classes
                 ClassID = gymClass.ClassID,
                 ClassName = gymClass.ClassName,
                 Description = gymClass.Description,
-                Capacity = gymClass.Capacity,
                 Status = gymClass.Status,
                 TrainerID = gymClass.TrainerID,
                 TrainerName = trainer?.User?.FullName ?? string.Empty,

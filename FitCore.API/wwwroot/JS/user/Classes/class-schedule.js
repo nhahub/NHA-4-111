@@ -145,16 +145,16 @@ function renderGrid() {
         grid.innerHTML = `<div class="state-empty"><i class='bx bx-calendar-x' style="font-size:28px;display:block;margin-bottom:8px;"></i>No sessions match your filters in this range.</div>`;
         return;
     }
-
+    console.log(filtered);
     grid.innerHTML = filtered.map((o, index) => renderCard(o, index === 0)).join('');
 
     grid.querySelectorAll('[data-book]').forEach(btn => {
-        btn.addEventListener('click', () => bookOccurrence(btn.dataset.scheduleId, btn.dataset.sessionDate, btn));
+        btn.addEventListener('click', () => bookOccurrence(btn.dataset.classID, btn.dataset.sessionDate, btn));
     });
 }
 
 function renderCard(o, featured) {
-    const scheduleId = pick(o, 'classScheduleID', 'ClassScheduleID');
+    const classID = pick(o, 'classID', 'ClassID');
     const className = pick(o, 'className', 'ClassName');
     const description = pick(o, 'description', 'Description') || '';
     const trainerName = pick(o, 'trainerName', 'TrainerName') || '—';
@@ -166,7 +166,7 @@ function renderCard(o, featured) {
     const isFull = available <= 0;
     const cat = categoryFor(className);
     const whenLabel = dayLabelFor(sessionDate);
-
+    console.log(classID);
     if (featured) {
         return `
         <article class="card featured">
@@ -184,7 +184,7 @@ function renderCard(o, featured) {
                     <div class="instructor"><span class="avatar-sm">${initials(trainerName)}</span>${escapeHtml(trainerName)}</div>
                     <div class="time-tag"><span class="time">${start}</span><span class="when">${whenLabel}</span></div>
                 </div>
-                <button class="btn-primary" data-book data-schedule-id="${scheduleId}" data-session-date="${sessionDate}" ${isFull ? 'disabled' : ''}>
+                <button class="btn-primary" data-book data-class-id="${classID}" data-session-date="${sessionDate}" ${isFull ? 'disabled' : ''}>
                     ${isFull ? 'Full' : 'Book Now'}
                 </button>
             </div>
@@ -200,7 +200,7 @@ function renderCard(o, featured) {
         <div class="class-name">${escapeHtml(className)}</div>
         <div class="meta-row"><i class='bx bx-calendar'></i> ${escapeHtml(whenLabel)}, ${start} - ${end}</div>
         <div class="meta-row"><i class='bx bx-user'></i> ${escapeHtml(trainerName)}</div>
-        <button class="btn-outline" data-book data-schedule-id="${scheduleId}" data-session-date="${sessionDate}" ${isFull ? 'disabled' : ''}>
+        <button class="btn-outline" data-book data-class-id="${classID}" data-session-date="${sessionDate}" ${isFull ? 'disabled' : ''}>
             ${isFull ? 'Full' : 'Book Spot'}
         </button>
     </article>`;
@@ -216,16 +216,16 @@ function dayLabelFor(isoDate) {
     return DAY_LABELS[target.getDay()] + ' ' + target.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
 }
 
-async function bookOccurrence(classScheduleId, sessionDate, btn) {
-    const memberUserId = window.CURRENT_MEMBER_USER_ID;
+async function bookOccurrence(classID, sessionDate, btn) {
+    const memberUserId = window.CURRENT_MEMBER_USER_ID || 1;
     const originalText = btn.textContent;
     btn.disabled = true;
     btn.textContent = 'Booking…';
 
     try {
         await FitCoreApi.post(`/api/Classes/book?memberUserId=${memberUserId}`, {
-            classScheduleID: parseInt(classScheduleId, 10),
-            sessionDate,
+            classID: parseInt(classID, 10),
+            // sessionDate,
         });
         showToast('You are booked in! Check My Bookings for details.');
         await loadOccurrences(true);
