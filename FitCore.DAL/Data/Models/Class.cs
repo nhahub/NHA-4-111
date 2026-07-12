@@ -16,6 +16,7 @@ namespace FitCore.DAL.Data.Models
 
         public string ClassName { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
+        public decimal Price { get; set; }
         public int Capacity { get; set; }
         public int NumberOfSessions { get; set; } = 1;
         public ClassStatus Status { get; set; }

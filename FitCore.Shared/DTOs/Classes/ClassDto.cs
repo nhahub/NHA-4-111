@@ -10,6 +10,7 @@ namespace FitCore.Shared.DTOs.Classes
         public string Description { get; set; } = string.Empty;
         public int Capacity { get; set; }
         public int NumberOfSessions { get; set; }
+        public decimal Price { get; set; }
         public ClassStatus Status { get; set; }
 
         public int TrainerID { get; set; }
