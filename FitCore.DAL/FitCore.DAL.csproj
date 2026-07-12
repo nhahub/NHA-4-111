@@ -21,8 +21,4 @@
     <ProjectReference Include="..\FitCore.Shared\FitCore.Shared.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Migrations\" />
-  </ItemGroup>
-
 </Project>
