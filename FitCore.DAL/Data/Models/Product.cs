@@ -15,6 +15,8 @@ namespace FitCore.DAL.Data.Models
         public string Description { get; set; } = string.Empty;
         public decimal CurrentSellPrice { get; set; }
         public int ReorderLevel { get; set; }
+        public string? ImageUrl { get; set; }
+
 
         public int CategoryId { get; set; }
         public Category Category { get; set; }

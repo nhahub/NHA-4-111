@@ -1,3 +1,4 @@
+
 ﻿using FitCore.BLL.Interfaces.Payment;
 using FitCore.BLL.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -9,6 +10,7 @@ namespace FitCore.API.Controllers
     [ApiController]
     public class CheckoutController : ControllerBase
     {
+
         private readonly ICheckoutService _checkoutService;
 
         public CheckoutController(ICheckoutService checkoutService)

@@ -8,6 +8,7 @@ namespace FitCore.Shared.Enums
 {
     public enum PaymentMethod
     {
+
         Card,
         Cash,
         InstaPay,

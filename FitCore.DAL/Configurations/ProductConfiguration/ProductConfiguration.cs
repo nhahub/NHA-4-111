@@ -20,6 +20,9 @@ namespace FitCore.DAL.Configurations.ProductConfiguration
            .HasColumnType("decimal(18,2)")
            .IsRequired();
 
+            builder.Property(p => p.ImageUrl)
+           .HasMaxLength(500);
+
             builder.HasOne(x => x.Category)
                 .WithMany(x => x.Products)
                 .HasForeignKey(x => x.CategoryId)

@@ -47,6 +47,7 @@ namespace FitCore.BLL.Services.payment
                 var invoiceItem = new InvoiceItem
                 {
                     InvoiceID = invoice.InvoiceID,
+
                     //ItemType = InvoiceItemType.MembershipPlan,
                     ServiceID = dto.GymServiceId,
                     ItemName = dto.ServiceName,

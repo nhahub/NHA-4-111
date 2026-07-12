@@ -195,6 +195,7 @@ namespace FitCore.BLL.Services.GymServices
             if (booking == null)
                 throw new KeyNotFoundException("Booking not found or does not belong to the user.");
 
+
             if (booking.Status != BookingStatus.Booked && booking.Status != BookingStatus.Booked)
                 throw new BusinessRuleException("Cannot cancel a booking from its current status.");
 

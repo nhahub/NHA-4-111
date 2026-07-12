@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace FitCore.DAL.Migrations
 {
     /// <inheritdoc />
-    public partial class initial : Migration
+    public partial class InitialFitCore : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -33,7 +33,7 @@ namespace FitCore.DAL.Migrations
                     ServiceID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Price = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     Category = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     DurationInDays = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
@@ -90,8 +90,9 @@ namespace FitCore.DAL.Migrations
                     Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Barcode = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CurrentSellPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    CurrentSellPrice = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     ReorderLevel = table.Column<int>(type: "int", nullable: false),
+                    ImageUrl = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     CategoryId = table.Column<int>(type: "int", nullable: false),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
                     DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -190,7 +191,11 @@ namespace FitCore.DAL.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     UserID = table.Column<int>(type: "int", nullable: false),
                     IssueDate = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
-                    TotalAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    DueDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    SubTotal = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    DiscountAmount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    TaxAmount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    TotalAmount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     InvoiceStatus = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
@@ -308,7 +313,7 @@ namespace FitCore.DAL.Migrations
                     ExpiryDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     DateAdded = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Quantity = table.Column<int>(type: "int", nullable: false),
-                    CostPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    CostPrice = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     ProductId = table.Column<int>(type: "int", nullable: false),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
                     DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
@@ -363,7 +368,7 @@ namespace FitCore.DAL.Migrations
                     ProductID = table.Column<int>(type: "int", nullable: true),
                     ProductName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Quantity = table.Column<int>(type: "int", nullable: false),
-                    UnitCost = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    UnitCost = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     BatchNumber = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false)
                 },
                 constraints: table =>
@@ -391,10 +396,11 @@ namespace FitCore.DAL.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     InvoiceID = table.Column<int>(type: "int", nullable: false),
                     UserId = table.Column<int>(type: "int", nullable: false),
-                    AmountPaid = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    AmountPaid = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     PaymentDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     PaymentMethod = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     TransactionReference = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    GatewayResponse = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
                     DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
@@ -424,6 +430,7 @@ namespace FitCore.DAL.Migrations
                     TrainerID = table.Column<int>(type: "int", nullable: false),
                     ClassName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Price = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     Capacity = table.Column<int>(type: "int", nullable: false),
                     NumberOfSessions = table.Column<int>(type: "int", nullable: false),
                     Status = table.Column<int>(type: "int", maxLength: 20, nullable: false),
@@ -574,8 +581,9 @@ namespace FitCore.DAL.Migrations
                     ClassID = table.Column<int>(type: "int", nullable: true),
                     ItemName = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     Quantity = table.Column<int>(type: "int", nullable: false, defaultValue: 1),
-                    LineTotal = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    SellPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    SellPrice = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    Discount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    LineTotal = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
                     DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
@@ -616,6 +624,7 @@ namespace FitCore.DAL.Migrations
                     MembershipID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     MemberProfileId = table.Column<int>(type: "int", nullable: false),
+                    InvoiceID = table.Column<int>(type: "int", nullable: true),
                     StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
@@ -627,8 +636,7 @@ namespace FitCore.DAL.Migrations
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
                     DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     ClassID = table.Column<int>(type: "int", nullable: true),
-                    RemainingSessions = table.Column<int>(type: "int", nullable: true),
-                    UserID = table.Column<int>(type: "int", nullable: true)
+                    RemainingSessions = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -646,16 +654,17 @@ namespace FitCore.DAL.Migrations
                         principalColumn: "ServiceID",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
+                        name: "FK_Memberships_Invoices_InvoiceID",
+                        column: x => x.InvoiceID,
+                        principalTable: "Invoices",
+                        principalColumn: "InvoiceID",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
                         name: "FK_Memberships_MemberProfiles_MemberProfileId",
                         column: x => x.MemberProfileId,
                         principalTable: "MemberProfiles",
                         principalColumn: "MemberProfileId",
                         onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Memberships_Users_UserID",
-                        column: x => x.UserID,
-                        principalTable: "Users",
-                        principalColumn: "UserID");
                 });
 
             migrationBuilder.CreateTable(
@@ -817,14 +826,14 @@ namespace FitCore.DAL.Migrations
                 column: "GymServiceId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Memberships_InvoiceID",
+                table: "Memberships",
+                column: "InvoiceID");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Memberships_MemberProfileId",
                 table: "Memberships",
                 column: "MemberProfileId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Memberships_UserID",
-                table: "Memberships",
-                column: "UserID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Notifications_UserID",
@@ -933,13 +942,13 @@ namespace FitCore.DAL.Migrations
                 name: "Products");
 
             migrationBuilder.DropTable(
-                name: "Invoices");
-
-            migrationBuilder.DropTable(
                 name: "Classes");
 
             migrationBuilder.DropTable(
                 name: "GymServices");
+
+            migrationBuilder.DropTable(
+                name: "Invoices");
 
             migrationBuilder.DropTable(
                 name: "MemberProfiles");

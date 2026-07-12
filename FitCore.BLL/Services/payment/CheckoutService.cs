@@ -1,4 +1,5 @@
 ﻿using FitCore.BLL.Interfaces.Membership;
+
 using FitCore.BLL.Interfaces.Payment;
 using FitCore.DAL.Data.Contexts;
 using FitCore.DAL.Data.Models;
@@ -10,6 +11,7 @@ using System.Threading.Tasks;
 
 namespace FitCore.BLL.Services
 {
+
     public class CheckoutService : ICheckoutService
     {
         private readonly FitCoreDbContext _context;
@@ -76,6 +78,7 @@ namespace FitCore.BLL.Services
                         totalAmount += invoiceItem.LineTotal;
                         await _context.InvoiceItems.AddAsync(invoiceItem);
                     }
+
                 }
 
                 if (hasBookings)
@@ -107,6 +110,7 @@ namespace FitCore.BLL.Services
 
                         totalAmount += invoiceItem.LineTotal;
                         await _context.InvoiceItems.AddAsync(invoiceItem);
+
                     }
 
                     //_context.Bookings.UpdateRange(pendingBookings);

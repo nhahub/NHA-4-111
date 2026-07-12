@@ -24,6 +24,7 @@ namespace FitCore.API.Controllers
         {
             try
             {
+
                 
                 var result = await _paymentService.CreateCheckoutSessionAsync(
                     request.InvoiceID,

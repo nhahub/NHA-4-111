@@ -125,6 +125,7 @@ namespace FitCore.BLL.Services
             invoice.InvoiceStatus = InvoiceStatus.Completed;
             _context.Invoices.Update(invoice);
 
+
             var cart = await _context.Carts
                 .Include(c => c.CartItems)
                 .FirstOrDefaultAsync(c => c.UserID == invoice.UserID);
