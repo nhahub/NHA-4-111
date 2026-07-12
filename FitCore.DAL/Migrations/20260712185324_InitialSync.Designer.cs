@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FitCore.DAL.Migrations
 {
     [DbContext(typeof(FitCoreDbContext))]
-    [Migration("20260711181038_initial")]
-    partial class initial
+    [Migration("20260712185324_InitialSync")]
+    partial class InitialSync
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -273,6 +273,10 @@ namespace FitCore.DAL.Migrations
                     b.Property<int>("NumberOfSessions")
                         .HasColumnType("int");
 
+                    b.Property<decimal>("Price")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<int>("Status")
                         .HasMaxLength(20)
                         .HasColumnType("int");
@@ -356,6 +360,7 @@ namespace FitCore.DAL.Migrations
                         .HasColumnType("nvarchar(200)");
 
                     b.Property<decimal>("Price")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("ServiceID");
@@ -372,6 +377,7 @@ namespace FitCore.DAL.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<decimal>("CostPrice")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime>("DateAdded")
@@ -465,6 +471,7 @@ namespace FitCore.DAL.Migrations
                         .HasColumnType("int");
 
                     b.Property<decimal>("UnitCost")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("TransactionItemID");
@@ -492,6 +499,13 @@ namespace FitCore.DAL.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
+                    b.Property<decimal>("DiscountAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime?>("DueDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("InvoiceStatus")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -506,7 +520,16 @@ namespace FitCore.DAL.Migrations
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("GETUTCDATE()");
 
+                    b.Property<decimal>("SubTotal")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("TaxAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<decimal>("TotalAmount")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("UserID")
@@ -533,6 +556,10 @@ namespace FitCore.DAL.Migrations
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<decimal>("Discount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<int>("InvoiceID")
                         .HasColumnType("int");
 
@@ -551,6 +578,7 @@ namespace FitCore.DAL.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("LineTotal")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<int?>("ProductID")
@@ -562,6 +590,7 @@ namespace FitCore.DAL.Migrations
                         .HasDefaultValue(1);
 
                     b.Property<decimal>("SellPrice")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<int?>("ServiceID")
@@ -643,6 +672,9 @@ namespace FitCore.DAL.Migrations
                     b.Property<int?>("GymServiceId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("InvoiceID")
+                        .HasColumnType("int");
+
                     b.Property<bool>("IsAutoRenew")
                         .HasColumnType("bit");
 
@@ -663,18 +695,15 @@ namespace FitCore.DAL.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
-                    b.Property<int?>("UserID")
-                        .HasColumnType("int");
-
                     b.HasKey("MembershipID");
 
                     b.HasIndex("ClassID");
 
                     b.HasIndex("GymServiceId");
 
-                    b.HasIndex("MemberProfileId");
+                    b.HasIndex("InvoiceID");
 
-                    b.HasIndex("UserID");
+                    b.HasIndex("MemberProfileId");
 
                     b.ToTable("Memberships");
                 });
@@ -724,10 +753,14 @@ namespace FitCore.DAL.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PaymentID"));
 
                     b.Property<decimal>("AmountPaid")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("GatewayResponse")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("InvoiceID")
                         .HasColumnType("int");
@@ -830,6 +863,7 @@ namespace FitCore.DAL.Migrations
                         .HasColumnType("int");
 
                     b.Property<decimal>("CurrentSellPrice")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime?>("DeletedAt")
@@ -838,6 +872,10 @@ namespace FitCore.DAL.Migrations
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ImageUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<bool>("IsDeleted")
                         .ValueGeneratedOnAdd()
@@ -1262,19 +1300,22 @@ namespace FitCore.DAL.Migrations
                         .HasForeignKey("GymServiceId")
                         .OnDelete(DeleteBehavior.Restrict);
 
+                    b.HasOne("FitCore.DAL.Data.Models.Invoice", "Invoice")
+                        .WithMany("Memberships")
+                        .HasForeignKey("InvoiceID")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("FitCore.DAL.Data.Models.MemberProfile", "MemberProfile")
                         .WithMany("Memberships")
                         .HasForeignKey("MemberProfileId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("FitCore.DAL.Data.Models.User", null)
-                        .WithMany("Memberships")
-                        .HasForeignKey("UserID");
-
                     b.Navigation("Class");
 
                     b.Navigation("GymService");
+
+                    b.Navigation("Invoice");
 
                     b.Navigation("MemberProfile");
                 });
@@ -1420,6 +1461,8 @@ namespace FitCore.DAL.Migrations
                 {
                     b.Navigation("InvoiceItems");
 
+                    b.Navigation("Memberships");
+
                     b.Navigation("Payments");
                 });
 
@@ -1471,8 +1514,6 @@ namespace FitCore.DAL.Migrations
                     b.Navigation("Invoices");
 
                     b.Navigation("MemberProfile");
-
-                    b.Navigation("Memberships");
 
                     b.Navigation("Notifications");
 

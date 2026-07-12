@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 using FitCore.API.Middlewares;
 using FitCore.BLL.Interfaces.AdminDashboard;
 using FitCore.BLL.Interfaces.Attendance;
@@ -6,7 +5,6 @@ using FitCore.BLL.Interfaces.AuditLogs;
 using FitCore.BLL.Interfaces.Classes;
 using FitCore.BLL.Interfaces.IShopService;
 using FitCore.BLL.Interfaces.MemberDashboard;
-=======
 using FitCore.DAL.Data.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -15,31 +13,19 @@ using FitCore.BLL.Interfaces.Auth;
 using FitCore.BLL.Services.Auth;
 using System.Security.Claims;
 using System.Text;
-using FitCore.API.Middlewares;
-using FitCore.BLL.Interfaces.AuditLogs;
-using FitCore.BLL.Interfaces.Classes;
->>>>>>> 705b05840f2b2c1dc1446bac39d0b33511dcd28a
 using FitCore.BLL.Interfaces.Membership;
 using FitCore.BLL.Interfaces.Notifications;
 using FitCore.BLL.Interfaces.PrivateSessions;
 using FitCore.BLL.Interfaces.Profile;
 using FitCore.BLL.Services;
 using FitCore.BLL.Interfaces.Trainers;
-<<<<<<< HEAD
 using FitCore.BLL.Services.Attendance;
-=======
-
->>>>>>> 705b05840f2b2c1dc1446bac39d0b33511dcd28a
 using FitCore.BLL.Services.AuditLogs;
 using FitCore.BLL.Services.Classes;
 using FitCore.BLL.Services.Notifications;
 using FitCore.BLL.Services.PrivateSessions;
 using FitCore.BLL.Services.Profile;
 using FitCore.BLL.Services.Trainers;
-<<<<<<< HEAD
-=======
-
->>>>>>> 705b05840f2b2c1dc1446bac39d0b33511dcd28a
 using FitCore.DAL.Data;
 using FitCore.DAL.Data.Contexts;
 using FitCore.DAL.Interfaces;
@@ -49,13 +35,7 @@ using FitCore.BLL.Interfaces.GymService;
 using FitCore.BLL.Services.GymServices;
 using FitCore.BLL.Interfaces.Payment;
 using FitCore.BLL.Services.payment;
-<<<<<<< HEAD
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
 
-=======
->>>>>>> 705b05840f2b2c1dc1446bac39d0b33511dcd28a
 namespace FitCore.API
 {
     public class Program
@@ -85,52 +65,20 @@ namespace FitCore.API
             builder.Services.AddHttpContextAccessor(); 
             builder.Services.AddScoped<IMembershipService, MembershipService>();
             builder.Services.AddScoped<IGymServiceService, GymServiceService>();
-<<<<<<< HEAD
             builder.Services.AddScoped<IDashboardService, DashboardService>();
             builder.Services.AddScoped<IAttendanceService, AttendanceService>();
             builder.Services.AddScoped<IMemberDashboardService, MemberDashboardService>();
             builder.Services.AddScoped<IShopService, ShopService>();
             // Add Checkout and Subscription services
             builder.Services.AddScoped<FitCore.BLL.Services.CheckoutService>();
-=======
             builder.Services.AddHttpContextAccessor();
             // Add Checkout and Subscription services
             builder.Services.AddScoped<ICheckoutService, CheckoutService>();
->>>>>>> 705b05840f2b2c1dc1446bac39d0b33511dcd28a
             builder.Services.AddScoped<FitCore.BLL.Services.payment.SubscriptionPaymentService>();
 
 
             Stripe.StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
             builder.Services.AddScoped<IPaymentService,PaymentService>();
-<<<<<<< HEAD
-
-            // 3. Authentication (JWT) - required because UseAuthentication()/UseAuthorization() run in the pipeline below.
-            // Without this registration, app.UseAuthentication() throws at request time because it cannot
-            // resolve IAuthenticationSchemeProvider. A fallback secret is used only if appsettings is missing
-            // the JWT:Secret value, so the app never crashes on startup because of missing config.
-            var jwtSecret = builder.Configuration["JWT:Secret"] ?? "FitCoreFallbackDevSecretKey_ChangeMe_MustBe32CharsMin";
-
-            builder.Services.AddAuthentication(options =>
-            {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
-            .AddJwtBearer(options =>
-            {
-                options.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
-                    ValidIssuer = builder.Configuration["JWT:ValidIssuer"],
-                    ValidAudience = builder.Configuration["JWT:ValidAudience"],
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret))
-                };
-            });
-            builder.Services.AddAuthorization();
-=======
->>>>>>> 705b05840f2b2c1dc1446bac39d0b33511dcd28a
             #region Added Hangfire
 
             builder.Services.AddHangfire(config => config.SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
@@ -140,9 +88,7 @@ namespace FitCore.API
 
             builder.Services.AddHangfireServer();
             #endregion
-<<<<<<< HEAD
 
-=======
             // Auth
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
@@ -170,7 +116,6 @@ namespace FitCore.API
                 };
             });
             builder.Services.AddAuthorization();
->>>>>>> 705b05840f2b2c1dc1446bac39d0b33511dcd28a
             // Add services to the container.
             builder.Services.AddControllers();
 
@@ -188,15 +133,11 @@ namespace FitCore.API
             // OpenAPI & Swagger Configuration
             builder.Services.AddOpenApi();
             builder.Services.AddEndpointsApiExplorer();
-<<<<<<< HEAD
-            builder.Services.AddSwaggerGen();
-=======
+
             builder.Services.AddSwaggerGen(options =>
             {
                 options.CustomSchemaIds(type => type.FullName);
             });
->>>>>>> 705b05840f2b2c1dc1446bac39d0b33511dcd28a
-
 
             var app = builder.Build();
 
