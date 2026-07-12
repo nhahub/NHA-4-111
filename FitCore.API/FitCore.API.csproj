@@ -28,9 +28,4 @@
     <ProjectReference Include="..\FitCore.Shared\FitCore.Shared.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="wwwroot\html\Receptionist\" />
-    <Folder Include="wwwroot\JS\Receptionist\" />
-  </ItemGroup>
-
 </Project>

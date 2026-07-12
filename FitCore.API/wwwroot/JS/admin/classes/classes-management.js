@@ -13,7 +13,7 @@ let allClasses = [];
 let allTrainers = [];
 let weeklyOccurrences = [];
 let currentPage = 1;
-const PAGE_SIZE = 6;
+const PAGE_SIZE = 5;
 
 let editClassId = null;
 let editClassModal;
@@ -83,7 +83,6 @@ async function loadClasses() {
     try {
         const data = await FitCoreApi.get('/api/Classes?Page=1&Page_Size=5');
         allClasses = data.data || data.Data || [];
-        console.log(data)
         await loadWeeklyOccurrences();
         renderTable();
         renderStats();
