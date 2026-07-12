@@ -38,6 +38,7 @@ namespace FitCore.BLL.Services.Classes
                 TrainerID = dto.TrainerID,
                 Status = ClassStatus.Active,
                 Capacity = dto.Capacity,
+                Price = dto.Price,
                 Schedules = dto.Schedules.Select(s => new ClassSchedule { Day = s.Day, StartTime = s.StartTime, EndTime = s.EndTime }).ToList()
             };
 
@@ -74,6 +75,7 @@ namespace FitCore.BLL.Services.Classes
             gymClass.Capacity = dto.Capacity;
             gymClass.Status = dto.Status;
             gymClass.Capacity = dto.Capacity;
+            gymClass.Price = dto.Price;
 
             DbContext.Set<Class>().Update(gymClass);
             await DbContext.SaveChangesAsync();
@@ -217,6 +219,7 @@ namespace FitCore.BLL.Services.Classes
                             EndTime = schedule.EndTime,
                             Day = date,
                             Capacity = gymClass.Capacity,
+                            Price = gymClass.Price,
                             BookedCount = total 
                         });
                     }
@@ -360,6 +363,7 @@ namespace FitCore.BLL.Services.Classes
                 TrainerID = gymClass.TrainerID,
                 TrainerName = trainer?.User?.FullName ?? string.Empty,
                 Capacity = gymClass.Capacity,
+                Price = gymClass.Price,
                 Schedules = gymClass.Schedules?.Select(s => new ClassScheduleDto
                 {
                     Id = s.Id,

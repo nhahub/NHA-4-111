@@ -16,9 +16,9 @@ namespace FitCore.API.Controllers
         }
 
         [HttpPost("process/{userId}")]
-        public async Task<IActionResult> ProcessCheckout(int userId, [FromQuery] int? memberProfileId, [FromQuery] int? gymServiceId)
+        public async Task<IActionResult> ProcessCheckout(int userId)
         {
-            var result = await _checkoutService.ProcessCheckoutAsync(userId, memberProfileId, gymServiceId);
+            var result = await _checkoutService.ProcessCheckoutAsync(userId);
             if (result)
                 return Ok(new { message = "Payment processed and invoice created successfully!" });
 

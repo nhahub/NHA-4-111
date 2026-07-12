@@ -9,7 +9,8 @@ namespace FitCore.Shared.Enums
     public enum InvoiceItemType
     {
         Product,
-        MembershipPlan,
-        PersonalTraining
+        Class,
+        PersonalTraining,
+        GymService,
     }
 }
