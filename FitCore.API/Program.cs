@@ -32,6 +32,8 @@ using FitCore.BLL.Interfaces.GymService;
 using FitCore.BLL.Services.GymServices;
 using FitCore.BLL.Interfaces.Payment;
 using FitCore.BLL.Services.payment;
+using FitCore.BLL.Services.Book;
+using FitCore.BLL.Interfaces.Book;
 namespace FitCore.API
 {
     public class Program
@@ -69,6 +71,7 @@ namespace FitCore.API
 
             Stripe.StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
             builder.Services.AddScoped<IPaymentService,PaymentService>();
+            builder.Services.AddScoped<IBookingService,BookingService>();
             #region Added Hangfire
 
             builder.Services.AddHangfire(config => config.SetDataCompatibilityLevel(CompatibilityLevel.Version_180)

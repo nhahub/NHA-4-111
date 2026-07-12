@@ -18,7 +18,7 @@ namespace FitCore.BLL.Services.GymServices
     {
         public async Task<BookingGymServiceDto> AddGymServiceToBookingAsync(int memberUserId, int gymServiceId)
         {
-            var member = await DbContext.Set<MemberProfile>().FirstOrDefaultAsync(m => m.UserID == memberUserId);
+            var member = await DbContext.Set<MemberProfile>().FirstOrDefaultAsync(m => m.MemberProfileId == memberUserId);
             if (member == null)
                 throw new KeyNotFoundException("Member profile not found.");
 
@@ -206,27 +206,27 @@ namespace FitCore.BLL.Services.GymServices
             await DbContext.SaveChangesAsync();
         }
 
-        public async Task RemoveBookingsAfterCheckoutAsync(int memberUserId, List<int> bookingIds)
-        {
-            if (bookingIds == null || !bookingIds.Any())
-                throw new ValidationException("No booking IDs provided for checkout processing.");
+        //public async Task RemoveBookingsAfterCheckoutAsync(int memberUserId, List<int> bookingIds)
+        //{
+        //    if (bookingIds == null || !bookingIds.Any())
+        //        throw new ValidationException("No booking IDs provided for checkout processing.");
 
-            var bookings = await DbContext.Set<Booking>()
-                .Where(b => bookingIds.Contains(b.BookingID) && b.MemberUserId == memberUserId && b.Status == BookingStatus.Booked)
-                .ToListAsync();
+        //    var bookings = await DbContext.Set<Booking>()
+        //        .Where(b => bookingIds.Contains(b.BookingID) && b.MemberUserId == memberUserId && b.Status == BookingStatus.Booked)
+        //        .ToListAsync();
 
-            if (bookings.Count != bookingIds.Count)
-                throw new BusinessRuleException("One or more bookings are invalid, not owned by the user, or have already been processed.");
+        //    if (bookings.Count != bookingIds.Count)
+        //        throw new BusinessRuleException("One or more bookings are invalid, not owned by the user, or have already been processed.");
 
-            foreach (var booking in bookings)
-            {
-                booking.IsDeleted = true;
-                booking.DeletedAt = DateTime.UtcNow;
-                booking.Status = BookingStatus.Paid;
-            }
+        //    foreach (var booking in bookings)
+        //    {
+        //        booking.IsDeleted = true;
+        //        booking.DeletedAt = DateTime.UtcNow;
+        //        booking.Status = BookingStatus.Paid;
+        //    }
 
-            DbContext.Set<Booking>().UpdateRange(bookings);
-            await DbContext.SaveChangesAsync();
-        }
+        //    DbContext.Set<Booking>().UpdateRange(bookings);
+        //    await DbContext.SaveChangesAsync();
+        //}
     }
 }

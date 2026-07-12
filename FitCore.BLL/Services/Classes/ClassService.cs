@@ -190,7 +190,7 @@ namespace FitCore.BLL.Services.Classes
                 .Select(g => new { ClassID = g.Key!.Value, Count = g.Count() })
                 .ToDictionaryAsync(x => x.ClassID, x => x.Count);
 
-            var pendingBookingsCount = await DbContext.Set<Booking>()
+            var pendingBookingsCount = await DbContext.Bookings
                 .Where(b => b.ClassID != null && classIds.Contains(b.ClassID.Value)
                          && b.Status == BookingStatus.Booked)
                 .GroupBy(b => b.ClassID)
@@ -277,7 +277,7 @@ namespace FitCore.BLL.Services.Classes
             if (hasActiveMembership)
                 throw new BusinessRuleException("You already have an active membership for this class.");
 
-            var alreadyInBooking = await DbContext.Set<Booking>().AnyAsync(b =>
+            var alreadyInBooking = await DbContext.Bookings.AnyAsync(b =>
                 b.MemberUserId == memberUserId &&
                 b.ClassID == classId &&
                 b.Status == BookingStatus.Booked);
@@ -294,7 +294,7 @@ namespace FitCore.BLL.Services.Classes
                 CreatedAt = DateTime.UtcNow
             };
 
-            await DbContext.Set<Booking>().AddAsync(booking);
+            await DbContext.Bookings.AddAsync(booking);
             await DbContext.SaveChangesAsync();
 
 
@@ -310,7 +310,7 @@ namespace FitCore.BLL.Services.Classes
 
         public async Task<bool> CancelBookingAsync(int memberUserId, int bookingId)
         {
-            var booking = await DbContext.Set<Booking>().FirstOrDefaultAsync(b => b.BookingID == bookingId);
+            var booking = await DbContext.Bookings.FirstOrDefaultAsync(b => b.BookingID == bookingId);
 
             if (booking == null || booking.MemberUserId != memberUserId)
             {
@@ -323,7 +323,7 @@ namespace FitCore.BLL.Services.Classes
             }
 
             booking.Status = BookingStatus.Cancelled;
-            DbContext.Set<Booking>().Update(booking);
+            DbContext.Bookings.Update(booking);
             var affected = await DbContext.SaveChangesAsync();
 
             return affected > 0;
