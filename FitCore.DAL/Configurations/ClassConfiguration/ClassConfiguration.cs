@@ -16,6 +16,8 @@ namespace FitCore.DAL.Configurations.ClassConfiguration
             builder.HasKey(c => c.ClassID);
             builder.Property(c => c.ClassName).IsRequired().HasMaxLength(100);
 
+            builder.Property(c => c.Status).HasMaxLength(20);
+
             builder.HasOne(c => c.Trainer)
                 .WithMany(t => t.Classes)
                 .HasForeignKey(c => c.TrainerID)

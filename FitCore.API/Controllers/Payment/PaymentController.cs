@@ -24,11 +24,12 @@ namespace FitCore.API.Controllers
         {
             try
             {
-                // For local testing with a plain HTML page served on e.g. http://localhost:5500
+
+                
                 var result = await _paymentService.CreateCheckoutSessionAsync(
                     request.InvoiceID,
-                    successUrl: "http://localhost:5500/success.html",
-                    cancelUrl: "http://localhost:5500/cancel.html"
+                    successUrl: "http://localhost:5184/html/SuccessPayment.html",
+                    cancelUrl: "http://localhost:5184/html/FailedPayment.html"
                 );
 
                 return Ok(result);

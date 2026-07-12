@@ -8,10 +8,10 @@ namespace FitCore.Shared.Enums
 {
     public enum PaymentMethod
     {
-        Visa,
+
+        Card,
         Cash,
         InstaPay,
-        Paypal,
-        Card
+        Paypal
     }
 }
