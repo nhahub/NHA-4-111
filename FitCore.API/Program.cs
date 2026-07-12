@@ -55,7 +55,7 @@ namespace FitCore.API
             builder.Services.AddScoped<IGymServiceService, GymServiceService>();
             builder.Services.AddHttpContextAccessor();
             // Add Checkout and Subscription services
-            builder.Services.AddScoped<FitCore.BLL.Services.CheckoutService>();
+            builder.Services.AddScoped<ICheckoutService, CheckoutService>();
             builder.Services.AddScoped<FitCore.BLL.Services.payment.SubscriptionPaymentService>();
 
 
