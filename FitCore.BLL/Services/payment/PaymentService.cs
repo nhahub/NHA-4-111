@@ -125,6 +125,24 @@ namespace FitCore.BLL.Services
             invoice.InvoiceStatus = InvoiceStatus.Completed;
             _context.Invoices.Update(invoice);
 
+            var cart = await _context.Carts
+                .Include(c => c.CartItems)
+                .FirstOrDefaultAsync(c => c.UserID == invoice.UserID);
+
+            if (cart != null && cart.CartItems.Any())
+            {
+                _context.CartItems.RemoveRange(cart.CartItems); 
+            }
+
+            var pendingBookings = await _context.Bookings
+                .Where(b => b.MemberUserId == invoice.UserID && b.Status == BookingStatus.Booked)
+                .ToListAsync();
+
+            if (pendingBookings.Any())
+            {
+                _context.Bookings.RemoveRange(pendingBookings);
+            }
+
             await _context.SaveChangesAsync();
 
             // Memberships are only generated once payment is actually confirmed
