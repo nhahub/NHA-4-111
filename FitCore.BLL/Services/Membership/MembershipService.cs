@@ -44,7 +44,8 @@ namespace FitCore.BLL.Services
                     Status = MemberShipStatus.Active,
                     RemainingSessions = remainingSessions,
                     IsAutoRenew = dto.IsAutoRenew,
-                    CreatedAt = DateTime.UtcNow
+                    CreatedAt = DateTime.UtcNow,
+                    InvoiceID = dto.InvoiceId,
                 };
             }
             else
@@ -66,7 +67,8 @@ namespace FitCore.BLL.Services
                     Status = MemberShipStatus.Active,
                     RemainingSessions = remainingSessions,
                     IsAutoRenew = dto.IsAutoRenew,
-                    CreatedAt = DateTime.UtcNow
+                    CreatedAt = DateTime.UtcNow,
+                    InvoiceID = dto.InvoiceId,
                 };
             }
 
@@ -236,7 +238,8 @@ namespace FitCore.BLL.Services
                     {
                         MemberProfileId = MemberProfileId,
                         GymServiceId = item.ServiceID.Value,
-                        IsAutoRenew = false
+                        IsAutoRenew = false,
+                        InvoiceId = invoiceId
                     };
                     await CreateMembershipAsync(createDto);
                 }
@@ -246,7 +249,8 @@ namespace FitCore.BLL.Services
                     {
                         MemberProfileId = MemberProfileId,
                         ClassId = item.ClassID.Value,
-                        IsAutoRenew = false
+                        IsAutoRenew = false,
+                        InvoiceId = invoiceId
                     };
                     await CreateMembershipAsync(createDto);
                 }

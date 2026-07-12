@@ -22,9 +22,6 @@ namespace FitCore.DAL.Data.Models
         public bool IsAutoRenew { get; set; }
         public DateTime CreatedAt { get; set; }
 
-        public int? AllowedVisits { get; set; }
-        public int ConsumedVisits { get; set; } = 0;
-
         public int? GymServiceId { get; set; }
         public GymService? GymService { get; set; }
 

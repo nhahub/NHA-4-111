@@ -1,4 +1,5 @@
-﻿using FitCore.DAL.Data.Contexts;
+﻿using FitCore.BLL.Interfaces.Membership;
+using FitCore.DAL.Data.Contexts;
 using FitCore.DAL.Data.Models;
 using FitCore.Shared.Enums;
 using Microsoft.EntityFrameworkCore;
@@ -11,13 +12,15 @@ namespace FitCore.BLL.Services
     public class CheckoutService
     {
         private readonly FitCoreDbContext _context;
+        private readonly IMembershipService _membershipService;
 
-        public CheckoutService(FitCoreDbContext context)
+        public CheckoutService(FitCoreDbContext context, IMembershipService membershipService)
         {
             _context = context;
+            _membershipService = membershipService;
         }
 
-        public async Task<bool> ProcessCheckoutAsync(int userId)
+        public async Task<int?> ProcessCheckoutAsync(int userId)
         {
             var cart = await _context.Carts
                 .Include(c => c.CartItems)
@@ -36,7 +39,7 @@ namespace FitCore.BLL.Services
             bool hasBookings = pendingBookings.Any();
 
             if (!hasCartItems && !hasBookings)
-                return false;
+                return null;
 
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
@@ -46,7 +49,7 @@ namespace FitCore.BLL.Services
                     UserID = userId,
                     IssueDate = DateTime.UtcNow,
                     TotalAmount = 0,
-                    InvoiceStatus = InvoiceStatus.Completed,
+                    InvoiceStatus = InvoiceStatus.Pending,
                     Description = "Unified Checkout Invoice (Products, Services, Classes)"
                 };
                 await _context.Invoices.AddAsync(invoice);
@@ -98,8 +101,8 @@ namespace FitCore.BLL.Services
                             invoiceItem.ItemType = InvoiceItemType.Class;
                             invoiceItem.ClassID = booking.ClassID;
                             invoiceItem.ItemName = booking.Class!.ClassName;
-                            invoiceItem.SellPrice = 0;
-                            invoiceItem.LineTotal = 0;
+                            invoiceItem.SellPrice = booking.Class.Price;
+                            invoiceItem.LineTotal = booking.Class.Price;
                         }
 
                         totalAmount += invoiceItem.LineTotal;
@@ -113,23 +116,17 @@ namespace FitCore.BLL.Services
                     _context.Set<Booking>().UpdateRange(pendingBookings);
                 }
 
-                // 6. تحديث إجمالي الفاتورة
                 invoice.TotalAmount = totalAmount;
                 _context.Invoices.Update(invoice);
-                await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync();                
 
-                // 7. السحر بقى: إنشاء الاشتراكات (Generate Memberships)
-                // بننادي الدالة اللي إنتي كتبتيها جوه الـ Transaction عشان لو ضربت، كل حاجة ترجع (Rollback)
-               // await GenerateMembershipsFromInvoiceAsync(invoice.InvoiceID);
-
-                // 8. تأكيد العملية
                 await transaction.CommitAsync();
-                return true;
+                return invoice.InvoiceID;
             }
             catch (Exception ex)
             {
                 await transaction.RollbackAsync();
-                return false;
+                return null;
             }
         }
     }

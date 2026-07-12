@@ -22,6 +22,8 @@ using Hangfire;
 using Microsoft.EntityFrameworkCore;
 using FitCore.BLL.Interfaces.GymService;
 using FitCore.BLL.Services.GymServices;
+using FitCore.BLL.Interfaces.Payment;
+using FitCore.BLL.Services.payment;
 namespace FitCore.API
 {
     public class Program
@@ -56,6 +58,9 @@ namespace FitCore.API
             builder.Services.AddScoped<FitCore.BLL.Services.CheckoutService>();
             builder.Services.AddScoped<FitCore.BLL.Services.payment.SubscriptionPaymentService>();
 
+
+            Stripe.StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
+            builder.Services.AddScoped<IPaymentService,PaymentService>();
             #region Added Hangfire
 
             builder.Services.AddHangfire(config => config.SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
@@ -84,6 +89,7 @@ namespace FitCore.API
             builder.Services.AddOpenApi();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+
 
             var app = builder.Build();
 
