@@ -1,4 +1,5 @@
-﻿using FitCore.Shared.DTOs;
+﻿using FitCore.BLL.DTOs.Booking;
+using FitCore.Shared.DTOs;
 using FitCore.Shared.DTOs.GymService;
 using FitCore.Shared.Enums;
 using System;
@@ -19,5 +20,6 @@ namespace FitCore.BLL.Interfaces.GymService
         public Task CancelGymServiceBookingAsync(int userId, int bookingId);
         //public Task RemoveBookingsAfterCheckoutAsync(int memberUserId, List<int> bookingIds);
         public Task<ICollection<BookingGymServiceDto>> GetMemberGymServiceBookingsAsync(int memberUserId);
+        Task<List<BookingResponseDto>> GetAllBookingsAsync(int userId);
     }
 }

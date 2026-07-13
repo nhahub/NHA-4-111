@@ -1,4 +1,5 @@
-﻿using FitCore.BLL.Exceptions;
+﻿using FitCore.BLL.DTOs.Booking;
+using FitCore.BLL.Exceptions;
 using FitCore.BLL.Interfaces.GymService;
 using FitCore.DAL.Data.Contexts;
 using FitCore.DAL.Data.Models;
@@ -240,20 +241,48 @@ namespace FitCore.BLL.Services.GymServices
             await DbContext.SaveChangesAsync();
         }
 
+        public async Task<List<BookingResponseDto>> GetAllBookingsAsync(int userId)
+        {
+            int memberId = await DbContext.MemberProfiles.Where(x => x.UserID == userId).Select(x => x.MemberProfileId).FirstOrDefaultAsync();
+            var bookings = await DbContext.Bookings
+                .Include(b => b.MemberProfile).ThenInclude(mp => mp.User)
+                .Include(b => b.Class).ThenInclude(c => c.Trainer).ThenInclude(t => t.User)
+                .Include(b => b.GymService)
+                .Where(b => !b.IsDeleted && b.MemberUserId == memberId)
+                .OrderByDescending(b => b.CreatedAt)
+                .Select(b => new BookingResponseDto
+                {
+                    BookingID = b.BookingID,
+                    MemberName = b.MemberProfile.User.FullName,
+                    BookedItemName = b.ClassID != null ? b.Class!.ClassName : b.GymService!.Name,
+                    ItemType = b.ClassID != null ? "Class" : "Gym Service",
+                    Price = b.ClassID != null ? b.Class!.Price : b.GymService!.Price,
+                    TrainerName = b.ClassID != null && b.Class!.Trainer != null
+                                  ? b.Class.Trainer.User.FullName
+                                  : "N/A",
+
+                    Status = b.Status.ToString(),
+                    CreatedAt = b.CreatedAt
+                })
+                .ToListAsync();
+
+            return bookings;
+        }
+
         //public async Task RemoveBookingsAfterCheckoutAsync(int memberUserId, List<int> bookingIds)
         //{
         //    if (bookingIds == null || !bookingIds.Any())
         //        throw new ValidationException("No booking IDs provided for checkout processing.");
 
-            // 1. نجيب البروفايل هنا كمان عشان نصلح نفس المشكلة
-            //var member = await DbContext.Set<MemberProfile>().FirstOrDefaultAsync(m => m.UserID == memberUserId);
-            //if (member == null)
-            //    throw new KeyNotFoundException("Member profile not found.");
+        // 1. نجيب البروفايل هنا كمان عشان نصلح نفس المشكلة
+        //var member = await DbContext.Set<MemberProfile>().FirstOrDefaultAsync(m => m.UserID == memberUserId);
+        //if (member == null)
+        //    throw new KeyNotFoundException("Member profile not found.");
 
-            //// 2. نعدل الشرط لـ member.MemberProfileId
-            //var bookings = await DbContext.Set<Booking>()
-            //    .Where(b => bookingIds.Contains(b.BookingID) && b.MemberUserId == member.MemberProfileId && b.Status == BookingStatus.Booked)
-            //    .ToListAsync();
+        //// 2. نعدل الشرط لـ member.MemberProfileId
+        //var bookings = await DbContext.Set<Booking>()
+        //    .Where(b => bookingIds.Contains(b.BookingID) && b.MemberUserId == member.MemberProfileId && b.Status == BookingStatus.Booked)
+        //    .ToListAsync();
 
         //    if (bookings.Count != bookingIds.Count)
         //        throw new BusinessRuleException("One or more bookings are invalid, not owned by the user, or have already been processed.");
