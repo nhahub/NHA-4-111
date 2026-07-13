@@ -1,4 +1,5 @@
 ﻿document.addEventListener("DOMContentLoaded", () => {
+    requireRole(["Admin"]);
     const form = document.getElementById('pushForm');
     const titleInput = document.getElementById('notifTitle');
     const messageInput = document.getElementById('notifMessage');

@@ -6,6 +6,7 @@ const DAY_LABELS_FULL = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday',
 let allTrainers = [];
 
 document.addEventListener('DOMContentLoaded', () => {
+    requireRole(["Admin"]);
     loadTrainers();
 
     document.getElementById('createStaffBtn').addEventListener('click', createStaff);

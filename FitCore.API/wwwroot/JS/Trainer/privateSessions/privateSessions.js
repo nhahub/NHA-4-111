@@ -1,5 +1,5 @@
 ﻿// trainer-private-sessions.js
-
+const user = getCurrentUser();
 document.addEventListener('DOMContentLoaded', loadSessions);
 
 function showMessage(text, type) {
@@ -12,9 +12,8 @@ function showMessage(text, type) {
 async function loadSessions() {
     const tbody = document.getElementById('sessionsTableBody');
     tbody.innerHTML = `<tr class="state-row"><td colspan="6">Loading sessions…</td></tr>`;
-
     try {
-        const sessions = await FitCoreApi.get(`/api/PrivateSessions/trainer/${window.CURRENT_TRAINER_ID}`);
+        const sessions = await FitCoreApi.get(`/api/PrivateSessions/trainer/${user.userId}`);
         if (!sessions || sessions.length === 0) {
             tbody.innerHTML = `<tr class="state-row"><td colspan="6">No private sessions scheduled.</td></tr>`;
             return;

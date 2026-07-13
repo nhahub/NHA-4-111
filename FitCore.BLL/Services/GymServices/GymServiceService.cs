@@ -36,9 +36,8 @@ namespace FitCore.BLL.Services.GymServices
             if (hasActiveMembership)
                 throw new BusinessRuleException("You already have an active membership for this gym service.");
 
-
             var alreadyInBooking = await DbContext.Set<Booking>().AnyAsync(b =>
-                b.MemberUserId == memberUserId &&
+                b.MemberUserId == member.MemberProfileId &&
                 b.GymServiceId == gymServiceId &&
                 b.Status == BookingStatus.Booked);
 
@@ -46,8 +45,8 @@ namespace FitCore.BLL.Services.GymServices
                 throw new BusinessRuleException("This gym service is already in your booking list.");
 
             var booking = new Booking
-            {
-                MemberUserId = memberUserId,
+            {  
+                MemberUserId = member.MemberProfileId,
                 ClassID = null,
                 GymServiceId = gymServiceId,
                 Status = BookingStatus.Booked,
@@ -61,7 +60,12 @@ namespace FitCore.BLL.Services.GymServices
             {
                 BookingId = booking.BookingID,
                 GymServiceId = booking.GymServiceId ?? 0,
-                 
+                ServiceName = service.Name,
+                Price = service.Price,
+                Category = (int)service.Category,
+                DurationInDays = service.DurationInDays,
+                AllowedSessionsCount = service.AllowedSessionsCount,
+                Status = booking.Status.ToString()
             };
         }
 
@@ -96,6 +100,31 @@ namespace FitCore.BLL.Services.GymServices
             };
         }
 
+        public async Task<ICollection<BookingGymServiceDto>> GetMemberGymServiceBookingsAsync(int memberUserId)
+        {
+            
+            var member = await DbContext.Set<MemberProfile>().FirstOrDefaultAsync(m => m.UserID == memberUserId);
+            if (member == null)
+                return new List<BookingGymServiceDto>();
+ 
+            var bookings = await DbContext.Set<Booking>()
+                .Where(b => b.MemberUserId == member.MemberProfileId && b.GymServiceId != null && !b.IsDeleted)
+                .Include(b => b.GymService)
+                .OrderByDescending(b => b.BookingID)
+                .ToListAsync();
+
+            return bookings.Select(b => new BookingGymServiceDto
+            {
+                BookingId = b.BookingID,
+                GymServiceId = b.GymServiceId ?? 0,
+                ServiceName = b.GymService?.Name ?? string.Empty,
+                Price = b.GymService?.Price ?? 0,
+                Category = b.GymService != null ? (int)b.GymService.Category : 0,
+                DurationInDays = b.GymService?.DurationInDays ?? 0,
+                AllowedSessionsCount = b.GymService?.AllowedSessionsCount ?? 0,
+                Status = b.Status.ToString()
+            }).ToList();
+        }
         public async Task<GymServiceDto> UpdateGymServiceAsync(int id, UpdateGymServiceDto dto)
         {
             var service = await DbContext.Set<GymService>().FirstOrDefaultAsync(s => s.ServiceID == id);
@@ -189,14 +218,18 @@ namespace FitCore.BLL.Services.GymServices
 
         public async Task CancelGymServiceBookingAsync(int memberUserId, int bookingId)
         {
+            
+            var member = await DbContext.Set<MemberProfile>().FirstOrDefaultAsync(m => m.UserID == memberUserId);
+            if (member == null)
+                throw new KeyNotFoundException("Member profile not found.");
+
             var booking = await DbContext.Set<Booking>()
-                .FirstOrDefaultAsync(b => b.BookingID == bookingId && b.MemberUserId == memberUserId && b.GymServiceId != null);
+                .FirstOrDefaultAsync(b => b.BookingID == bookingId && b.MemberUserId == member.MemberProfileId && b.GymServiceId != null);
 
             if (booking == null)
                 throw new KeyNotFoundException("Booking not found or does not belong to the user.");
 
-
-            if (booking.Status != BookingStatus.Booked && booking.Status != BookingStatus.Booked)
+            if (booking.Status != BookingStatus.Booked)
                 throw new BusinessRuleException("Cannot cancel a booking from its current status.");
 
             booking.IsDeleted = true;
@@ -212,8 +245,14 @@ namespace FitCore.BLL.Services.GymServices
             if (bookingIds == null || !bookingIds.Any())
                 throw new ValidationException("No booking IDs provided for checkout processing.");
 
+            // 1. نجيب البروفايل هنا كمان عشان نصلح نفس المشكلة
+            var member = await DbContext.Set<MemberProfile>().FirstOrDefaultAsync(m => m.UserID == memberUserId);
+            if (member == null)
+                throw new KeyNotFoundException("Member profile not found.");
+
+            // 2. نعدل الشرط لـ member.MemberProfileId
             var bookings = await DbContext.Set<Booking>()
-                .Where(b => bookingIds.Contains(b.BookingID) && b.MemberUserId == memberUserId && b.Status == BookingStatus.Booked)
+                .Where(b => bookingIds.Contains(b.BookingID) && b.MemberUserId == member.MemberProfileId && b.Status == BookingStatus.Booked)
                 .ToListAsync();
 
             if (bookings.Count != bookingIds.Count)

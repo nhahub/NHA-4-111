@@ -3,13 +3,13 @@
    Uses only design tokens from /CSS/style.css.
 ============================================================ */
 
-.access-key-main {
+/*.access-key-main {
     align-items: flex-start;
     justify-content: flex-start;
     padding: 0;
     overflow-y: auto;
 }
-
+*/
 .access-key-page {
     width: 100%;
     max-width: 480px;

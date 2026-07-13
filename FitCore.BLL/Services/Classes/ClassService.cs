@@ -6,7 +6,7 @@ using FitCore.Shared.DTOs;
 using FitCore.Shared.DTOs.Classes;
 using FitCore.Shared.Enums;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
+using Stripe;
 
 namespace FitCore.BLL.Services.Classes
 {
@@ -21,6 +21,7 @@ namespace FitCore.BLL.Services.Classes
             if (string.IsNullOrWhiteSpace(dto.ClassName)) throw new ValidationException("Class name is required.");
             if (dto.Capacity <= 0) throw new ValidationException("Capacity must be greater than zero.");
             if (dto.NumberOfSessions <= 0) throw new ValidationException("Number of sessions must be greater than zero.");
+            if (dto.Price <= 0) throw new ValidationException("Price must be greater than zero.");
             if (dto.Schedules == null || !dto.Schedules.Any()) throw new ValidationException("At least one schedule is required.");
             foreach (var slot in dto.Schedules)
             {
@@ -29,7 +30,7 @@ namespace FitCore.BLL.Services.Classes
 
             var trainer = await DbContext.Set<Trainer>().FirstOrDefaultAsync(t => t.TrainerID == dto.TrainerID);
             if (trainer == null) throw new KeyNotFoundException("No trainer found with this id.");
-
+            Console.WriteLine(dto.Price);
             var gymClass = new Class
             {
                 ClassName = dto.ClassName,
@@ -69,12 +70,18 @@ namespace FitCore.BLL.Services.Classes
             {
                 throw new ValidationException("Number of sessions must be greater than zero.");
             }
-
+            if (dto.Price <= 0)
+            {
+                throw new ValidationException("Price must be greater than zero.");
+            }
+            Console.WriteLine("________________________________________________________________________");
+            Console.WriteLine(dto.Price);
+            Console.WriteLine("________________________________________________________________________");
             gymClass.ClassName = dto.ClassName;
             gymClass.Description = dto.Description;
             gymClass.Capacity = dto.Capacity;
             gymClass.Status = dto.Status;
-            gymClass.Capacity = dto.Capacity;
+            gymClass.NumberOfSessions = dto.NumberOfSessions;
             gymClass.Price = dto.Price;
 
             DbContext.Set<Class>().Update(gymClass);
@@ -154,11 +161,18 @@ namespace FitCore.BLL.Services.Classes
             };
         }
 
-        public async Task<PaginationResponseDto<ClassOccurrenceDto>> BrowseClassesAsync(DateTime fromDate, DateTime toDate, int page, int pageSize)
+        public async Task<PaginationResponseDto<ClassWithSchedulesDto>> BrowseClassesAsync(
+            DateTime fromDate,
+            DateTime toDate,
+            int page,
+            int pageSize
+        )
         {
             if (page <= 0) page = 1;
+
             const int maxPageSize = 50;
-            if (pageSize <= 0 || pageSize > maxPageSize) pageSize = 20;
+            if (pageSize <= 0 || pageSize > maxPageSize)
+                pageSize = 20;
 
             fromDate = fromDate.Date;
             toDate = toDate.Date;
@@ -166,87 +180,93 @@ namespace FitCore.BLL.Services.Classes
             if (toDate < fromDate)
                 throw new ValidationException("The end date must be on or after the start date.");
 
-            if ((toDate - fromDate).TotalDays > 30) 
-                throw new ValidationException($"The date range cannot exceed 30 days.");
 
-            var classes = await DbContext.Set<Class>()
-                .Where(c => c.Status == ClassStatus.Active)
-                .Include(c => c.Trainer).ThenInclude(t => t.User)
+            var query = DbContext.Set<Class>()
+                .Where(c => c.Status == ClassStatus.Active);
+
+            var totalCount = await query.CountAsync();
+
+            var classes = await query
+                .Include(c => c.Trainer)
+                    .ThenInclude(t => t.User)
                 .Include(c => c.Schedules)
+                .OrderBy(c => c.ClassName)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
 
             if (!classes.Any())
             {
-                return new PaginationResponseDto<ClassOccurrenceDto> { CurrentPage = page, PageSize = pageSize, TotalCount = 0, Data = new List<ClassOccurrenceDto>() };
+                return new PaginationResponseDto<ClassWithSchedulesDto>
+                {
+                    CurrentPage = page,
+                    PageSize = pageSize,
+                    TotalCount = totalCount,
+                    Data = new List<ClassWithSchedulesDto>()
+                };
             }
 
+            // 4. جلب حسابات الحجوزات المعلقة للكلاسات الحالية
             var classIds = classes.Select(c => c.ClassID).ToList();
-
-            var activeMembershipsCount = await DbContext.Set<Membership>()
-                .Where(m => m.ClassID != null && classIds.Contains(m.ClassID.Value)
-                         && (m.Status == MemberShipStatus.Active || m.Status == MemberShipStatus.Freezed)
-                         && m.EndDate >= DateTime.UtcNow)
-                .GroupBy(m => m.ClassID)
-                .Select(g => new { ClassID = g.Key!.Value, Count = g.Count() })
-                .ToDictionaryAsync(x => x.ClassID, x => x.Count);
-
             var pendingBookingsCount = await DbContext.Set<Booking>()
-                .Where(b => b.ClassID != null && classIds.Contains(b.ClassID.Value)
+                .Where(b => b.ClassID != null
+                         && classIds.Contains(b.ClassID.Value)
                          && b.Status == BookingStatus.Booked)
                 .GroupBy(b => b.ClassID)
-                .Select(g => new { ClassID = g.Key!.Value, Count = g.Count() })
+                .Select(g => new
+                {
+                    ClassID = g.Key!.Value,
+                    Count = g.Count()
+                })
                 .ToDictionaryAsync(x => x.ClassID, x => x.Count);
 
-            var occurrences = new List<ClassOccurrenceDto>();
-
-            for (var date = fromDate; date <= toDate; date = date.AddDays(1))
+            // 5. المابينج للشكل المطلوب (كل كلاس جواه الـ Array بتاعه)
+            var resultData = classes.Select(c => new ClassWithSchedulesDto
             {
-                foreach (var gymClass in classes)
+                ClassID = c.ClassID,
+                ClassName = c.ClassName,
+                Description = c.Description,
+                TrainerName = c.Trainer?.User?.FullName ?? "No Trainer Assigned",
+                Capacity = c.Capacity,
+                BookedCount = pendingBookingsCount.GetValueOrDefault(c.ClassID, 0),
+                Price = c.Price,
+
+                // تحويل الـ Schedules لمصفوفة داخلية جوه الكلاس
+                Schedules = c.Schedules.Select(s => new IndividualScheduleDto
                 {
-                    int total = activeMembershipsCount.GetValueOrDefault(gymClass.ClassID, 0);
+                    ClassScheduleID = s.Id,
+                    StartTime = s.StartTime,
+                    EndTime = s.EndTime,
+                    DayName = s.Day.ToString(), // بيحوله لاسم اليوم كـ String لسهولة العرض في الفرونتيند
 
+                    // حساب التاريخ الفعلي لأول ظهور لليوم ده بناءً على الـ fromDate المبعوثة
+                    CalculatedDate = fromDate.AddDays(((int)s.Day - (int)fromDate.DayOfWeek + 7) % 7)
+                })
+                .OrderBy(s => s.StartTime) // ترتيب المواعيد جوه الكلاس بالوقت
+                .ToList()
+            }).ToList();
 
-                    foreach (var schedule in gymClass.Schedules.Where(s => s.Day == date.DayOfWeek))
-                    {
-                        occurrences.Add(new ClassOccurrenceDto
-                        {
-                            ClassID = gymClass.ClassID,
-                            ClassName = gymClass.ClassName,
-                            Description = gymClass.Description,
-                            TrainerName = gymClass.Trainer?.User?.FullName ?? "No Trainer Assigned",
-                            ClassScheduleID = schedule.Id,
-                            StartTime = schedule.StartTime,
-                            EndTime = schedule.EndTime,
-                            Day = date,
-                            Capacity = gymClass.Capacity,
-                            Price = gymClass.Price,
-                            BookedCount = total 
-                        });
-                    }
-                }
-            }
-
-            var ordered = occurrences.OrderBy(o => o.Day).ThenBy(o => o.StartTime).ToList();
-
-            var totalCount = ordered.Count;
-            var paged = ordered.Skip((page - 1) * pageSize).Take(pageSize).ToList();
-
-            return new PaginationResponseDto<ClassOccurrenceDto>
+            return new PaginationResponseDto<ClassWithSchedulesDto>
             {
                 CurrentPage = page,
                 PageSize = pageSize,
                 TotalCount = totalCount,
-                Data = paged
+                Data = resultData
             };
         }
 
         public async Task<ClassBookingDto> BookClassAsync(int memberUserId, int classId)
         {
 
-            var member = await DbContext.Set<MemberProfile>().FirstOrDefaultAsync(m => m.UserID == memberUserId);
-            if (member == null)
-                throw new KeyNotFoundException("Member profile not found.");
+            var member = await DbContext.Set<User>()
+                .Include(u => u.MemberProfile)
+                .FirstOrDefaultAsync(m => m.UserID == memberUserId);
 
+            if (member == null)
+                throw new KeyNotFoundException("User not found.");
+
+            if (member.MemberProfile == null)
+                throw new KeyNotFoundException("Member profile not found for this user.");
 
             var gymClass = await DbContext.Set<Class>()
                 .Include(c => c.Schedules)
@@ -262,14 +282,17 @@ namespace FitCore.BLL.Services.Classes
                 .CountAsync(m => m.ClassID == classId &&
                         (m.Status == MemberShipStatus.Active || m.Status == MemberShipStatus.Freezed));
 
-            if (activeMembersCount >= gymClass.Capacity)
+            var pendingBookingsCount = await DbContext.Set<Booking>()
+                .CountAsync(b => b.ClassID == classId && b.Status == BookingStatus.Booked);
+
+            if (activeMembersCount + pendingBookingsCount >= gymClass.Capacity)
             {
                 throw new BusinessRuleException("This class has reached its maximum capacity and is fully booked.");
             }
 
-
+            // 💡 تعديل الربط هنا ليكون بـ member.MemberProfile.MemberProfileId
             var hasActiveMembership = await DbContext.Set<Membership>().AnyAsync(m =>
-                m.MemberProfileId == member.MemberProfileId &&
+                m.MemberProfileId == member.MemberProfile.MemberProfileId &&
                 m.ClassID == classId &&
                 (m.Status == MemberShipStatus.Active || m.Status == MemberShipStatus.Freezed) &&
                 m.EndDate >= DateTime.UtcNow);
@@ -277,8 +300,9 @@ namespace FitCore.BLL.Services.Classes
             if (hasActiveMembership)
                 throw new BusinessRuleException("You already have an active membership for this class.");
 
+
             var alreadyInBooking = await DbContext.Set<Booking>().AnyAsync(b =>
-                b.MemberUserId == memberUserId &&
+                b.MemberUserId == member.MemberProfile.MemberProfileId &&
                 b.ClassID == classId &&
                 b.Status == BookingStatus.Booked);
 
@@ -287,7 +311,7 @@ namespace FitCore.BLL.Services.Classes
 
             var booking = new Booking
             {
-                MemberUserId = memberUserId, 
+                MemberUserId = member.MemberProfile.MemberProfileId,
                 ClassID = classId,
                 GymServiceId = null,
                 Status = BookingStatus.Booked,
@@ -296,7 +320,6 @@ namespace FitCore.BLL.Services.Classes
 
             await DbContext.Set<Booking>().AddAsync(booking);
             await DbContext.SaveChangesAsync();
-
 
             return new ClassBookingDto
             {
@@ -307,12 +330,21 @@ namespace FitCore.BLL.Services.Classes
                 ScheduleDetails = gymClass.Schedules.Select(s => $"{s.Day}: {s.StartTime} - {s.EndTime}").ToList()
             };
         }
-
         public async Task<bool> CancelBookingAsync(int memberUserId, int bookingId)
         {
+            var member = await DbContext.Set<User>()
+               .Include(u => u.MemberProfile)
+               .FirstOrDefaultAsync(m => m.UserID == memberUserId);
+
+            if (member == null)
+                throw new KeyNotFoundException("User not found.");
+
+            if (member.MemberProfile == null)
+                throw new KeyNotFoundException("Member profile not found for this user.");
+
             var booking = await DbContext.Set<Booking>().FirstOrDefaultAsync(b => b.BookingID == bookingId);
 
-            if (booking == null || booking.MemberUserId != memberUserId)
+            if (booking == null || booking.MemberUserId != member.MemberProfile.MemberProfileId)
             {
                 throw new KeyNotFoundException("No booking found with this id for this member.");
             }
@@ -331,27 +363,29 @@ namespace FitCore.BLL.Services.Classes
 
         public async Task<ICollection<ClassBookingDto>> GetMemberBookingsAsync(int memberUserId)
         {
-            
             var bookings = await DbContext.Set<Booking>()
-                .Where(b => b.MemberUserId == memberUserId && b.ClassID != null)
                 .Include(b => b.Class)
-                    .ThenInclude(c => c.Schedules)
-                .OrderByDescending(b => b.BookingID)
+                    .ThenInclude(c => c!.Schedules)
+                .Include(b => b.Class)
+                    .ThenInclude(c => c!.Trainer)
+                        .ThenInclude(t => t!.User)
+                .Include(b => b.MemberProfile)
+                .Where(b => b.MemberProfile.UserID == memberUserId && b.ClassID != null)
                 .ToListAsync();
 
-            
             return bookings.Select(b => new ClassBookingDto
             {
                 BookingID = b.BookingID,
                 ClassID = b.ClassID ?? 0,
-                ClassName = b.Class!.ClassName,
+                ClassName = b.Class!.ClassName, 
                 Status = b.Status,
+                TrainerName = b.Class.Trainer?.User?.FullName ?? "No Trainer",
+                Price = b.Class.Price, 
                 ScheduleDetails = b.Class.Schedules
                     .Select(s => $"{s.Day}: {s.StartTime} - {s.EndTime}")
                     .ToList()
             }).ToList();
         }
-
         private static ClassDto MapToDto(Class gymClass, Trainer? trainer)
         {
             return new ClassDto
@@ -363,7 +397,6 @@ namespace FitCore.BLL.Services.Classes
                 TrainerID = gymClass.TrainerID,
                 TrainerName = trainer?.User?.FullName ?? string.Empty,
                 Capacity = gymClass.Capacity,
-                Price = gymClass.Price,
                 Schedules = gymClass.Schedules?.Select(s => new ClassScheduleDto
                 {
                     Id = s.Id,

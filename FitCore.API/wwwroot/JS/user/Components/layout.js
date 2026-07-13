@@ -23,38 +23,44 @@ function setActiveSidebarLink() {
         }
     });
 }
+function initTrainerLayout() {
+    console.log("🎬 Trainer layout started initializing...");
 
-document.addEventListener("DOMContentLoaded", () => {
     fetch('/HTML/user/Components/sidebar.html')
         .then(response => response.text())
         .then(html => {
-            document.getElementById('sidebar-container').innerHTML = html;
-            setActiveSidebarLink();
+            const sidebarContainer = document.getElementById('sidebar-container');
+            if (sidebarContainer) {
+                sidebarContainer.innerHTML = html;
+            }
+
+            if (typeof setActiveSidebarLink === 'function') {
+                setActiveSidebarLink();
+            }
         })
         .catch(error => console.error('Error loading sidebar:', error));
 
-    // بنستدعي الهيدر، ولما يخلص (then) بنشغل الكود بتاعنا
+
     loadComponent('header-container', '/HTML/user/Components/header.html').then(() => {
 
-        // 1. تشغيل نظام الإشعارات
+
         if (typeof initNotificationSystem === 'function') {
             initNotificationSystem();
         }
 
-        // 2. تعريف المتغيرات الخاصة بالقائمة الجانبية
+
         const toggleBtn = document.querySelector('.sidebar-toggle-btn');
         const sidebar = document.getElementById('sidebar-container');
 
-        // 3. كود فتح وقفل القائمة الجانبية من الزرار
+
         if (toggleBtn && sidebar) {
             toggleBtn.addEventListener('click', () => {
                 sidebar.classList.toggle('open');
             });
         }
 
-        // 4. كود مراقبة الكليك بره القائمة الجانبية (مكانه هنا ممتاز) 👇
+
         document.addEventListener('click', (event) => {
-            // لو الـ Sidebar مفتوح، والدوسة مكنتش جواه، ومكنتش على الزرار نفسه
             if (sidebar && sidebar.classList.contains('open') && toggleBtn) {
                 if (!sidebar.contains(event.target) && !toggleBtn.contains(event.target)) {
                     sidebar.classList.remove('open');
@@ -62,10 +68,24 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
 
+
+        if (typeof loadName === 'function') {
+            loadName();
+        }
     });
-});
+}
 
+if (document.readyState === "complete" || document.readyState === "interactive") {
+    initTrainerLayout();
+} else {
+    document.addEventListener("DOMContentLoaded", initTrainerLayout);
+}
 
+function logout() {
+    localStorage.removeItem(AUTH_TOKEN_KEY);
+    localStorage.removeItem(AUTH_USER_KEY);
+    window.location.href = "/html/Auth/login.html";
+}
 // المتغيرات الأساسية للـ Pagination
 let notifPage = 1;
 const notifPageSize = 10;

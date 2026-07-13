@@ -3,24 +3,32 @@ using FitCore.BLL.Interfaces.Profile;
 using FitCore.DAL.Data.Contexts;
 using FitCore.Shared.DTOs.User;
 using FitCore.Shared.Enums;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace FitCore.BLL.Services.Profile
 {
-    public class ProfileService(FitCoreDbContext dbContext) : IProfileService
+    public class ProfileService(
+        FitCoreDbContext dbContext,
+        IHttpContextAccessor _httpContextAccessor) : IProfileService
     {
         public async Task<UserDto> GetProfile()
         {
-            int userId = 3;
-            //int userId = _currentService.UserId ?? throw new UnauthorizedAccessException("No user id assigned");
+            var nameIdentifier = _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            var user = await dbContext.Users.Include(x => x.UserRoles).
-                FirstOrDefaultAsync(x => x.UserID == userId);
-
-            if (user == null)
+            if (string.IsNullOrEmpty(nameIdentifier) || !int.TryParse(nameIdentifier, out int userId))
             {
-                throw new KeyNotFoundException("This User not found");
+                throw new UnauthorizedAccessException("Invalid or missing token.");
             }
+
+            var user = await dbContext.Users
+                .Include(x => x.UserRoles)
+                .Include(x => x.Trainer)
+                .Include(x => x.MemberProfile)
+                .FirstOrDefaultAsync(x => x.UserID == userId);
+
+            if (user == null) throw new KeyNotFoundException("User not found");
 
             var roles = user.UserRoles.Select(
                 x => new UserRoleDto{
@@ -71,18 +79,20 @@ namespace FitCore.BLL.Services.Profile
                 throw new ValidationException(errors);
             }
 
-            int userId = 3;
-            //int userId = _currentService.UserId ?? throw new UnauthorizedAccessException("No user id assigned");
+            var nameIdentifier = _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(nameIdentifier) || !int.TryParse(nameIdentifier, out int userId))
+            {
+                throw new UnauthorizedAccessException("Invalid or missing token.");
+            }
 
             var user = await dbContext.Users
                 .Include(x => x.UserRoles)
                 .Include(x => x.Trainer)
+                .Include(x => x.MemberProfile)
                 .FirstOrDefaultAsync(x => x.UserID == userId);
 
-            if (user == null)
-            {
-                throw new KeyNotFoundException("User profile not found.");
-            }
+            if (user == null) throw new KeyNotFoundException("User not found");
 
             // تحديث البيانات الأساسية
             user.Email = userDto.Email;

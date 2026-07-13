@@ -13,6 +13,7 @@ let editServiceModal;
 const categories = { 0: 'Memberships', 1: 'Personal Training', 2: 'Spa & Recovery', 3: 'Special Workshops' };
 
 document.addEventListener('DOMContentLoaded', () => {
+    requireRole(["Admin"]);
     createServiceModal = new bootstrap.Modal(document.getElementById('createServiceModal'));
     loadAdminTable();
 

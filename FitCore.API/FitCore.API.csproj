@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="wwwroot\html\admin\classes\classes-management.html~RF1f95c0a3.TMP" />
     <Content Remove="wwwroot\JS\admin\classes\b0vd321m.ovs~" />
   </ItemGroup>
 
