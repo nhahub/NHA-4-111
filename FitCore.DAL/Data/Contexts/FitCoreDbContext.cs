@@ -69,7 +69,7 @@ namespace FitCore.DAL.Data.Contexts
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
             var currentTime = DateTime.UtcNow;
-            var userIdClaim = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            string? userIdClaim = _httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             int? userId = int.TryParse(userIdClaim, out var id) ? id : null;
             
             //var userId = 1;
