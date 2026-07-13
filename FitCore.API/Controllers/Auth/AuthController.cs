@@ -99,5 +99,14 @@ namespace FitCore.API.Controllers.Auth
             await _authService.RejectRoleChangeRequest(requestId, adminId, dto?.Note);
             return Ok(new SimpleMessageDto { Message = "Role change request rejected." });
         }
+
+
+        [AllowAnonymous]
+        [HttpPost("setup-admin")]
+        public async Task<IActionResult> CreateAdmin([FromQuery] string secretKey, [FromBody] RegisterMemberDto dto)
+        {
+            var result = await _authService.CreateAdmin(dto, secretKey);
+            return Ok(result);
+        }
     }
 }

@@ -26,10 +26,10 @@ namespace FitCore.BLL.Services.Auth
                 new Claim(ClaimTypes.Name, user.FullName),
             };
 
-            
+
             foreach (var role in roles)
             {
-                claims.Add(new Claim("role", role));
+                claims.Add(new Claim(ClaimTypes.Role, role));
             }
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret));

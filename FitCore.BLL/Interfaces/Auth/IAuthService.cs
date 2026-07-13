@@ -32,5 +32,8 @@ namespace FitCore.BLL.Interfaces.Auth
         Task ApproveRoleChangeRequest(int requestId, int adminUserId, string? note);
 
         Task RejectRoleChangeRequest(int requestId, int adminUserId, string? note);
+
+
+        Task<AuthResponseDto> CreateAdmin(RegisterMemberDto dto, string secretKey);
     }
 }
