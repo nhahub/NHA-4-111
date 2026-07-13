@@ -115,7 +115,13 @@ namespace FitCore.API.Controllers
                 return BadRequest(new { Message = ex.Message });
             }
         }
-
+        [HttpGet("bookings")]
+        public async Task<IActionResult> GetAllBookings()
+        {
+            int userId = _currentUser?.UserId ?? throw new UnauthorizedAccessException();
+            var result = await _gymService.GetAllBookingsAsync(userId);
+            return Ok(result);
+        }
         //[HttpPost("bookings/checkout-cleanup")]
         //public async Task<IActionResult> RemoveBookingsAfterCheckout([FromBody] List<int> bookingIds)
         //{
