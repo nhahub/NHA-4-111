@@ -10,7 +10,8 @@ namespace FitCore.API.Controllers.MemberDashboard
 {
     [Route("api/member/[controller]")]
     [ApiController]
-    [Authorize(Roles = nameof(UserRoles.Member))]
+    //[Authorize(Roles = nameof(UserRoles.Member))]
+    [Authorize]
     public class MemberDashboardController : ControllerBase
     {
         private readonly IMemberDashboardService _service;

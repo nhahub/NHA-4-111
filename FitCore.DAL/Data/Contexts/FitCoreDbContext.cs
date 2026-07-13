@@ -36,7 +36,7 @@ namespace FitCore.DAL.Data.Contexts
 
         public FitCoreDbContext(DbContextOptions<FitCoreDbContext> options, IHttpContextAccessor httpContextAccessor) : base(options)
         {
-            httpContextAccessor = _httpContextAccessor;
+            _httpContextAccessor = httpContextAccessor; 
         }
 
         public DbSet<User> Users { get; set; }
@@ -69,7 +69,7 @@ namespace FitCore.DAL.Data.Contexts
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
             var currentTime = DateTime.UtcNow;
-            var userIdClaim = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userIdClaim = _httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             int? userId = int.TryParse(userIdClaim, out var id) ? id : null;
             
             //var userId = 1;

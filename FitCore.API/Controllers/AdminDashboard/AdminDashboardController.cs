@@ -1,9 +1,11 @@
 ﻿using FitCore.BLL.Interfaces;
 using FitCore.BLL.Interfaces.AdminDashboard;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 [Route("api/admin/[controller]")]
 [ApiController]
+[Authorize]
 public class AdminDashboardController : ControllerBase
 {
     private readonly IDashboardService _dashboardService;

@@ -8,7 +8,7 @@ namespace FitCore.API.Controllers.Trainers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Roles = nameof(UserRoles.Admin) + "," + nameof(UserRoles.Receptionist))]
+    [Authorize]
     public class TrainersController(ITrainerService trainerService) : ControllerBase
     {
         [HttpPost("staff")]

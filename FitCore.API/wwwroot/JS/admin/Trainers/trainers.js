@@ -72,7 +72,7 @@ function populateTrainerSelect() {
     select.innerHTML = allTrainers.map(t => {
         const id = pick(t, 'trainerID', 'TrainerID');
         const name = pick(t, 'fullName', 'FullName') || `Trainer #${id}`;
-        return `<option value="${id}">${escapeHtml(name)}</option>`;
+        return `<option value="${id}">${escapeHtml(`${id} ${name}`)}</option>`;
     }).join('');
     if (previous) select.value = previous;
     if (select.value) loadWorkingHoursForSelected();

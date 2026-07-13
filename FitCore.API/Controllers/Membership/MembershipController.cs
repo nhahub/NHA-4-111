@@ -15,7 +15,7 @@ namespace FitCore.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    //[Authorize]
+    [Authorize]
     public class MembershipsController : ControllerBase
     {
         private readonly IMembershipService _membershipService;

@@ -41,6 +41,9 @@ namespace FitCore.API
     {
         public static async Task Main(string[] args)
         {
+
+            System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+
             var builder = WebApplication.CreateBuilder(args);
 
             // 1. Connection String & DbContext
@@ -113,7 +116,7 @@ namespace FitCore.API
                 };
             });
             builder.Services.AddAuthorization();
-            // Add services to the container.
+
             builder.Services.AddControllers();
 
             builder.Services.AddCors(options =>
@@ -127,7 +130,7 @@ namespace FitCore.API
                 });
             });
 
-            // OpenAPI & Swagger Configuration
+
             builder.Services.AddOpenApi();
             builder.Services.AddEndpointsApiExplorer();
 

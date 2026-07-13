@@ -31,7 +31,8 @@ namespace FitCore.API.Controllers.Auth
 
        
         [HttpPost("create-staff")]
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
+        [Authorize()]
         public async Task<IActionResult> CreateStaff(CreateStaffDto dto)
         {
             var result = await _authService.CreateStaff(dto);
@@ -40,7 +41,7 @@ namespace FitCore.API.Controllers.Auth
 
         
         [HttpPut("promote-to-trainer/{userId:int}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize()]
         public async Task<IActionResult> PromoteToTrainer(int userId)
         {
             await _authService.PromoteMemberToTrainer(userId);
@@ -49,7 +50,8 @@ namespace FitCore.API.Controllers.Auth
 
         
         [HttpGet("users")]
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
+        //[Authorize()]
         public async Task<IActionResult> GetAllUsers()
         {
             var result = await _authService.GetAllUsers();
@@ -68,7 +70,8 @@ namespace FitCore.API.Controllers.Auth
 
 
         [HttpGet("role-change/pending")]
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
+        [Authorize()]
         public async Task<IActionResult> GetPendingRoleChangeRequests()
         {
             var result = await _authService.GetPendingRoleChangeRequests();
@@ -77,7 +80,8 @@ namespace FitCore.API.Controllers.Auth
 
 
         [HttpPut("role-change/{requestId:int}/approve")]
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
+        [Authorize()]
         public async Task<IActionResult> ApproveRoleChange(int requestId, ReviewRoleChangeDto dto)
         {
             var adminId = _currentUserService.GetRequiredUserId();
@@ -87,7 +91,8 @@ namespace FitCore.API.Controllers.Auth
 
 
         [HttpPut("role-change/{requestId:int}/reject")]
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
+        [Authorize()]
         public async Task<IActionResult> RejectRoleChange(int requestId, ReviewRoleChangeDto dto)
         {
             var adminId = _currentUserService.GetRequiredUserId();

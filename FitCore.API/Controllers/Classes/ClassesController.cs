@@ -1,11 +1,13 @@
 ﻿using FitCore.BLL.Interfaces.Classes;
 using FitCore.Shared.DTOs.Classes;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FitCore.API.Controllers.Classes
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class ClassesController(IClassService classService) : ControllerBase
     {
         //[Authorize(Roles = "Admin")]
@@ -18,6 +20,7 @@ namespace FitCore.API.Controllers.Classes
 
         //[Authorize(Roles = "Admin")]
         [HttpPut("{classId}")]
+
         public async Task<IActionResult> UpdateClass(int classId, [FromBody] UpdateClassDto dto)
         {
             var result = await classService.UpdateClassAsync(classId, dto);

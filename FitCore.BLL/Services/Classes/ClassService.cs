@@ -17,7 +17,6 @@ namespace FitCore.BLL.Services.Classes
         public async Task<ClassDto> CreateClassAsync(CreateClassDto dto)
         {
             ArgumentNullException.ThrowIfNull(dto);
-
             if (string.IsNullOrWhiteSpace(dto.ClassName)) throw new ValidationException("Class name is required.");
             if (dto.Capacity <= 0) throw new ValidationException("Capacity must be greater than zero.");
             if (dto.NumberOfSessions <= 0) throw new ValidationException("Number of sessions must be greater than zero.");
@@ -30,7 +29,7 @@ namespace FitCore.BLL.Services.Classes
 
             var trainer = await DbContext.Set<Trainer>().FirstOrDefaultAsync(t => t.TrainerID == dto.TrainerID);
             if (trainer == null) throw new KeyNotFoundException("No trainer found with this id.");
-            Console.WriteLine(dto.Price);
+            
             var gymClass = new Class
             {
                 ClassName = dto.ClassName,
@@ -83,10 +82,10 @@ namespace FitCore.BLL.Services.Classes
             gymClass.Status = dto.Status;
             gymClass.NumberOfSessions = dto.NumberOfSessions;
             gymClass.Price = dto.Price;
-
+           
             DbContext.Set<Class>().Update(gymClass);
             await DbContext.SaveChangesAsync();
-
+            Console.WriteLine(gymClass);
             return MapToDto(gymClass, gymClass.Trainer);
         }
 
@@ -410,7 +409,9 @@ namespace FitCore.BLL.Services.Classes
                     Day = s.Day,
                     StartTime = s.StartTime,
                     EndTime = s.EndTime,
-                }).ToList() ?? new List<ClassScheduleDto>()
+                }).ToList() ?? new List<ClassScheduleDto>(),
+                Price = gymClass.Price,
+                NumberOfSessions = gymClass.NumberOfSessions
             };
         }
     }

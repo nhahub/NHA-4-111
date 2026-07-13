@@ -118,7 +118,8 @@ function initNotificationSystem() {
     // 3. Mark All as Read
     markAllReadBtn.addEventListener('click', async () => {
         try {
-            await fetch('/api/Notification/mark-all-read', { method: 'PATCH' });
+            await authFetch('/api/Notification/mark-all-read', { method: 'PATCH' });
+            // await fetch('/api/Notification/mark-all-read', { method: 'PATCH' });
 
             // نخلي كل الإشعارات اللي في الشاشة مقروءة
             document.querySelectorAll('.notification-item.unread').forEach(item => {
@@ -138,9 +139,10 @@ function initNotificationSystem() {
 // دالة جلب الإشعارات من الـ API
 async function fetchNotifications(page, append = false) {
     try {
-        const response = await fetch(`/api/Notification?Page=${page}&Page_Size=${notifPageSize}`);
-        const data = await response.json();
+        const response = await authFetch(`/api/Notification?Page=${page}&Page_Size=${notifPageSize}`);
+        // const response = await fetch(`/api/Notification?Page=${page}&Page_Size=${notifPageSize}`);
 
+        const data = response;
         // افتراض إن الـ API بيرجع { data: [...], totalCount: 50, unreadCount: 5 }
         const notifications = data.data || data.Data || [];
 
@@ -267,8 +269,8 @@ function getNotificationStyle(type) {
 // دالة بتسأل السيرفر كل فترة في إشعارات جديدة ولا لأ (بعد التحديث)
 async function pollUnreadCount() {
     try {
-        // بننادي على الـ Endpoint الجديد اللي بيرجع الرقم بس
-        const response = await fetch(`/api/Notification/UnRead-Count`);
+        
+        const response = await authFetch(`/api/Notification/UnRead-Count`);
 
         if (response.ok) {
             const data = await response.json();

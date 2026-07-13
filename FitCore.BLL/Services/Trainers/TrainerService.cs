@@ -142,7 +142,7 @@ namespace FitCore.BLL.Services.Trainers
 
             var trainer = await DbContext.Set<Trainer>()
                 .Include(t => t.WorkingHoursSchedule)
-                .FirstOrDefaultAsync(t => t.UserID == trainerId);
+                .FirstOrDefaultAsync(t => t.TrainerID == trainerId);
 
             if (trainer == null)
             {
@@ -163,6 +163,9 @@ namespace FitCore.BLL.Services.Trainers
 
         public async Task<bool> AssignTrainerToClassAsync(int classId, int trainerId)
         {
+            Console.WriteLine("________________________________________________________________________________");
+            Console.WriteLine(trainerId);
+            Console.WriteLine("________________________________________________________________________________");
             var gymClass = await DbContext.Set<Class>().FirstOrDefaultAsync(c => c.ClassID == classId);
             if (gymClass == null)
             {
@@ -171,14 +174,14 @@ namespace FitCore.BLL.Services.Trainers
 
             var trainer = await DbContext.Set<Trainer>()
                 .Include(t => t.WorkingHoursSchedule)
-                .FirstOrDefaultAsync(t => t.UserID == trainerId);
+                .FirstOrDefaultAsync(t => t.TrainerID == trainerId);
 
             if (trainer == null)
             {
                 throw new KeyNotFoundException("No trainer found with this id.");
             }
 
-            gymClass.TrainerID = trainer.TrainerID;
+            gymClass.TrainerID = trainerId;
             DbContext.Set<Class>().Update(gymClass);
             var affected = await DbContext.SaveChangesAsync();
 

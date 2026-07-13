@@ -4,13 +4,28 @@
 
 const FitCoreApi = {
     async request(method, url, body) {
+        const token = getToken();
+
         const options = {
             method,
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json'
+            },
         };
+
+        if (token) {
+            options.headers['Authorization'] = `Bearer ${token}`;
+        }
+
         if (body !== undefined) options.body = JSON.stringify(body);
 
         const response = await fetch(url, options);
+
+        if (response.status === 401) {
+            logout();
+            throw new Error("Session expired. Please log in again.");
+        }
+
         const text = await response.text();
         const data = text ? JSON.parse(text) : null;
 

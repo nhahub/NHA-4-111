@@ -13,7 +13,7 @@ let allClasses = [];
 let allTrainers = [];
 let weeklyOccurrences = [];
 let currentPage = 1;
-const PAGE_SIZE = 6;
+const PAGE_SIZE = 5;
 
 let editClassId = null;
 let editClassModal;
@@ -65,11 +65,11 @@ async function loadTrainers() {
         const filterSelect = document.getElementById('trainerFilter');
         const modalSelect = document.getElementById('classTrainerSelect');
         const options = allTrainers.map(t => {
-            const id = pick(t, 'trainerID', 'TrainerID');
+            const id = pick(t, 'trainerID', 'trainerID');
             const name = pick(t, 'fullName', 'FullName') || `Trainer #${id}`;
             return { id, name };
         });
-
+        
         filterSelect.innerHTML = '<option value="">All Trainers</option>' + options.map(o => `<option value="${o.id}">${escapeHtml(o.name)}</option>`).join('');
         modalSelect.innerHTML = options.map(o => `<option value="${o.id}">${escapeHtml(o.name)}</option>`).join('');
     } catch (error) {
@@ -82,9 +82,10 @@ async function loadClasses() {
     tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-5">Loading classes…</td></tr>`;
 
     try {
-        const data = await FitCoreApi.get('/api/Classes?Page=1&Page_Size=10');
+        const data = await FitCoreApi.get(`/api/Classes?Page=1&Page_Size=100`);
+        console.log(data);
         allClasses = data.data || data.Data || [];
-        console.log(allClasses);
+      
         await loadWeeklyOccurrences();
         renderTable();
         renderStats();
@@ -100,7 +101,7 @@ async function loadWeeklyOccurrences() {
     const to = toDateInput(weekEnd);
 
     try {
-        const data = await FitCoreApi.get(`/api/Classes/browse?fromDate=${from}&toDate=${to}&Page=1&Page_Size=10`);
+        const data = await FitCoreApi.get(`/api/Classes/browse?fromDate=${from}&toDate=${to}&Page=1&Page_Size=100`);
         weeklyOccurrences = data.data || data.Data || [];
     } catch (error) {
         weeklyOccurrences = [];
@@ -139,7 +140,7 @@ function renderTable() {
     const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
     if (currentPage > totalPages) currentPage = totalPages;
     const pageItems = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
-
+    console.log(totalPages);
     tbody.innerHTML = pageItems.map(renderRow).join('');
 
     document.getElementById('paginationSummary').textContent =
@@ -176,7 +177,7 @@ function renderRow(c) {
     const trainerOptions = allTrainers.map(t => {
         const tId = pick(t, 'trainerID', 'TrainerID');
         const tName = pick(t, 'fullName', 'FullName') || `Trainer #${tId}`;
-        return `<option value="${tId}" ${tId === trainerId ? 'selected' : ''}>${escapeHtml(tName)}</option>`;
+        return `<option value="${tId}" ${tId === trainerId ? 'selected' : ''}>${escapeHtml(`#${tId} ${tName} `)}</option>`;
     }).join('');
 
     return `
@@ -276,10 +277,13 @@ function wireRowActions() {
         });
 
     });
+
     document.querySelectorAll('[data-reassign-btn]').forEach(btn => {
         btn.addEventListener('click', async () => {
+            
             const classId = btn.dataset.reassignBtn;
             const select = document.querySelector(`[data-reassign-select="${classId}"]`);
+            console.log(select.value);
             try {
                 await FitCoreApi.put(`/api/Trainers/${select.value}/assign-class/${classId}`);
                 showMessage('Trainer reassigned.', 'success');

@@ -3,8 +3,8 @@
 const STATUS_LABELS = ['scheduled', 'completed', 'cancelled'];
 
 let allTrainers = [];
-let allSessions = []; // flattened across trainers, each tagged with trainerName
-
+let allSessions = []; 
+let allMembers = [];
 document.addEventListener('DOMContentLoaded', () => {
     requireRole(["Receptionist", "Admin"]);
     init();
@@ -23,13 +23,22 @@ function showMessage(text, type) {
 async function init() {
     try {
         const data = await FitCoreApi.get('/api/Trainers?Page=1&Page_Size=50');
+        const allMembers = await FitCoreApi.get('/api/Auth/users');
         allTrainers = data.data || data.Data || [];
+        const membersOnly = allMembers.filter(user => user.roles.includes('Member'));
+
+        console.log(membersOnly);
 
         const options = allTrainers.map(t => {
             const id = pick(t, 'trainerID', 'TrainerID');
             const name = pick(t, 'fullName', 'FullName') || `Trainer #${id}`;
             return { id, name };
         });
+        // const Memberoptions = allMembers.map(t => {
+        //     const id = pick(t, 'trainerID', 'TrainerID');
+        //     const name = pick(t, 'fullName', 'FullName') || `Trainer #${id}`;
+        //     return { id, name };
+        // });
 
         document.getElementById('trainerSelect').innerHTML = options.map(o => `<option value="${o.id}">${escapeHtml(o.name)}</option>`).join('');
         document.getElementById('filterTrainer').innerHTML = '<option value="">All Trainers</option>' + options.map(o => `<option value="${o.id}">${escapeHtml(o.name)}</option>`).join('');

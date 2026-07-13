@@ -8,9 +8,11 @@ let modalInst = null;
 let createServiceModal;
 let allClasses = [];
 
+const token = getToken();
+
 let editServiceId = null;
 let editServiceModal;
-const categories = { 0: 'Memberships', 1: 'Personal Training', 2: 'Spa & Recovery', 3: 'Special Workshops' };
+const categories = { 0: 'Memberships', 1: 'Personal Training'};
 
 document.addEventListener('DOMContentLoaded', () => {
     requireRole(["Admin"]);
@@ -34,11 +36,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     document.getElementById('submitCreateServiceBtn').addEventListener('click', submitCreateService);
     document.getElementById('submitEditServiceBtn').addEventListener('click', submitEditService);
-    // document.getElementById('adminBtnPrev').addEventListener('click', () => { if (page > 1) { page--; loadAdminTable(); } });
-    // document.getElementById('adminBtnNext').addEventListener('click', () => { page++; loadAdminTable(); });
-
-    // document.getElementById('adminBlueprintForm').addEventListener('submit', commitFormSubmission);
 });
+
 function showMessage(text, type) {
     const banner = document.getElementById('msgBanner');
     banner.textContent = text;
@@ -47,15 +46,16 @@ function showMessage(text, type) {
 }
 
 async function loadAdminTable() {
+    console.log(category);
     let url = `${API_URL}?page=${currentPage}&pageSize=${pageSize}`;
     if (searchTerm) url += `&searchTerm=${encodeURIComponent(searchTerm)}`;
     if (category !== '') url += `&category=${category}`;
     const tbody = document.getElementById('adminTableBody');
     try {
-        const response = await fetch(url);
-        const result = await response.json();
 
+        const result = await authFetch(url);
         const data = result.data || result;
+        console.log(result);
         allServices = result.data || result;
         if (data.length === 0) {
             tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-5">No gym sevices match your filters.</td></tr>`;
@@ -110,6 +110,7 @@ function renderTableRows(services) {
 
     });
 }
+
 function wireRowActions() {
     document.querySelectorAll('[data-edit-btn]').forEach(btn => {
 
@@ -240,18 +241,16 @@ async function submitEditService() {
 }
 
 async function deleteServiceAsset(id) {
-    // if (!confirm(`Wipe blueprint asset #${id} from the server?`)) return;
+   
     try {
-        const response = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
-        if (!response.ok) throw new Error('Deletion request rejected.');
 
-        showMessage(
-            'Service deleted successfully.',
-            'success'
-        );
+        await FitCoreApi.delete(`${API_URL}/${id}`);
 
-        loadAdminTable();
+        await loadAdminTable();
+
+        showMessage('Service deleted successfully.', 'success');
+
     } catch (err) {
-        alert(err.message);
+        showMessage(err.message, "error");
     }
 }
