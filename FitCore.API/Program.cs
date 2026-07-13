@@ -1,3 +1,10 @@
+using FitCore.API.Middlewares;
+using FitCore.BLL.Interfaces.AdminDashboard;
+using FitCore.BLL.Interfaces.Attendance;
+using FitCore.BLL.Interfaces.AuditLogs;
+using FitCore.BLL.Interfaces.Classes;
+using FitCore.BLL.Interfaces.IShopService;
+using FitCore.BLL.Interfaces.MemberDashboard;
 using FitCore.DAL.Data.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -6,23 +13,19 @@ using FitCore.BLL.Interfaces.Auth;
 using FitCore.BLL.Services.Auth;
 using System.Security.Claims;
 using System.Text;
-using FitCore.API.Middlewares;
-using FitCore.BLL.Interfaces.AuditLogs;
-using FitCore.BLL.Interfaces.Classes;
 using FitCore.BLL.Interfaces.Membership;
 using FitCore.BLL.Interfaces.Notifications;
 using FitCore.BLL.Interfaces.PrivateSessions;
 using FitCore.BLL.Interfaces.Profile;
 using FitCore.BLL.Services;
 using FitCore.BLL.Interfaces.Trainers;
-
+using FitCore.BLL.Services.Attendance;
 using FitCore.BLL.Services.AuditLogs;
 using FitCore.BLL.Services.Classes;
 using FitCore.BLL.Services.Notifications;
 using FitCore.BLL.Services.PrivateSessions;
 using FitCore.BLL.Services.Profile;
 using FitCore.BLL.Services.Trainers;
-
 using FitCore.DAL.Data;
 using FitCore.DAL.Data.Contexts;
 using FitCore.DAL.Interfaces;
@@ -30,6 +33,10 @@ using Hangfire;
 using Microsoft.EntityFrameworkCore;
 using FitCore.BLL.Interfaces.GymService;
 using FitCore.BLL.Services.GymServices;
+using FitCore.BLL.Interfaces.Payment;
+using FitCore.BLL.Services.payment;
+using FitCore.BLL.Services.Book;
+using FitCore.BLL.Interfaces.Book;
 namespace FitCore.API
 {
     public class Program
@@ -59,11 +66,21 @@ namespace FitCore.API
             builder.Services.AddHttpContextAccessor(); 
             builder.Services.AddScoped<IMembershipService, MembershipService>();
             builder.Services.AddScoped<IGymServiceService, GymServiceService>();
-            builder.Services.AddHttpContextAccessor();
+            builder.Services.AddScoped<IDashboardService, DashboardService>();
+            builder.Services.AddScoped<IAttendanceService, AttendanceService>();
+            builder.Services.AddScoped<IMemberDashboardService, MemberDashboardService>();
+            builder.Services.AddScoped<IShopService, ShopService>();
             // Add Checkout and Subscription services
             builder.Services.AddScoped<FitCore.BLL.Services.CheckoutService>();
+            builder.Services.AddHttpContextAccessor();
+            // Add Checkout and Subscription services
+            builder.Services.AddScoped<ICheckoutService, CheckoutService>();
             builder.Services.AddScoped<FitCore.BLL.Services.payment.SubscriptionPaymentService>();
 
+
+            Stripe.StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
+            builder.Services.AddScoped<IPaymentService,PaymentService>();
+            builder.Services.AddScoped<IBookingService,BookingService>();
             #region Added Hangfire
 
             builder.Services.AddHangfire(config => config.SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
@@ -73,6 +90,7 @@ namespace FitCore.API
 
             builder.Services.AddHangfireServer();
             #endregion
+
             // Auth
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
@@ -117,6 +135,7 @@ namespace FitCore.API
             // OpenAPI & Swagger Configuration
             builder.Services.AddOpenApi();
             builder.Services.AddEndpointsApiExplorer();
+
             builder.Services.AddSwaggerGen(options =>
             {
                 options.CustomSchemaIds(type => type.FullName);

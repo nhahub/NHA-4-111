@@ -10,7 +10,7 @@ namespace FitCore.API.Controllers.Classes
     {
         //[Authorize(Roles = "Admin")]
         [HttpPost]
-        public async Task<IActionResult> CreateClass(CreateClassDto dto)
+        public async Task<IActionResult> CreateClass([FromBody] CreateClassDto dto)
         {
             var result = await classService.CreateClassAsync(dto);
             return CreatedAtAction(nameof(GetClassById), new { classId = result.ClassID }, result);
@@ -18,7 +18,7 @@ namespace FitCore.API.Controllers.Classes
 
         //[Authorize(Roles = "Admin")]
         [HttpPut("{classId}")]
-        public async Task<IActionResult> UpdateClass(int classId, UpdateClassDto dto)
+        public async Task<IActionResult> UpdateClass(int classId, [FromBody] UpdateClassDto dto)
         {
             var result = await classService.UpdateClassAsync(classId, dto);
             return Ok(result);
@@ -81,8 +81,10 @@ namespace FitCore.API.Controllers.Classes
         [HttpGet("my-bookings")]
         public async Task<IActionResult> GetMyBookings([FromQuery] int memberUserId)
         {
+            Console.WriteLine($"Controller memberUserId = {memberUserId}");
             var result = await classService.GetMemberBookingsAsync(memberUserId);
             return Ok(result);
         }
+
     }
 }

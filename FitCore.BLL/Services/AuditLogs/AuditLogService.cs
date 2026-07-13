@@ -61,6 +61,7 @@ namespace FitCore.BLL.Services.AuditLogs
             };
 
             var data = await logs
+
                 .OrderByDescending(a => a.CreatedAt)
                 .ThenByDescending(a => a.Id)
                 .Skip((page - 1) * pageSize)

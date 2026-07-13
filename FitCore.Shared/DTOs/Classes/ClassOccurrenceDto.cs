@@ -15,6 +15,7 @@ namespace FitCore.Shared.DTOs.Classes
         public DateTime Day { get; set; }
 
         public int Capacity { get; set; }
+        public decimal Price { get; set; }
         public int BookedCount { get; set; }
     }
 }

@@ -1,13 +1,32 @@
 ﻿const API_URL = '/api/GymServices';
 let page = 1;
-const pageSize = 6;
+const pageSize = 5;
 let searchTerm = '';
 let category = '';
-
+const user = getCurrentUser();
 const categories = { 0: 'Memberships', 1: 'Personal Training', 2: 'Spa & Recovery', 3: 'Special Workshops' };
 
+
+let myBookedServiceIds = new Map(); 
+function showMessage(text, type) {
+    const banner = document.getElementById('msgBanner');
+    if (!banner) return;
+    banner.textContent = text;
+    banner.className = `msg-banner show ${type}`;
+    setTimeout(() => banner.classList.remove('show'), 4000);
+}
+
+function showToast(message) {
+    const toast = document.getElementById('toast');
+    if (!toast) return;
+    toast.textContent = message;
+    toast.classList.add('show');
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(() => toast.classList.remove('show'), 2800);
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-    loadUserServices();
+    loadMyServices().then(loadUserServices);
 
     document.getElementById('userSearchInput').addEventListener('input', (e) => {
         searchTerm = e.target.value.trim();
@@ -25,6 +44,28 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('userBtnNext').addEventListener('click', () => { page++; loadUserServices(); });
 });
 
+
+async function loadMyServices() {
+    const memberUserId = user?.userId;
+    if (!memberUserId) return;
+
+    try {
+        const data = await FitCoreApi.get(`${API_URL}/my-services?memberUserId=${memberUserId}`);
+        const list = Array.isArray(data) ? data : (data.data || data.Data || []);
+
+        myBookedServiceIds = new Map();
+        list.forEach(b => {
+            const serviceId = b.gymServiceId ?? b.GymServiceId;
+            const status = (b.status ?? b.Status ?? '').toString();
+            if (serviceId != null && status.toLowerCase() !== 'cancelled') {
+                myBookedServiceIds.set(serviceId, status);
+            }
+        });
+    } catch (err) {
+        console.error("Failed to load member's existing services:", err);
+    }
+}
+
 async function loadUserServices() {
     let url = `${API_URL}?page=${page}&pageSize=${pageSize}`;
     if (searchTerm) url += `&searchTerm=${encodeURIComponent(searchTerm)}`;
@@ -37,7 +78,6 @@ async function loadUserServices() {
         const data = result.data || result;
         const totalCount = result.totalCount || data.length;
         const totalPages = result.totalPages || Math.ceil(totalCount / pageSize);
-
         renderCards(data);
 
         document.getElementById('userPaginationText').textContent = `Page ${page} of ${totalPages} (${totalCount} Available Options)`;
@@ -60,8 +100,11 @@ function renderCards(services) {
     services.forEach((service, index) => {
         const col = document.createElement('div');
         const isFirst = index === 0;
-        col.className = `${isFirst ? "col-12 col-md-6 col-lg-7" :"col-12 col-md-6 col-lg-4"} `;
+        col.className = `${isFirst ? "col-12 col-md-6 col-lg-7" : "col-12 col-md-6 col-lg-4"} `;
 
+        const serviceId = service.serviceID;
+        const alreadyBooked = myBookedServiceIds.has(serviceId);
+        const actionButton = renderActionButton(serviceId, isFirst, alreadyBooked);
 
         col.innerHTML = `
         ${isFirst ? `
@@ -80,9 +123,7 @@ function renderCards(services) {
                         <li><i class='bx bx-check-circle'></i> Grants access to <strong>${service.allowedSessionsCount} sessions</strong></li>
                         <li><i class='bx bx-check-circle'></i> Instant check-in activation pipeline</li>
                     </ul>
-                    <button class="btn ${isFirst ? 'btn-primary' : 'btn-outline-primary'} w-100 rounded-3 py-2 fw-semibold">
-                        Purchase Plan
-                    </button>
+                    ${actionButton}
                 </div>
             </div>
         `: `<div class="border px-4 pt-4 pb-2 rounded">
@@ -96,9 +137,7 @@ function renderCards(services) {
                     <li><i class='bx bx-check-circle'></i> Grants access to <strong>${service.allowedSessionsCount} sessions</strong></li>
                     <li><i class='bx bx-check-circle'></i> Instant check-in activation pipeline</li>
                 </ul>
-                <button class="btn ${isFirst ? 'btn-primary' : 'btn-outline-primary'} w-100 rounded-3 py-2 fw-semibold">
-                    Purchase Plan
-                </button>
+                ${actionButton}
             </div>`}
           
         `;
@@ -106,21 +145,42 @@ function renderCards(services) {
     });
 }
 
-async function bookOccurrence(classID, btn) {
-    const memberUserId = window.CURRENT_MEMBER_USER_ID || 1;
+
+function renderActionButton(serviceId, isFirst, alreadyBooked) {
+    if (alreadyBooked) {
+        return `
+        <button class="btn btn-success w-100 rounded-3 py-2 fw-semibold" disabled>
+            <i class='bx bx-check-circle'></i> Already Purchased
+        </button>`;
+    }
+
+    return `
+    <button class="btn ${isFirst ? 'btn-primary' : 'btn-outline-primary'} w-100 rounded-3 py-2 fw-semibold"
+            onclick="purchaseService(${serviceId}, this)">
+        Purchase Plan
+    </button>`;
+}
+
+async function purchaseService(gymServiceId, btn) {
+    const memberUserId = user?.userId;
+
+    if (!memberUserId) {
+        showMessage("Please log in to purchase a plan.", "error");
+        return;
+    }
+
     const originalText = btn.textContent;
     btn.disabled = true;
-    btn.textContent = 'Booking…';
+    btn.textContent = 'Purchasing…';
 
     try {
-        await FitCoreApi.post(`/api/Classes/book?memberUserId=${memberUserId}&classId=${parseInt(classID, 1)}`, {       
-            classID: parseInt(classID, 10),
-            // sessionDate,
-        });
-        showToast('You are booked in! Check My Bookings for details.');
-        await loadOccurrences(true);
+        const data = await FitCoreApi.post(`${API_URL}/book?memberUserId=${memberUserId}&gymServiceId=${gymServiceId}`);
+        showMessage('Plan purchased successfully! Check your profile for details.', 'success');
+
+        await loadMyServices();
+        loadUserServices();
     } catch (error) {
-        showMessage(error.message, 'error');
+        showMessage(`Purchase failed: ${error.message}`, 'error');
         btn.disabled = false;
         btn.textContent = originalText;
     }

@@ -270,6 +270,10 @@ namespace FitCore.DAL.Migrations
                     b.Property<int>("NumberOfSessions")
                         .HasColumnType("int");
 
+                    b.Property<decimal>("Price")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<int>("Status")
                         .HasMaxLength(20)
                         .HasColumnType("int");
@@ -644,13 +648,7 @@ namespace FitCore.DAL.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MembershipID"));
 
-                    b.Property<int?>("AllowedVisits")
-                        .HasColumnType("int");
-
                     b.Property<int?>("ClassID")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ConsumedVisits")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAt")
@@ -694,9 +692,6 @@ namespace FitCore.DAL.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
-                    b.Property<int?>("UserID")
-                        .HasColumnType("int");
-
                     b.HasKey("MembershipID");
 
                     b.HasIndex("ClassID");
@@ -706,8 +701,6 @@ namespace FitCore.DAL.Migrations
                     b.HasIndex("InvoiceID");
 
                     b.HasIndex("MemberProfileId");
-
-                    b.HasIndex("UserID");
 
                     b.ToTable("Memberships");
                 });
@@ -876,6 +869,10 @@ namespace FitCore.DAL.Migrations
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ImageUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<bool>("IsDeleted")
                         .ValueGeneratedOnAdd()
@@ -1311,10 +1308,6 @@ namespace FitCore.DAL.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("FitCore.DAL.Data.Models.User", null)
-                        .WithMany("Memberships")
-                        .HasForeignKey("UserID");
-
                     b.Navigation("Class");
 
                     b.Navigation("GymService");
@@ -1518,8 +1511,6 @@ namespace FitCore.DAL.Migrations
                     b.Navigation("Invoices");
 
                     b.Navigation("MemberProfile");
-
-                    b.Navigation("Memberships");
 
                     b.Navigation("Notifications");
 

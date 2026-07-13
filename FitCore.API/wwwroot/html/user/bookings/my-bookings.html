@@ -32,9 +32,15 @@
             <div id="msgBanner" class="msg-banner"></div>
 
             <div class="stats-row">
+
                 <div class="stat-card">
                     <span class="stat-label">TOTAL BOOKINGS</span>
                     <div class="stat-value" id="totalBookingsValue">—</div>
+                    <span class="stat-icon"><i class='bx bx-calendar-check'></i></span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">TOTAL SERVICES</span>
+                    <div class="stat-value" id="totalServicesValue">—</div>
                     <span class="stat-icon"><i class='bx bx-calendar-check'></i></span>
                 </div>
                 <div class="stat-card">
@@ -51,22 +57,34 @@
 
             <!-- Upcoming tab -->
             <div id="upcomingTab">
-                <div class="section-heading">
-                    <h2>Upcoming This Week</h2>
-                </div>
-
-                <div class="upcoming-layout">
-                    <div class="next-class-card" id="nextClassCard">
-                        <div class="state-empty">No upcoming classes booked yet.</div>
+                <div>
+                    <div class="section-heading">
+                        <h2>Upcoming Classes Booking </h2>
                     </div>
-                    <div class="upcoming-list" id="upcomingList"></div>
+
+                    <div class="p-3">
+                        <div class="row row-cols-2 row-cols-lg-3 g-2 g-lg-3" id="nextClassCard">
+                            <div class="state-empty">No upcoming classes booked yet.</div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="section-heading">
+                        <h2>Upcoming Services Booking </h2>
+                    </div>
+
+                    <div class="p-3">
+                        <div class="row row-cols-md-2 row-cols-md-1 row-cols-lg-3 g-2 g-lg-3 align-items-center " id="nextServiceCard">
+                            <div class="state-empty">No upcoming Services booked yet.</div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <!-- Past tab -->
             <div id="pastTab" style="display:none;">
                 <div class="section-heading section-heading--between">
-                    <h2>Past Sessions</h2>
+                    <h2>Past Class Bookings</h2>
                     <select id="pastRangeFilter" class="filter-select">
                         <option value="30">Last 30 Days</option>
                         <option value="90">Last 90 Days</option>
@@ -74,15 +92,15 @@
                     </select>
                 </div>
 
-                <div class="table-container">
-                    <table>
+                <div class="table-container table-responsive p-2">
+                    <table class="table table-hover table-borderless rounded-4">
                         <thead>
                             <tr>
                                 <th>Class</th>
                                 <th>Instructor</th>
                                 <th>Date</th>
+                                <th>price</th>
                                 <th>Status</th>
-                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody id="pastTableBody"></tbody>
@@ -92,20 +110,12 @@
         </div>
     </main>
 
-    <button class="fab-btn" onclick="window.location.href='/html/Classes/classes-schedule.html'" aria-label="Book a class">
+    <button class="fab-btn" onclick="window.location.href='/html/user/classes/classes-schedule.html'" aria-label="Book a class">
         <i class='bx bx-plus'></i>
     </button>
 
     <script src="/JS/admin/Components/api.js"></script>
-    <script>
-        window.FITCORE_LAYOUT_CONFIG = {
-            sidebar: 'member',
-            header: 'simple',
-            activeNav: 'Bookings',
-            user: { name: 'Alex Rivera', role: 'Premium Plan', initials: 'AR' }
-        };
-        window.CURRENT_MEMBER_USER_ID = 1;
-    </script>
+    <script src="/JS/Auth/auth-common.js"></script>
     <script src="/JS/user/Components/layout.js"></script>
     <script src="/JS/user/Bookings/my-bookings.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>

@@ -10,6 +10,7 @@ namespace FitCore.Shared.DTOs.MemberShip
 
         public int? GymServiceId { get; set; }
         public int? ClassId { get; set; }
+        public int InvoiceId { get; set; }
 
         public bool IsAutoRenew { get; set; } = false;
     }

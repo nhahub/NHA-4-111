@@ -1,4 +1,7 @@
-﻿using FitCore.DAL.Data.Contexts;
+﻿using FitCore.BLL.Interfaces.Membership;
+
+using FitCore.BLL.Interfaces.Payment;
+using FitCore.DAL.Data.Contexts;
 using FitCore.DAL.Data.Models;
 using FitCore.Shared.Enums;
 using Microsoft.EntityFrameworkCore;
@@ -8,16 +11,19 @@ using System.Threading.Tasks;
 
 namespace FitCore.BLL.Services
 {
-    public class CheckoutService
+
+    public class CheckoutService : ICheckoutService
     {
         private readonly FitCoreDbContext _context;
+        private readonly IMembershipService _membershipService;
 
-        public CheckoutService(FitCoreDbContext context)
+        public CheckoutService(FitCoreDbContext context, IMembershipService membershipService)
         {
             _context = context;
+            _membershipService = membershipService;
         }
 
-        public async Task<bool> ProcessCheckoutAsync(int userId, int? memberProfileId = null, int? gymServiceId = null, int? classId = null)
+        public async Task<int?> ProcessCheckoutAsync(int userId)
         {
             var cart = await _context.Carts
                 .Include(c => c.CartItems)
@@ -25,10 +31,18 @@ namespace FitCore.BLL.Services
                 .FirstOrDefaultAsync(c => c.UserID == userId);
 
             bool hasCartItems = cart != null && cart.CartItems.Any();
-            bool hasSubscription = memberProfileId.HasValue && (gymServiceId.HasValue || classId.HasValue);
 
-            if (!hasCartItems && !hasSubscription)
-                return false;
+
+            var pendingBookings = await _context.Set<Booking>()
+                .Include(b => b.GymService)
+                .Include(b => b.Class)
+                .Where(b => b.MemberUserId == userId && b.Status == BookingStatus.Booked)
+                .ToListAsync();
+
+            bool hasBookings = pendingBookings.Any();
+
+            if (!hasCartItems && !hasBookings)
+                return null;
 
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
@@ -38,8 +52,8 @@ namespace FitCore.BLL.Services
                     UserID = userId,
                     IssueDate = DateTime.UtcNow,
                     TotalAmount = 0,
-                    InvoiceStatus = FitCore.Shared.Enums.InvoiceStatus.Pending,
-                    Description = "Checkout Invoice"
+                    InvoiceStatus = InvoiceStatus.Pending,
+                    Description = "Unified Checkout Invoice (Products, Services, Classes)"
                 };
                 await _context.Invoices.AddAsync(invoice);
                 await _context.SaveChangesAsync();
@@ -53,9 +67,9 @@ namespace FitCore.BLL.Services
                         var invoiceItem = new InvoiceItem
                         {
                             InvoiceID = invoice.InvoiceID,
-                            ItemType = FitCore.Shared.Enums.InvoiceItemType.Product,
+                            ItemType = InvoiceItemType.Product,
                             ProductID = cartItem.ProductID,
-                            ItemName = "Product",
+                            ItemName = cartItem.Product.Name ?? "Product",
                             Quantity = cartItem.Quantity,
                             SellPrice = cartItem.Product.CurrentSellPrice,
                             LineTotal = cartItem.Product.CurrentSellPrice * cartItem.Quantity
@@ -65,51 +79,54 @@ namespace FitCore.BLL.Services
                         await _context.InvoiceItems.AddAsync(invoiceItem);
                     }
 
-                    _context.CartItems.RemoveRange(cart.CartItems);
                 }
 
-                if (hasSubscription)
+                if (hasBookings)
                 {
-                    var invoiceItem = new InvoiceItem
+                    foreach (var booking in pendingBookings)
                     {
-                        InvoiceID = invoice.InvoiceID,
-                        ItemType = FitCore.Shared.Enums.InvoiceItemType.MembershipPlan,
-                        ServiceID = gymServiceId.Value,
-                        ItemName = "Gym Subscription",
-                        Quantity = 1,
-                        SellPrice = 0,
-                        LineTotal = 0
-                    };
+                        var invoiceItem = new InvoiceItem
+                        {
+                            InvoiceID = invoice.InvoiceID,
+                            Quantity = 1,
+                        };
 
-                    totalAmount += invoiceItem.LineTotal;
-                    await _context.InvoiceItems.AddAsync(invoiceItem);
+                        if (booking.GymServiceId.HasValue)
+                        {
+                            invoiceItem.ItemType = InvoiceItemType.GymService;
+                            invoiceItem.ServiceID = booking.GymServiceId;
+                            invoiceItem.ItemName = booking.GymService!.Name;
+                            invoiceItem.SellPrice = booking.GymService.Price;
+                            invoiceItem.LineTotal = booking.GymService.Price;
+                        }
+                        else if (booking.ClassID.HasValue)
+                        {
+                            invoiceItem.ItemType = InvoiceItemType.Class;
+                            invoiceItem.ClassID = booking.ClassID;
+                            invoiceItem.ItemName = booking.Class!.ClassName;
+                            invoiceItem.SellPrice = booking.Class.Price;
+                            invoiceItem.LineTotal = booking.Class.Price;
+                        }
 
-                    var membership = new Membership
-                    {
-                        MemberProfileId = memberProfileId.Value,
-                        GymServiceId = gymServiceId.Value,
-                        StartDate = DateTime.UtcNow,
-                        EndDate = DateTime.UtcNow.AddMonths(1),
-                        Status = MemberShipStatus.Active,
-                        IsAutoRenew = false,
-                        InvoiceID = invoice.InvoiceID
-                    };
+                        totalAmount += invoiceItem.LineTotal;
+                        await _context.InvoiceItems.AddAsync(invoiceItem);
 
-                    await _context.Memberships.AddAsync(membership);
+                    }
+
+                    //_context.Bookings.UpdateRange(pendingBookings);
                 }
 
                 invoice.TotalAmount = totalAmount;
                 _context.Invoices.Update(invoice);
+                await _context.SaveChangesAsync();                
 
-                await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
-
-                return true;
+                return invoice.InvoiceID;
             }
-            catch
+            catch (Exception ex)
             {
                 await transaction.RollbackAsync();
-                return false;
+                return null;
             }
         }
     }

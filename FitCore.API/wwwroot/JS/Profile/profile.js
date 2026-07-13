@@ -11,32 +11,83 @@
 // ============================================================
 
 const API_ENDPOINT = "/api/Profile";
-
+const token = getToken();
 document.addEventListener("DOMContentLoaded", init);
-
+const userRole = getCurrentUser();
 async function init() {
     try {
         const user = await fetchProfile();
+        window.user = user;
         renderProfile(user);
+        dynamicLoadLayout(user.userRoles);
     } catch (err) {
         console.error("Could not load profile, showing sample data instead:", err);
-        renderProfile(getSampleUser());
+        const sampleUser = getSampleUser();
+        window.user = sampleUser;
+        renderProfile(sampleUser);
+
+        dynamicLoadLayout(sampleUser.userRoles);
     }
 
     bindActions();
 }
 
-// ------------------------------------------------------------
-// Data fetching
-// ------------------------------------------------------------
+function dynamicLoadLayout(userRoles) {
+    if (!userRole.roles || userRole.roles.length === 0) return;
+    console.log(userRole.roles);
+    
+    const primaryRole = userRole.roles[0];
+    let scriptSrc = "";
+    console.log(primaryRole);
+ 
+    switch (primaryRole) {
+        case "Admin":
+        case 0:
+            scriptSrc = "/JS/admin/Components/layout.js";
+            break;
+        case "Trainer":
+        case 1:
+            scriptSrc = "/JS/Trainer/Components/layout.js"; 
+            break;
+        case "Receptionist":
+        case 3:
+            scriptSrc = "/JS/Receptionist/Components/layout.js"; 
+            break;
+        default:
+            scriptSrc = "/JS/user/Components/layout.js"; 
+            break;
+    }
+
+
+    const script = document.createElement("script");
+    script.src = scriptSrc;
+    script.defer = true; 
+
+    document.body.appendChild(script);
+
+}
+
 async function fetchProfile() {
+
+    if (!token) {
+        console.warn("No token found, redirecting to login...");
+        window.location.href = "/html/Auth/login.html";
+        return;
+    }
+
     const response = await fetch(API_ENDPOINT, {
         method: "GET",
-        headers: { "Accept": "application/json" },
+        headers: {
+            "Accept": "application/json",
+            "Authorization": `Bearer ${token}`
+        },
         credentials: "include"
     });
-
+    
     if (!response.ok) {
+        if (response.status === 401) {
+            logout(); 
+        }
         throw new Error(`Request failed with status ${response.status}`);
     }
 
