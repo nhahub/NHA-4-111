@@ -5,6 +5,9 @@ const STATUS_LABELS = ['scheduled', 'completed', 'cancelled'];
 let allTrainers = [];
 let allSessions = []; 
 let allMembers = [];
+
+const userRole = getCurrentUser();
+
 document.addEventListener('DOMContentLoaded', () => {
     requireRole(["Receptionist", "Admin"]);
     init();
@@ -12,6 +15,41 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('filterTrainer').addEventListener('change', renderTable);
     document.getElementById('filterStatus').addEventListener('change', renderTable);
 });
+console.log(userRole);
+function dynamicLoadLayout(userRoles) {
+    if (!userRole.roles || userRole.roles.length === 0) return;
+    console.log(userRole.roles);
+
+    const primaryRole = userRole.roles[0];
+    let scriptSrc = "";
+    console.log(primaryRole);
+
+    switch (primaryRole) {
+        case "Admin":
+        case 0:
+            scriptSrc = "/JS/admin/Components/layout.js";
+            break;
+        case "Trainer":
+        case 1:
+            scriptSrc = "/JS/Trainer/Components/layout.js";
+            break;
+        case "Receptionist":
+        case 3:
+            scriptSrc = "/JS/Receptionist/Components/layout.js";
+            break;
+        default:
+            scriptSrc = "/JS/user/Components/layout.js";
+            break;
+    }
+
+
+    const script = document.createElement("script");
+    script.src = scriptSrc;
+    script.defer = true;
+
+    document.body.appendChild(script);
+
+}
 
 function showMessage(text, type) {
     const banner = document.getElementById('msgBanner');
@@ -22,24 +60,28 @@ function showMessage(text, type) {
 
 async function init() {
     try {
+        dynamicLoadLayout(userRole.roles[0]);
         const data = await FitCoreApi.get('/api/Trainers?Page=1&Page_Size=50');
         const allMembers = await FitCoreApi.get('/api/Auth/users');
         allTrainers = data.data || data.Data || [];
         const membersOnly = allMembers.filter(user => user.roles.includes('Member'));
 
-        console.log(membersOnly);
+       
+
 
         const options = allTrainers.map(t => {
             const id = pick(t, 'trainerID', 'TrainerID');
             const name = pick(t, 'fullName', 'FullName') || `Trainer #${id}`;
             return { id, name };
         });
-        // const Memberoptions = allMembers.map(t => {
-        //     const id = pick(t, 'trainerID', 'TrainerID');
-        //     const name = pick(t, 'fullName', 'FullName') || `Trainer #${id}`;
-        //     return { id, name };
-        // });
+        const Memberoptions = membersOnly.map(t => {
+            const id = pick(t, 'userID', 'userID');
+            const name = pick(t, 'fullName', 'FullName') || `Member #${id}`;
+            return { id, name };
+        });
 
+        document.getElementById('memberSelect').innerHTML = Memberoptions.map(o => `<option value="${o.id}">${escapeHtml(o.name)}</option>`).join('');
+      
         document.getElementById('trainerSelect').innerHTML = options.map(o => `<option value="${o.id}">${escapeHtml(o.name)}</option>`).join('');
         document.getElementById('filterTrainer').innerHTML = '<option value="">All Trainers</option>' + options.map(o => `<option value="${o.id}">${escapeHtml(o.name)}</option>`).join('');
 
@@ -137,7 +179,7 @@ async function updateSession(id, action) {
 async function createSession() {
     const dto = {
         trainerID: parseInt(document.getElementById('trainerSelect').value, 10),
-        memberUserId: parseInt(document.getElementById('memberUserId').value, 10),
+        memberUserId: parseInt(document.getElementById('memberSelect').value, 10),
         sessionDate: document.getElementById('sessionDate').value,
         startTime: document.getElementById('startTime').value + ':00',
         endTime: document.getElementById('endTime').value + ':00',
@@ -145,7 +187,9 @@ async function createSession() {
     };
 
     try {
-        await FitCoreApi.post('/api/PrivateSessions', dto);
+        console.log(dto);
+        const resonse = await FitCoreApi.post('/api/PrivateSessions', dto);
+        console.log(resonse);
         showMessage('Private session scheduled.', 'success');
         document.getElementById('memberUserId').value = '';
         document.getElementById('notes').value = '';

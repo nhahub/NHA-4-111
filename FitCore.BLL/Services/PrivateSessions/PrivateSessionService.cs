@@ -20,6 +20,7 @@ namespace FitCore.BLL.Services.PrivateSessions
             var trainer = await DbContext.Set<Trainer>().Include(t => t.User).FirstOrDefaultAsync(t => t.TrainerID == dto.TrainerID);
             if (trainer == null) throw new KeyNotFoundException("No trainer found with this id.");
 
+
             var member = await DbContext.Set<MemberProfile>().Include(m => m.User).FirstOrDefaultAsync(m => m.UserID == dto.MemberUserId);
             if (member == null) throw new KeyNotFoundException("No member profile found for this user.");
 
@@ -28,7 +29,7 @@ namespace FitCore.BLL.Services.PrivateSessions
             var session = new PrivateSession
             {
                 TrainerID = dto.TrainerID,
-                MemberUserId = dto.MemberUserId,
+                MemberUserId = member.MemberProfileId,
                 SessionDate = dto.SessionDate.Date,
                 StartTime = dto.StartTime,
                 EndTime = dto.EndTime,

@@ -155,8 +155,9 @@ button {
     font-size: 16px;
 }
 #sidebar-container {
-    width: 260px;
+    min-width: 260px;
     flex-shrink: 0;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
     background-color: var(--bg-card);
     border-right: 1px solid var(--border-color);
     display: flex;
@@ -180,6 +181,8 @@ button {
 .sidebar {
     display: flex;
     flex-direction: column;
+    justify-content: start;
+    align-items: start;
     height: 100%;
     padding: var(--space-6) var(--space-5);
 }
@@ -203,26 +206,29 @@ button {
     flex: 1;
 }
 
-.sidebar-nav ul {
-    list-style: none;
-}
+    .sidebar-nav ul {
+        padding-left: 0 !important; 
+        margin-bottom: 0 !important; 
+        list-style: none;
+    }
 
 .sidebar-nav li {
     margin-bottom: var(--space-2);
 }
 
-.sidebar-nav a {
-    display: flex;
-    align-items: center;
-    text-decoration: none;
-    color: var(--text-muted);
-    font-weight: 500;
-    font-size: var(--fs-base);
-    padding: 10px 12px;
-    border-radius: var(--radius-sm);
-    border-left: 4px solid transparent;
-    transition: background-color var(--transition-fast), color var(--transition-fast);
-}
+    .sidebar-nav a {
+        display: flex;
+        align-items: center;
+        text-decoration: none !important;
+        color: var(--text-muted);
+        font-weight: 500;
+        font-size: var(--fs-base);
+        padding: 10px 12px;
+        box-sizing: border-box !important;
+        border-radius: var(--radius-sm);
+        border-left: 4px solid transparent;
+        transition: background-color var(--transition-fast), color var(--transition-fast);
+    }
 
 .sidebar-nav a:hover {
     background-color: var(--bg-hover);
