@@ -5,7 +5,7 @@
 // ============================================================
 
 document.addEventListener("DOMContentLoaded", () => {
-    requireRole(["Admin"]);
+    // requireRole(["Admin"]);
     document.getElementById("staffForm").addEventListener("submit", onSubmit);
 });
 

@@ -64,8 +64,7 @@ function requireRole(allowedRoles) {
 
     const isAllowed = allowedRoles.some(r => roles.includes(r));
     if (!isAllowed) {
-        alert("You don't have permission to view this page.");
-        window.location.href = "/html/Auth/login.html";
+        window.location.href = "/html/access-denied.html";
         return null;
     }
 

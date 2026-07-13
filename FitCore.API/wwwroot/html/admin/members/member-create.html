@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>New Staff Account | Fit Core</title>
+    <title>New Member | Fit Core</title>
     <link rel="stylesheet" href="/CSS/style.css">
     <link rel="stylesheet" href="/CSS/management.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
 </head>
-<body data-page="staff">
+<body data-page="members">
 
     <div id="sidebar-container"></div>
 
@@ -18,42 +18,33 @@
         <div class="page-content">
             <div class="page-header">
                 <div>
-                    <span class="badge">STAFF ADMINISTRATION</span>
-                    <h1>Create Staff Account</h1>
-                    <p class="subtitle">Add a new Trainer or Receptionist to the FitCore team.</p>
+                    <span class="badge">FRONT DESK</span>
+                    <h1>Create Member Account</h1>
+                    <p class="subtitle">Fill in the visitor's details to start their FitCore membership.</p>
                 </div>
             </div>
 
             <div id="msgBanner" class="msg-banner"></div>
 
             <div class="card" style="max-width: 640px;">
-                <h2>Staff Details</h2>
+                <h2>Member Details</h2>
 
-                <form id="staffForm">
+                <form id="memberForm">
                     <div class="form-grid">
                         <div class="form-group">
                             <label>Full Name</label>
-                            <input type="text" id="fullName" class="text-input" placeholder="Sarah Youssef" required>
+                            <input type="text" id="fullName" class="text-input" placeholder="Johnathan Doe" required>
                         </div>
                         <div class="form-group">
-                            <label>Role</label>
-                            <select id="role" required>
-                                <option value="Trainer">Trainer</option>
-                                <option value="Receptionist">Receptionist</option>
-                            </select>
+                            <label>Email Address</label>
+                            <input type="email" id="email" class="text-input" placeholder="john@fitcore.com" required>
                         </div>
                     </div>
                     <div class="form-grid">
-                        <div class="form-group">
-                            <label>Email Address</label>
-                            <input type="email" id="email" class="text-input" placeholder="sarah@fitcore.com" required>
-                        </div>
                         <div class="form-group">
                             <label>Phone Number</label>
                             <input type="tel" id="phoneNumber" class="text-input" placeholder="+1 (555) 000-0000" required>
                         </div>
-                    </div>
-                    <div class="form-grid" style="grid-template-columns: 1fr;">
                         <div class="form-group">
                             <label>Temporary Password</label>
                             <input type="password" id="password" class="text-input" placeholder="At least 6 characters" required minlength="6">
@@ -61,7 +52,7 @@
                     </div>
 
                     <button type="submit" class="btn-primary w-100" id="createBtn" style="margin-top: 8px;">
-                        <i class="fa-solid fa-user-tie"></i> Create Staff Account
+                        <i class="fa-solid fa-user-plus"></i> Create Account
                     </button>
                 </form>
             </div>
@@ -69,7 +60,8 @@
     </main>
 
     <script src="/JS/Auth/auth-common.js"></script>
-    <script src="/JS/Components/layout.js"></script>
-    <script src="/JS/Auth/staff-create.js"></script>
+    <script src="/JS/admin/Components/layout.js"></script>
+    <script src="/JS/Auth/member-create.js"></script>
+    <script src="/JS/Auth/auth-common.js"></script>
 </body>
 </html>

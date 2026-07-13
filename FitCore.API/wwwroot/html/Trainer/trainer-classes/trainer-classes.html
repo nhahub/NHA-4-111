@@ -48,16 +48,17 @@
 
     <script src="/JS/admin/Components/api.js"></script>
     <script>
-    window.FITCORE_LAYOUT_CONFIG = {
-        sidebar: 'trainer',
-        header: 'simple',
-        activeNav: 'MyClasses',
-        user: { name: 'Marcus Thorne', role: 'Trainer', initials: 'MT' }
-    };
-    // TODO: replace with the authenticated trainer's TrainerID once auth is wired in.
-    window.CURRENT_TRAINER_ID = 1;
+        window.FITCORE_LAYOUT_CONFIG = {
+            sidebar: 'trainer',
+            header: 'simple',
+            activeNav: 'MyClasses',
+            user: { name: 'Marcus Thorne', role: 'Trainer', initials: 'MT' }
+        };
+        // TODO: replace with the authenticated trainer's TrainerID once auth is wired in.
+        window.CURRENT_TRAINER_ID = 1;
     </script>
     <script src="/JS/Trainer/Components/layout.js"></script>
+    <script src="/JS/Auth/auth-common.js"></script>
     <script src="/JS/Trainer/trainerClasses/trainerClasses.js"></script>
 </body>
 </html>

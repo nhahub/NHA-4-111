@@ -12,7 +12,10 @@ const DASHBOARD_ENDPOINTS = {
 
 let lastRevenueChartData = [];
 
-document.addEventListener('DOMContentLoaded', loadDashboardData);
+document.addEventListener('DOMContentLoaded', () => {
+    requireRole(["Admin"]);
+    loadDashboardData();
+});
 
 async function loadDashboardData() {
     showBanner(null);

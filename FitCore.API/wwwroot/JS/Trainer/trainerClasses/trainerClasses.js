@@ -1,7 +1,7 @@
 ﻿// trainer-classes.js
 
 const DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-
+const user = getCurrentUser();
 document.addEventListener('DOMContentLoaded', loadMyClasses);
 
 function showMessage(text, type) {
@@ -22,7 +22,7 @@ async function loadMyClasses() {
         ]);
 
         const allClasses = classesData.data || classesData.Data || [];
-        const myClasses = allClasses.filter(c => Number(pick(c, 'trainerID', 'TrainerID')) === Number(window.CURRENT_TRAINER_ID));
+        const myClasses = allClasses.filter(c => Number(pick(c, 'trainerID', 'TrainerID')) === Number(user.userId));
 
         renderStats(myClasses, occurrencesData);
         renderGrid(myClasses, occurrencesData);

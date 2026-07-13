@@ -5,13 +5,16 @@ using FitCore.DAL.Data.Models;
 using FitCore.Shared.DTOs;
 using FitCore.Shared.DTOs.Trainers;
 using FitCore.Shared.Enums;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
 using System.Text;
 
 namespace FitCore.BLL.Services.Trainers
 {
-    public class TrainerService(FitCoreDbContext DbContext) : ITrainerService
+    public class TrainerService(
+        FitCoreDbContext DbContext,
+        IPasswordHasher<User> _passwordHasher) : ITrainerService
     {
         public async Task<TrainerDto> CreateStaffAsync(CreateStaffDto dto)
         {
@@ -30,12 +33,14 @@ namespace FitCore.BLL.Services.Trainers
             {
                 FullName = dto.FullName,
                 Email = dto.Email,
-                PasswordHash = HashPassword(dto.Password),
                 Status = UserStatus.Active,
                 JoinDate = DateTime.UtcNow
             };
 
+            user.PasswordHash = _passwordHasher.HashPassword(user, dto.Password);
+
             user.UserRoles.Add(new UserRole { Role = dto.Role });
+
             if (dto.Role == UserRoles.Trainer)
             {
                 user.Trainer = new Trainer { Specialization = dto.Specialization, Bio = dto.Bio };
@@ -81,7 +86,7 @@ namespace FitCore.BLL.Services.Trainers
             var trainer = await DbContext.Set<Trainer>()
                 .Include(t => t.User)
                 .Include(t => t.WorkingHoursSchedule)
-                .FirstOrDefaultAsync(t => t.TrainerID == trainerId);
+                .FirstOrDefaultAsync(t => t.UserID == trainerId);
 
             if (trainer == null)
             {
@@ -95,7 +100,7 @@ namespace FitCore.BLL.Services.Trainers
         {
             var trainer = await DbContext.Set<Trainer>()
                 .Include(t => t.WorkingHoursSchedule)
-                .FirstOrDefaultAsync(t => t.TrainerID == trainerId);
+                .FirstOrDefaultAsync(t => t.UserID == trainerId);
 
             if (trainer == null)
             {
@@ -114,7 +119,7 @@ namespace FitCore.BLL.Services.Trainers
 
             var newSlots = dto.WorkingHours.Select(w => new TrainerWorkingHour
             {
-                TrainerID = trainerId,
+                TrainerID = trainer.TrainerID,
                 Day = w.Day,
                 StartTime = w.StartTime,
                 EndTime = w.EndTime,
@@ -134,14 +139,18 @@ namespace FitCore.BLL.Services.Trainers
 
         public async Task<ICollection<TrainerWorkingHourDto>> GetWorkingHoursAsync(int trainerId)
         {
-            var exists = await DbContext.Set<Trainer>().AnyAsync(t => t.TrainerID == trainerId);
-            if (!exists)
+
+            var trainer = await DbContext.Set<Trainer>()
+                .Include(t => t.WorkingHoursSchedule)
+                .FirstOrDefaultAsync(t => t.UserID == trainerId);
+
+            if (trainer == null)
             {
                 throw new KeyNotFoundException("No trainer found with this id.");
             }
 
             return await DbContext.Set<TrainerWorkingHour>()
-                .Where(w => w.TrainerID == trainerId)
+                .Where(w => w.TrainerID == trainer.TrainerID)
                 .Select(w => new TrainerWorkingHourDto
                 {
                     Id = w.Id,
@@ -160,13 +169,16 @@ namespace FitCore.BLL.Services.Trainers
                 throw new KeyNotFoundException("No class found with this id.");
             }
 
-            var trainerExists = await DbContext.Set<Trainer>().AnyAsync(t => t.TrainerID == trainerId);
-            if (!trainerExists)
+            var trainer = await DbContext.Set<Trainer>()
+                .Include(t => t.WorkingHoursSchedule)
+                .FirstOrDefaultAsync(t => t.UserID == trainerId);
+
+            if (trainer == null)
             {
                 throw new KeyNotFoundException("No trainer found with this id.");
             }
 
-            gymClass.TrainerID = trainerId;
+            gymClass.TrainerID = trainer.TrainerID;
             DbContext.Set<Class>().Update(gymClass);
             var affected = await DbContext.SaveChangesAsync();
 
@@ -192,13 +204,6 @@ namespace FitCore.BLL.Services.Trainers
                     EndTime = w.EndTime,
                 }).ToList() ?? new List<TrainerWorkingHourDto>()
             };
-        }
-
-        private static string HashPassword(string password)
-        {
-            using var sha256 = SHA256.Create();
-            var bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
-            return Convert.ToBase64String(bytes);
         }
     }
 }

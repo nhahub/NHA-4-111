@@ -71,7 +71,9 @@
     padding: 0;
     box-sizing: border-box;
 }
-
+.p-block {
+    margin-block: 16px;
+}
 body {
     font-family: var(--font-family);
     background-color: var(--bg-main);
@@ -88,12 +90,24 @@ body {
     flex-direction: column;
     overflow-y: auto;
 }
-
+.fs-xs {
+    font-size: 11px;
+}
+.fs-sm {
+    font-size: var( --fs-sm);
+}
 button {
     font-family: inherit;
     cursor: pointer;
 }
-
+.logout {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-weight: 500;
+    font-size: var(--fs-base);
+    transition: background-color var(--transition-fast), color var(--transition-fast);
+}
 .container {
     max-width: 1180px;
 /*    margin-inline: auto;*/

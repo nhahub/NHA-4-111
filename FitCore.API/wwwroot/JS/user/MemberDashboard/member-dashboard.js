@@ -2,11 +2,13 @@
 // (Attendance history / QR key / reception are handled on their own pages
 // via AttendanceController, on purpose — kept separate.)
 //
-// GET  /api/member/MemberDashboard/profile         -> ProfileStatsDto { attendancePercentage, membershipStatus }
-// GET  /api/member/MemberDashboard/next-class      -> NextClassDto    { className, studioName, trainerName, startTime }
-// POST /api/member/MemberDashboard/attendance/check-in -> CheckInResultDto { success, message }
-// GET  /api/member/MemberDashboard/notifications   -> NotificationDto[] { title, content, timeAgo }
-// GET  /api/member/MemberDashboard/digital-pass    -> DigitalPassDto  { memberName, membershipType, validUntil, qrCodeData }
+// GET  /api/member/MemberDashboard/profile?userId=X         -> ProfileStatsDto { attendancePercentage, membershipStatus }
+// GET  /api/member/MemberDashboard/next-class?userId=X      -> NextClassDto    { className, studioName, trainerName, startTime }
+// POST /api/member/MemberDashboard/attendance/check-in?userId=X -> CheckInResultDto { success, message }
+// GET  /api/member/MemberDashboard/notifications?userId=X   -> NotificationDto[] { title, content, timeAgo }
+// GET  /api/member/MemberDashboard/digital-pass?userId=X    -> DigitalPassDto  { memberName, membershipType, validUntil, qrCodeData }
+
+const user = getCurrentUser();
 
 const MEMBER_DASHBOARD_ENDPOINTS = {
     profile: '/api/member/MemberDashboard/profile',
@@ -17,18 +19,29 @@ const MEMBER_DASHBOARD_ENDPOINTS = {
 };
 
 document.addEventListener('DOMContentLoaded', () => {
+    // if (!user?.userId) {
+    //     showBanner('Please log in to view your dashboard.', true);
+    //     return;
+    // }
+    requireRole(["Member"]);
     loadMemberDashboard();
     document.getElementById('checkInBtn')?.addEventListener('click', performCheckIn);
 });
 
+// Appends ?userId=... (or &userId=... if the endpoint already has a query string).
+function withUserId(url) {
+    const separator = url.includes('?') ? '&' : '?';
+    return `${url}${separator}userId=${user?.userId}`;
+}
+
 async function loadMemberDashboard() {
     const results = await Promise.allSettled([
-        getJson(MEMBER_DASHBOARD_ENDPOINTS.profile),
-        getJson(MEMBER_DASHBOARD_ENDPOINTS.nextClass),
-        getJson(MEMBER_DASHBOARD_ENDPOINTS.notifications),
-        getJson(MEMBER_DASHBOARD_ENDPOINTS.digitalPass),
+        getJson(withUserId(MEMBER_DASHBOARD_ENDPOINTS.profile)),
+        getJson(withUserId(MEMBER_DASHBOARD_ENDPOINTS.nextClass)),
+        getJson(withUserId(MEMBER_DASHBOARD_ENDPOINTS.notifications)),
+        getJson(withUserId(MEMBER_DASHBOARD_ENDPOINTS.digitalPass)),
     ]);
-
+    console.log(results);
     const [profileRes, nextClassRes, notificationsRes, passRes] = results;
 
     if (profileRes.status === 'fulfilled') {
@@ -115,6 +128,11 @@ function renderNextClass(nextClass) {
 // Check-in
 // ---------------------------------------------------------------
 async function performCheckIn() {
+    if (!user?.userId) {
+        showBanner('Please log in to check in.', true);
+        return;
+    }
+
     const btn = document.getElementById('checkInBtn');
     if (btn) {
         btn.disabled = true;
@@ -122,7 +140,7 @@ async function performCheckIn() {
     }
 
     try {
-        const response = await fetch(MEMBER_DASHBOARD_ENDPOINTS.checkIn, { method: 'POST' });
+        const response = await fetch(withUserId(MEMBER_DASHBOARD_ENDPOINTS.checkIn), { method: 'POST' });
         if (!response.ok) throw new Error(`Check-in failed (${response.status})`);
         const result = await response.json();
         const success = pick(result, 'success', 'Success');
@@ -202,6 +220,7 @@ function renderDigitalPass(pass) {
 // ---------------------------------------------------------------
 async function getJson(url, options) {
     const response = await fetch(url, options);
+    console.log(response);
     if (!response.ok) throw new Error(`${url} failed (${response.status})`);
     return response.json();
 }
