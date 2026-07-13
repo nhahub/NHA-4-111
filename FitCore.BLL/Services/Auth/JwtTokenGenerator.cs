@@ -26,10 +26,7 @@ namespace FitCore.BLL.Services.Auth
                 new Claim(ClaimTypes.Name, user.FullName),
             };
 
-            // بنستخدم "role" (الاسم القصير) عمدًا مش ClaimTypes.Role الطويل:
-            // ASP.NET بيرمّبها تلقائيًا لـ ClaimTypes.Role جوه الـ [Authorize(Roles=...)]،
-            // وفي نفس الوقت الفرونت إند بيقدر يقرأها بسهولة من التوكن الخام كـ "role".
-            // ممكن يكون عند المستخدم أكتر من Role واحد (زي Member اتترقّى لـ Trainer)
+            
             foreach (var role in roles)
             {
                 claims.Add(new Claim("role", role));
