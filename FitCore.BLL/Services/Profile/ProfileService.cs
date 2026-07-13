@@ -1,4 +1,5 @@
 ﻿using FitCore.BLL.Exceptions;
+using FitCore.BLL.Interfaces.Auth;
 using FitCore.BLL.Interfaces.Profile;
 using FitCore.DAL.Data.Contexts;
 using FitCore.Shared.DTOs.User;
@@ -11,16 +12,11 @@ namespace FitCore.BLL.Services.Profile
 {
     public class ProfileService(
         FitCoreDbContext dbContext,
-        IHttpContextAccessor _httpContextAccessor) : IProfileService
+        ICurrentUserService userService) : IProfileService
     {
         public async Task<UserDto> GetProfile()
         {
-            var nameIdentifier = _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            if (string.IsNullOrEmpty(nameIdentifier) || !int.TryParse(nameIdentifier, out int userId))
-            {
-                throw new UnauthorizedAccessException("Invalid or missing token.");
-            }
+            var userId = userService.UserId ?? throw new UnauthorizedAccessException(nameof(userService));
 
             var user = await dbContext.Users
                 .Include(x => x.UserRoles)
@@ -79,12 +75,7 @@ namespace FitCore.BLL.Services.Profile
                 throw new ValidationException(errors);
             }
 
-            var nameIdentifier = _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            if (string.IsNullOrEmpty(nameIdentifier) || !int.TryParse(nameIdentifier, out int userId))
-            {
-                throw new UnauthorizedAccessException("Invalid or missing token.");
-            }
+            var userId = userService.UserId ?? throw new UnauthorizedAccessException(nameof(userService));
 
             var user = await dbContext.Users
                 .Include(x => x.UserRoles)
@@ -94,7 +85,6 @@ namespace FitCore.BLL.Services.Profile
 
             if (user == null) throw new KeyNotFoundException("User not found");
 
-            // تحديث البيانات الأساسية
             user.Email = userDto.Email;
             user.PhoneNumber = userDto.PhoneNumber;
             user.FullName = userDto.FullName;

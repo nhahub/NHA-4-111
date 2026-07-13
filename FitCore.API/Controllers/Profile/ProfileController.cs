@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 namespace FitCore.API.Controllers.Profile
 {
     [ApiController]
-
     [Route("api/[controller]")]
     public class ProfileController(IProfileService _profileService) : ControllerBase
     {

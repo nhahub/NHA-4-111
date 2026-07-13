@@ -1,6 +1,7 @@
 ﻿using FitCore.BLL.Interfaces.Auth;
-using FitCore.Shared.Enums;
+using FitCore.BLL.Services.Auth;
 using FitCore.Shared.DTOs.Auth;
+using FitCore.Shared.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,7 +9,7 @@ namespace FitCore.API.Controllers.Auth
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class AuthController(IAuthService _authService) : ControllerBase
+    public class AuthController(IAuthService _authService, ICurrentUserService _currentUserService) : ControllerBase
     {
         
         [HttpPost("login")]
@@ -53,6 +54,45 @@ namespace FitCore.API.Controllers.Auth
         {
             var result = await _authService.GetAllUsers();
             return Ok(result);
+        }
+
+
+        [HttpPost("role-change/request")]
+        [Authorize]
+        public async Task<IActionResult> RequestRoleChange(RequestRoleChangeDto dto)
+        {
+            var userId = _currentUserService.GetRequiredUserId();
+            var result = await _authService.RequestRoleChange(userId, dto.RequestedRole);
+            return Ok(result);
+        }
+
+
+        [HttpGet("role-change/pending")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetPendingRoleChangeRequests()
+        {
+            var result = await _authService.GetPendingRoleChangeRequests();
+            return Ok(result);
+        }
+
+
+        [HttpPut("role-change/{requestId:int}/approve")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> ApproveRoleChange(int requestId, ReviewRoleChangeDto dto)
+        {
+            var adminId = _currentUserService.GetRequiredUserId();
+            await _authService.ApproveRoleChangeRequest(requestId, adminId, dto?.Note);
+            return Ok(new SimpleMessageDto { Message = "Role change request approved." });
+        }
+
+
+        [HttpPut("role-change/{requestId:int}/reject")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> RejectRoleChange(int requestId, ReviewRoleChangeDto dto)
+        {
+            var adminId = _currentUserService.GetRequiredUserId();
+            await _authService.RejectRoleChangeRequest(requestId, adminId, dto?.Note);
+            return Ok(new SimpleMessageDto { Message = "Role change request rejected." });
         }
     }
 }

@@ -34,9 +34,7 @@ using Microsoft.EntityFrameworkCore;
 using FitCore.BLL.Interfaces.GymService;
 using FitCore.BLL.Services.GymServices;
 using FitCore.BLL.Interfaces.Payment;
-using FitCore.BLL.Services.payment;
-using FitCore.BLL.Services.Book;
-using FitCore.BLL.Interfaces.Book;
+
 namespace FitCore.API
 {
     public class Program
@@ -55,8 +53,7 @@ namespace FitCore.API
             builder.Services.AddDbContext<FitCoreDbContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-            // 2. Unit of Work 
-            //builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+            builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
             builder.Services.AddScoped<IAuditLogsService, AuditLogService>();
             builder.Services.AddScoped<INotificationService, NotificationService>();
             builder.Services.AddScoped<IProfileService, ProfileService>();
@@ -75,12 +72,10 @@ namespace FitCore.API
             builder.Services.AddHttpContextAccessor();
             // Add Checkout and Subscription services
             builder.Services.AddScoped<ICheckoutService, CheckoutService>();
-            builder.Services.AddScoped<FitCore.BLL.Services.payment.SubscriptionPaymentService>();
 
 
             Stripe.StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
             builder.Services.AddScoped<IPaymentService,PaymentService>();
-            builder.Services.AddScoped<IBookingService,BookingService>();
             #region Added Hangfire
 
             builder.Services.AddHangfire(config => config.SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
@@ -181,8 +176,8 @@ namespace FitCore.API
                 app.MapOpenApi();
                 app.UseSwagger();
                 app.UseSwaggerUI();
-            }
-            app.UseHangfireDashboard("/hangfire");
+                app.UseHangfireDashboard("/hangfire");
+            }          
             app.UseHttpsRedirection();
 
             app.UseCors("AllowFrontend");

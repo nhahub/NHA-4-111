@@ -16,7 +16,7 @@ namespace FitCore.BLL.Interfaces.GymService
         public Task<GymServiceDto> UpdateGymServiceAsync(int id, UpdateGymServiceDto dto);
         public Task DeleteGymServiceAsync(int id);
         public Task<PaginationResponseDto<GymServiceDto>> GetGymServicesAsync(int page, int pageSize, string? searchTerm, ServiceCategory? category);
-        public Task CancelGymServiceBookingAsync(int memberUserId, int bookingId);
+        public Task CancelGymServiceBookingAsync(int userId, int bookingId);
         //public Task RemoveBookingsAfterCheckoutAsync(int memberUserId, List<int> bookingIds);
         public Task<ICollection<BookingGymServiceDto>> GetMemberGymServiceBookingsAsync(int memberUserId);
     }

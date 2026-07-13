@@ -17,7 +17,7 @@ namespace Tanzeem.Presentation.AuditLogs
     public class AuditLogsController(IAuditLogsService auditLogsService) : ControllerBase
     {
         [HttpGet]
-        //[Authorize(Roles = AppRoles.Admin)]
+        [Authorize(Roles = nameof(UserRoles.Admin))]
         public async Task<IActionResult> GetAudits([FromQuery(Name = "Page_Size")] int pageSize = 15, [FromQuery(Name = "Page")] int page = 1,
             string? searchTerm = null,
             AuditSortBy sortBy = AuditSortBy.Date,

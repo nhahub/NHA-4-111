@@ -1,23 +1,26 @@
 ﻿using FitCore.BLL.Interfaces.PrivateSessions;
 using FitCore.Shared.DTOs.PrivateSessions;
+using FitCore.Shared.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FitCore.API.Controllers.PrivateSessions
 {
     [ApiController]
     [Route("api/[controller]")]
+    
     public class PrivateSessionsController(IPrivateSessionService privateSessionService) : ControllerBase
     {
-        //[Authorize(Roles = "Admin,Receptionist")]
         [HttpPost]
+        [Authorize(Roles = nameof(UserRoles.Admin) + "," + nameof(UserRoles.Receptionist))]
         public async Task<IActionResult> CreatePrivateSession(CreatePrivateSessionDto dto)
         {
             var result = await privateSessionService.CreatePrivateSessionAsync(dto);
             return Ok(result);
         }
 
-        //[Authorize(Roles = "Admin,Receptionist")]
         [HttpPut("{privateSessionId}/assign-trainer/{trainerId}")]
+        [Authorize(Roles = nameof(UserRoles.Admin) + "," + nameof(UserRoles.Receptionist))]
         public async Task<IActionResult> AssignTrainer(int privateSessionId, int trainerId)
         {
             var result = await privateSessionService.AssignTrainerAsync(privateSessionId, trainerId);

@@ -19,6 +19,7 @@ namespace FitCore.DAL.Data.Models
         public NotificationTypeEnum Type { get; set; }
         public bool IsRead { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public string? ActionUrl { get; set; }
 
     }
 }

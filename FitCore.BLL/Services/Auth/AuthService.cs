@@ -18,6 +18,8 @@ namespace FitCore.BLL.Services.Auth
         IJwtTokenGenerator _jwtTokenGenerator,
         IPasswordHasher<User> _passwordHasher) : IAuthService
     {
+
+        private const string ManageUsersActionUrl = "/html/Auth/manage-users.html";
         public async Task<AuthResponseDto> Login(LoginDto loginDto)
         {
             if (string.IsNullOrWhiteSpace(loginDto.Email) || string.IsNullOrWhiteSpace(loginDto.Password))
@@ -229,5 +231,223 @@ namespace FitCore.BLL.Services.Auth
                 ExpiresAt = expiresAt,
             };
         }
+
+
+        // ------------------------------------------------------------
+        // Self-service Role Change (Member <-> Trainer)
+        // ------------------------------------------------------------
+
+        public async Task<RoleChangeResultDto> RequestRoleChange(int userId, UserRoles requestedRole)
+        {
+            if (requestedRole != UserRoles.Member && requestedRole != UserRoles.Trainer)
+            {
+                throw new BusinessRuleException("You can only self-request switching between Member and Trainer.");
+            }
+
+            var user = await dbContext.Users
+                .Include(u => u.UserRoles)
+                .Include(u => u.Trainer)
+                .Include(u => u.MemberProfile)
+                .FirstOrDefaultAsync(u => u.UserID == userId && !u.IsDeleted);
+
+            if (user == null)
+            {
+                throw new KeyNotFoundException("User not found.");
+            }
+
+            bool isMember = user.UserRoles.Any(r => r.Role == UserRoles.Member && !r.IsDeleted);
+            bool isTrainer = user.UserRoles.Any(r => r.Role == UserRoles.Trainer && !r.IsDeleted);
+
+            if (requestedRole == UserRoles.Trainer)
+            {
+                // Member -> Trainer: ترقية صلاحيات، لازم موافقة الأدمن.
+                if (!isMember)
+                {
+                    throw new BusinessRuleException("Only Member accounts can request to become a Trainer.");
+                }
+                if (isTrainer)
+                {
+                    throw new BusinessRuleException("This user is already a Trainer.");
+                }
+
+                bool alreadyPending = await dbContext.RoleChangeRequests.AnyAsync(r =>
+                    r.UserID == userId && r.RequestedRole == UserRoles.Trainer && r.Status == RoleChangeStatus.Pending);
+                if (alreadyPending)
+                {
+                    throw new BusinessRuleException("You already have a pending request to become a Trainer.");
+                }
+
+                var request = new RoleChangeRequest
+                {
+                    UserID = userId,
+                    CurrentRole = UserRoles.Member,
+                    RequestedRole = UserRoles.Trainer,
+                    Status = RoleChangeStatus.Pending,
+                    CreatedAt = DateTime.UtcNow,
+                };
+                await dbContext.RoleChangeRequests.AddAsync(request);
+                await dbContext.SaveChangesAsync();
+
+                var adminIds = await dbContext.Users
+                    .Where(u => u.UserRoles.Any(ur => ur.Role == UserRoles.Admin && !ur.IsDeleted) && !u.IsDeleted)
+                    .Select(u => u.UserID)
+                    .ToListAsync();
+
+                foreach (var adminId in adminIds)
+                {
+                    await dbContext.Notifications.AddAsync(new Notification
+                    {
+                        UserID = adminId,
+                        Title = "New Role Change Request",
+                        Content = $"{user.FullName} requested to become a Trainer and is waiting for your approval.",
+                        Type = NotificationTypeEnum.RoleChange,
+                        CreatedAt = DateTime.UtcNow,
+                        IsRead = false,
+                        ActionUrl = ManageUsersActionUrl,
+                    });
+                }
+                await dbContext.SaveChangesAsync();
+
+                return new RoleChangeResultDto
+                {
+                    IsPendingApproval = true,
+                    Message = "Your request to become a Trainer has been sent to the Admin for approval."
+                };
+            }
+            else
+            {
+                // Trainer -> Member: تنزيل صلاحيات ذاتي، بيتنفذ فورًا من غير موافقة.
+                if (!isTrainer)
+                {
+                    throw new BusinessRuleException("Only Trainer accounts can switch back to Member.");
+                }
+
+                var trainerRole = user.UserRoles.First(r => r.Role == UserRoles.Trainer && !r.IsDeleted);
+                trainerRole.IsDeleted = true;
+                trainerRole.DeletedAt = DateTime.UtcNow;
+
+                if (!isMember)
+                {
+                    user.UserRoles.Add(new UserRole { Role = UserRoles.Member });
+                }
+
+                if (user.MemberProfile == null)
+                {
+                    user.MemberProfile = new MemberProfile { QRCodeData = Guid.NewGuid().ToString("N") };
+                }
+
+                await dbContext.SaveChangesAsync();
+
+                return new RoleChangeResultDto
+                {
+                    IsPendingApproval = false,
+                    Message = "You are now a Member."
+                };
+            }
+        }
+
+        public async Task<List<RoleChangeRequestDto>> GetPendingRoleChangeRequests()
+        {
+            return await dbContext.RoleChangeRequests
+                .Include(r => r.User)
+                .Where(r => r.Status == RoleChangeStatus.Pending)
+                .OrderBy(r => r.CreatedAt)
+                .Select(r => new RoleChangeRequestDto
+                {
+                    RoleChangeRequestID = r.RoleChangeRequestID,
+                    UserID = r.UserID,
+                    FullName = r.User.FullName,
+                    Email = r.User.Email,
+                    CurrentRole = r.CurrentRole,
+                    RequestedRole = r.RequestedRole,
+                    Status = r.Status,
+                    CreatedAt = r.CreatedAt,
+                })
+                .ToListAsync();
+        }
+
+        public async Task ApproveRoleChangeRequest(int requestId, int adminUserId, string? note)
+        {
+            var request = await dbContext.RoleChangeRequests
+                .Include(r => r.User).ThenInclude(u => u.UserRoles)
+                .Include(r => r.User).ThenInclude(u => u.Trainer)
+                .FirstOrDefaultAsync(r => r.RoleChangeRequestID == requestId);
+
+            if (request == null)
+            {
+                throw new KeyNotFoundException("Role change request not found.");
+            }
+            if (request.Status != RoleChangeStatus.Pending)
+            {
+                throw new BusinessRuleException("This request has already been reviewed.");
+            }
+
+            var user = request.User;
+            bool isAlreadyTrainer = user.UserRoles.Any(r => r.Role == UserRoles.Trainer && !r.IsDeleted);
+            if (!isAlreadyTrainer)
+            {
+                user.UserRoles.Add(new UserRole { Role = UserRoles.Trainer });
+            }
+            if (user.Trainer == null)
+            {
+                user.Trainer = new Trainer { Specialization = "N/A", Bio = "N/A", WorkingHours = "N/A" };
+            }
+
+            request.Status = RoleChangeStatus.Approved;
+            request.ReviewedAt = DateTime.UtcNow;
+            request.ReviewedByUserID = adminUserId;
+            request.ReviewNote = note;
+
+            await dbContext.Notifications.AddAsync(new Notification
+            {
+                UserID = user.UserID,
+                Title = "Role Change Approved",
+                Content = "Your request to become a Trainer has been approved. Welcome to the team!",
+                Type = NotificationTypeEnum.RoleChange,
+                CreatedAt = DateTime.UtcNow,
+                IsRead = false,
+                ActionUrl = "/html/Profile/profile.html",
+            });
+
+            await dbContext.SaveChangesAsync();
+        }
+
+        public async Task RejectRoleChangeRequest(int requestId, int adminUserId, string? note)
+        {
+            var request = await dbContext.RoleChangeRequests
+                .Include(r => r.User)
+                .FirstOrDefaultAsync(r => r.RoleChangeRequestID == requestId);
+
+            if (request == null)
+            {
+                throw new KeyNotFoundException("Role change request not found.");
+            }
+            if (request.Status != RoleChangeStatus.Pending)
+            {
+                throw new BusinessRuleException("This request has already been reviewed.");
+            }
+
+            request.Status = RoleChangeStatus.Rejected;
+            request.ReviewedAt = DateTime.UtcNow;
+            request.ReviewedByUserID = adminUserId;
+            request.ReviewNote = note;
+
+            await dbContext.Notifications.AddAsync(new Notification
+            {
+                UserID = request.UserID,
+                Title = "Role Change Rejected",
+                Content = string.IsNullOrWhiteSpace(note)
+                    ? "Your request to become a Trainer was not approved."
+                    : $"Your request to become a Trainer was not approved. Reason: {note}",
+                Type = NotificationTypeEnum.RoleChange,
+                CreatedAt = DateTime.UtcNow,
+                IsRead = false,
+                ActionUrl = "/html/Profile/profile.html",
+            });
+
+            await dbContext.SaveChangesAsync();
+        }
+
+        
     }
 }

@@ -8,16 +8,17 @@ namespace FitCore.API.Controllers.Notifications
 {
     [ApiController]
     [Route("api/[controller]")]
-    //[Authorize(Roles = AppRoles.Admin + "," + AppRoles.Manager)]
     public class NotificationController (INotificationService _notificationService) : ControllerBase
     {
         [HttpGet]
+        [Authorize]
         public async Task<IActionResult> GetNotifications([FromQuery(Name = "Page_Size")] int pageSize = 20, [FromQuery(Name = "Page")] int page = 1)
         {
             var result = await _notificationService.GetAllNotifications(page, pageSize);
             return Ok(result);
         }
         [HttpPatch("mark-as-read/{id}")]
+        [Authorize]
         public async Task<IActionResult> MarkAsRead(int id)
         {
             var result = await _notificationService.MarkAsReadAsync(id);
@@ -27,13 +28,15 @@ namespace FitCore.API.Controllers.Notifications
         }
 
         [HttpPatch("mark-all-read")]
+        [Authorize]
         public async Task<IActionResult> MarkAllAsRead()
         {
             await _notificationService.MarkAllAsReadAsync();
 
             return Ok(new { Message = "All notifications marked as read." });
         }
-        
+
+        [Authorize(Roles = nameof(UserRoles.Admin))]
         [HttpPost]
         public async Task<IActionResult> PushNotification(RequestNotificationDto notificationDto)
         {
@@ -46,6 +49,7 @@ namespace FitCore.API.Controllers.Notifications
             return Ok(result);
         }
 
+        [Authorize]
         [HttpGet("UnRead-Count")]
         public async Task<IActionResult> GetUnReadCount()
         {

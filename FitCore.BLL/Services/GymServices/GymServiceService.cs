@@ -216,10 +216,10 @@ namespace FitCore.BLL.Services.GymServices
             };
         }
 
-        public async Task CancelGymServiceBookingAsync(int memberUserId, int bookingId)
+        public async Task CancelGymServiceBookingAsync(int userId, int bookingId)
         {
             
-            var member = await DbContext.Set<MemberProfile>().FirstOrDefaultAsync(m => m.UserID == memberUserId);
+            var member = await DbContext.Set<MemberProfile>().FirstOrDefaultAsync(m => m.UserID == userId);
             if (member == null)
                 throw new KeyNotFoundException("Member profile not found.");
 
