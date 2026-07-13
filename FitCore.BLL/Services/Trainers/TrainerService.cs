@@ -100,7 +100,7 @@ namespace FitCore.BLL.Services.Trainers
         {
             var trainer = await DbContext.Set<Trainer>()
                 .Include(t => t.WorkingHoursSchedule)
-                .FirstOrDefaultAsync(t => t.UserID == trainerId);
+                .FirstOrDefaultAsync(t => t.TrainerID == trainerId);
 
             if (trainer == null)
             {
@@ -119,7 +119,7 @@ namespace FitCore.BLL.Services.Trainers
 
             var newSlots = dto.WorkingHours.Select(w => new TrainerWorkingHour
             {
-                TrainerID = trainer.TrainerID,
+                TrainerID = trainerId,
                 Day = w.Day,
                 StartTime = w.StartTime,
                 EndTime = w.EndTime,
@@ -183,6 +183,105 @@ namespace FitCore.BLL.Services.Trainers
 
             gymClass.TrainerID = trainerId;
             DbContext.Set<Class>().Update(gymClass);
+            var affected = await DbContext.SaveChangesAsync();
+
+            return affected > 0;
+        }
+
+        public async Task<PaginationResponseDto<StaffDto>> GetAllStaffAsync(int page, int pageSize)
+        {
+            return await GetStaffByRolesAsync(new[] { UserRoles.Trainer, UserRoles.Receptionist }, page, pageSize);
+        }
+
+        public async Task<PaginationResponseDto<StaffDto>> GetAllReceptionistsAsync(int page, int pageSize)
+        {
+            return await GetStaffByRolesAsync(new[] { UserRoles.Receptionist }, page, pageSize);
+        }
+
+        private async Task<PaginationResponseDto<StaffDto>> GetStaffByRolesAsync(UserRoles[] roles, int page, int pageSize)
+        {
+            if (page <= 0) page = 1;
+            const int maxPageSize = 50;
+            if (pageSize <= 0 || pageSize > maxPageSize) pageSize = 20;
+
+            var query = DbContext.Set<User>()
+                .Include(u => u.UserRoles)
+                .Include(u => u.Trainer).ThenInclude(t => t!.WorkingHoursSchedule)
+                .Where(u => !u.IsDeleted && u.UserRoles.Any(r => roles.Contains(r.Role)))
+                .OrderBy(u => u.FullName);
+
+            var totalCount = await query.CountAsync();
+
+            var users = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            var data = users.Select(u =>
+            {
+                var role = u.UserRoles.First(r => roles.Contains(r.Role)).Role;
+
+                return new StaffDto
+                {
+                    UserID = u.UserID,
+                    FullName = u.FullName,
+                    Email = u.Email,
+                    PhoneNumber = u.PhoneNumber,
+                    Role = role,
+                    TrainerID = u.Trainer?.TrainerID,
+                    Specialization = u.Trainer?.Specialization,
+                    Bio = u.Trainer?.Bio,
+                    WorkingHours = u.Trainer?.WorkingHoursSchedule?.Select(w => new TrainerWorkingHourDto
+                    {
+                        Id = w.Id,
+                        Day = w.Day,
+                        StartTime = w.StartTime,
+                        EndTime = w.EndTime,
+                    }).ToList() ?? new List<TrainerWorkingHourDto>()
+                };
+            }).ToList();
+
+            return new PaginationResponseDto<StaffDto>
+            {
+                CurrentPage = page,
+                PageSize = pageSize,
+                TotalCount = totalCount,
+                Data = data
+            };
+        }
+
+        public async Task<bool> DeleteStaffAsync(int userId)
+        {
+            var user = await DbContext.Set<User>()
+                .Include(u => u.UserRoles)
+                .Include(u => u.Trainer)
+                .FirstOrDefaultAsync(u => u.UserID == userId);
+
+            if (user == null)
+                throw new KeyNotFoundException("No staff member found with this id.");
+
+            var isTrainer = user.UserRoles.Any(r => r.Role == UserRoles.Trainer);
+            var isReceptionist = user.UserRoles.Any(r => r.Role == UserRoles.Receptionist);
+
+            if (!isTrainer && !isReceptionist)
+                throw new BusinessRuleException("This user is not a Trainer or Receptionist - use the correct endpoint to delete other user types.");
+
+            if (isTrainer && user.Trainer != null)
+            {
+                var hasActiveClasses = await DbContext.Set<Class>().AnyAsync(c =>
+                    c.TrainerID == user.Trainer.TrainerID && c.Status == ClassStatus.Active);
+
+                if (hasActiveClasses)
+                    throw new BusinessRuleException("This trainer is still assigned to one or more active classes. Reassign those classes to another trainer before deleting.");
+            }
+
+            // Soft delete, consistent with ISoftDelete used elsewhere in this app - a hard delete here
+            // would risk breaking FK references from AuditLogs, Payments, Bookings, etc. that point
+            // at this User.
+            user.IsDeleted = true;
+            user.DeletedAt = DateTime.UtcNow;
+
+            DbContext.Set<User>().Update(user);
             var affected = await DbContext.SaveChangesAsync();
 
             return affected > 0;

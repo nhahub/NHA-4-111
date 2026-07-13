@@ -8,7 +8,7 @@ namespace FitCore.API.Controllers.Trainers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
+    [Authorize(Roles = "Receptionist,Admin,Trainer")]
     public class TrainersController(ITrainerService trainerService) : ControllerBase
     {
         [HttpPost("staff")]
@@ -53,6 +53,32 @@ namespace FitCore.API.Controllers.Trainers
             if (!result) return BadRequest();
 
             return Ok(new { Message = "Trainer assigned to class." });
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpGet("staff")]
+        public async Task<IActionResult> GetAllStaff([FromQuery(Name = "Page_Size")] int pageSize = 20, [FromQuery(Name = "Page")] int page = 1)
+        {
+            var result = await trainerService.GetAllStaffAsync(page, pageSize);
+            return Ok(result);
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpGet("receptionists")]
+        public async Task<IActionResult> GetAllReceptionists([FromQuery(Name = "Page_Size")] int pageSize = 20, [FromQuery(Name = "Page")] int page = 1)
+        {
+            var result = await trainerService.GetAllReceptionistsAsync(page, pageSize);
+            return Ok(result);
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpDelete("staff/{userId}")]
+        public async Task<IActionResult> DeleteStaff(int userId)
+        {
+            var result = await trainerService.DeleteStaffAsync(userId);
+            if (!result) return BadRequest();
+
+            return Ok(new { Message = "Staff member deleted." });
         }
     }
 }

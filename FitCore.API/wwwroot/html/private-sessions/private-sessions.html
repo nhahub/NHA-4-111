@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
     <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
 </head>
-<body>
+<body data-page="privateSessions">
 
     <div id="sidebar-container"></div>
 
@@ -36,8 +36,12 @@
                     </div>
                     <div class="form-group">
                         <label>Member User ID</label>
-                        <input type="number" id="memberUserId" class="text-input" placeholder="e.g. 5">
+                        <select id="memberSelect"></select>
                     </div>
+                    <!--<div class="form-group">
+                        <label>Member User ID</label>
+                        <input type="number" id="memberUserId" class="text-input" placeholder="e.g. 5">
+                    </div>-->
                     <div class="form-group">
                         <label>Date</label>
                         <input type="date" id="sessionDate" class="text-input">
@@ -95,9 +99,10 @@
         </div>
     </main>
 
-    <script src="/JS/admin/Components/api.js"></script>
-    <script src="/JS/admin/Components/layout.js"></script>
-    <script src="/JS/admin/private-sessions/private-sessions.js"></script>
     <script src="/JS/Auth/auth-common.js"></script>
+    <script src="/JS/admin/Components/api.js"></script>
+    <!--<script src="/JS/admin/Components/layout.js"></script>-->
+    <script src="/JS/admin/private-sessions/private-sessions.js"></script>
+
 </body>
 </html>

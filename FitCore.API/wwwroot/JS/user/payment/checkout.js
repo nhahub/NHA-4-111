@@ -144,7 +144,7 @@
         try {
             // افترضت إن عندك API بيجيب حجوزات اليوزر اللي لسه مادفعش تمنها
             // (عدلي المسار ده لو مختلف عندك في الـ Controller)
-            const response = await fetch(`${API_BASE}/Bookings/my-unpaid-bookings`, {
+            const response = await fetch(`${API_BASE}/GymServices/bookings`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 
@@ -204,23 +204,14 @@
         document.querySelectorAll('.cancel-booking-btn').forEach(btn => {
             btn.addEventListener('click', async (e) => {
                 const bookingId = e.currentTarget.dataset.id;
-                const type = e.currentTarget.dataset.type;
-                const userId = localStorage.getItem('userId');
+                //const type = e.currentTarget.dataset.type;
+                //const userId = localStorage.getItem('userId');
 
-                if (confirm('Are you sure you want to cancel this booking?')) {
-                    if (type === 'Class') {
-                        // استخدام הـ Patch endpoint بناءً على الكود المرفق
-                        await fetch(`${API_BASE}/Bookings/${bookingId}/cancel?memberUserId=${userId}`, {
-                            method: 'PATCH',
-                            headers: { 'Authorization': `Bearer ${token}` }
-                        });
-                    } else {
-                        // استخدام الـ Delete endpoint
-                        await fetch(`${API_BASE}/Bookings/${bookingId}/cancel`, {
-                            method: 'DELETE',
-                            headers: { 'Authorization': `Bearer ${token}` }
-                        });
-                    }
+                if (confirm('Are you sure you want to cancel this booking?')) {              
+                    await fetch(`${API_BASE}/GymServices/bookings/${bookingId}/cancel`, {
+                        method: 'DELETE',
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
                     await fetchBookings();
                     updateGrandTotal();
                 }

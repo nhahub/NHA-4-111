@@ -39,7 +39,16 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('trainerFilter').addEventListener('change', (e) => { filters.trainerId = e.target.value; currentPage = 1; renderTable(); });
     document.getElementById('typeFilter').addEventListener('change', (e) => { filters.type = e.target.value; currentPage = 1; renderTable(); });
     document.getElementById('statusFilter').addEventListener('change', (e) => { filters.status = e.target.value; currentPage = 1; renderTable(); });
+    setTimeout(() => {
 
+        const targetLink = Array.from(document.querySelectorAll('.sidebar-nav a'))
+            .find(a => a.textContent.includes('Schedules') || a.textContent.includes('Gym Services'));
+
+        if (targetLink) {
+            document.querySelectorAll('.sidebar-nav li').forEach(li => li.classList.remove('active'));
+            targetLink.parentElement.classList.add('active');
+        }
+    }, 100);
     addScheduleRow();
 });
 

@@ -22,7 +22,7 @@ namespace FitCore.API.Controllers.Auth
 
         
         [HttpPost("register-member")]
-        //[Authorize(Roles = "Receptionist,Admin")]
+        [Authorize(Roles = "Receptionist,Admin")]
         public async Task<IActionResult> RegisterMember(RegisterMemberDto dto)
         {
             var result = await _authService.RegisterMember(dto);
@@ -31,7 +31,7 @@ namespace FitCore.API.Controllers.Auth
 
        
         [HttpPost("create-staff")]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         [Authorize()]
         public async Task<IActionResult> CreateStaff(CreateStaffDto dto)
         {
@@ -50,8 +50,7 @@ namespace FitCore.API.Controllers.Auth
 
         
         [HttpGet("users")]
-        //[Authorize(Roles = "Admin")]
-        //[Authorize()]
+        [Authorize(Roles = "Receptionist,Admin")]
         public async Task<IActionResult> GetAllUsers()
         {
             var result = await _authService.GetAllUsers();
@@ -70,7 +69,7 @@ namespace FitCore.API.Controllers.Auth
 
 
         [HttpGet("role-change/pending")]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         [Authorize()]
         public async Task<IActionResult> GetPendingRoleChangeRequests()
         {
@@ -80,7 +79,7 @@ namespace FitCore.API.Controllers.Auth
 
 
         [HttpPut("role-change/{requestId:int}/approve")]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         [Authorize()]
         public async Task<IActionResult> ApproveRoleChange(int requestId, ReviewRoleChangeDto dto)
         {
@@ -91,7 +90,7 @@ namespace FitCore.API.Controllers.Auth
 
 
         [HttpPut("role-change/{requestId:int}/reject")]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         [Authorize()]
         public async Task<IActionResult> RejectRoleChange(int requestId, ReviewRoleChangeDto dto)
         {

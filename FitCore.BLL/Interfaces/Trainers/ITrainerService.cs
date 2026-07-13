@@ -15,5 +15,10 @@ namespace FitCore.BLL.Interfaces.Trainers
         Task<ICollection<TrainerWorkingHourDto>> GetWorkingHoursAsync(int trainerId);
 
         Task<bool> AssignTrainerToClassAsync(int classId, int trainerId);
+        Task<PaginationResponseDto<StaffDto>> GetAllStaffAsync(int page, int pageSize);
+
+        Task<PaginationResponseDto<StaffDto>> GetAllReceptionistsAsync(int page, int pageSize);
+
+        Task<bool> DeleteStaffAsync(int userId);
     }
 }
