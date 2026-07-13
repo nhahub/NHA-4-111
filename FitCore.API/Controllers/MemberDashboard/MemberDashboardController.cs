@@ -9,23 +9,22 @@ namespace FitCore.API.Controllers.MemberDashboard
     public class MemberDashboardController : ControllerBase
     {
         private readonly IMemberDashboardService _service;
-        private int CurrentUserId => 1;
 
         public MemberDashboardController(IMemberDashboardService service) => _service = service;
 
         [HttpGet("profile")]
-        public async Task<IActionResult> GetProfile() => Ok(await _service.GetProfileStatsAsync(CurrentUserId));
+        public async Task<IActionResult> GetProfile([FromQuery] int userId) => Ok(await _service.GetProfileStatsAsync(userId));
 
         [HttpGet("next-class")]
-        public async Task<IActionResult> GetNextClass() => Ok(await _service.GetNextClassAsync(CurrentUserId));
+        public async Task<IActionResult> GetNextClass([FromQuery] int userId) => Ok(await _service.GetNextClassAsync(userId));
 
         [HttpPost("attendance/check-in")]
-        public async Task<IActionResult> CheckIn() => Ok(await _service.CheckInAsync(CurrentUserId));
+        public async Task<IActionResult> CheckIn([FromQuery] int userId) => Ok(await _service.CheckInAsync(userId));
 
         [HttpGet("notifications")]
-        public async Task<IActionResult> GetNotifications() => Ok(await _service.GetNotificationsAsync(CurrentUserId));
+        public async Task<IActionResult> GetNotifications([FromQuery] int userId) => Ok(await _service.GetNotificationsAsync(userId));
 
         [HttpGet("digital-pass")]
-        public async Task<IActionResult> GetDigitalPass() => Ok(await _service.GetDigitalPassAsync(CurrentUserId));
+        public async Task<IActionResult> GetDigitalPass([FromQuery] int userId) => Ok(await _service.GetDigitalPassAsync(userId));
     }
 }

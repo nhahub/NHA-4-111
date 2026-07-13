@@ -7,8 +7,9 @@ let isDescending = true;
 
 // أول ما الصفحة تحمل
 document.addEventListener('DOMContentLoaded', () => {
+    requireRole(["Admin"]);
     fetchAuditLogs();
-
+    requireRole(["Admin"]);
     // ربط الأزرار بالفانكشنز
     document.getElementById('applyBtn').addEventListener('click', applyFilters);
     document.getElementById('sortDirBtn').addEventListener('click', toggleSortDirection);

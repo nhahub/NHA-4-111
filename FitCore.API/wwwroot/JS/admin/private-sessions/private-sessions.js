@@ -6,6 +6,7 @@ let allTrainers = [];
 let allSessions = []; // flattened across trainers, each tagged with trainerName
 
 document.addEventListener('DOMContentLoaded', () => {
+    requireRole(["Receptionist", "Admin"]);
     init();
     document.getElementById('createSessionBtn').addEventListener('click', createSession);
     document.getElementById('filterTrainer').addEventListener('change', renderTable);

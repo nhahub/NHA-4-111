@@ -31,10 +31,15 @@ namespace FitCore.BLL.Services.Auth
 
             if (user == null)
             {
-                throw new UnauthorizedAccessException("Invalid email or password.");
+                throw new UnauthorizedAccessException("Not user found.");
             }
 
             var verifyResult = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, loginDto.Password);
+            Console.WriteLine("_______________________________________");
+            Console.WriteLine(user.PasswordHash);
+            Console.WriteLine("_______________________________________");
+            Console.WriteLine(verifyResult);
+            Console.WriteLine("_______________________________________");
             if (verifyResult == PasswordVerificationResult.Failed)
             {
                 throw new UnauthorizedAccessException("Invalid email or password.");
@@ -83,10 +88,10 @@ namespace FitCore.BLL.Services.Auth
 
         public async Task<AuthResponseDto> CreateStaff(CreateStaffDto dto)
         {
-            if (dto.Role != UserRoles.Trainer && dto.Role != UserRoles.Receptionist)
-            {
-                throw new BusinessRuleException("Staff accounts can only be created with the Trainer or Receptionist role.");
-            }
+            //if (dto.Role != UserRoles.Trainer && dto.Role != UserRoles.Receptionist)
+            //{
+            //    throw new BusinessRuleException("Staff accounts can only be created with the Trainer or Receptionist role.");
+            //}
 
             var errors = ValidateBasicInfo(dto.FullName, dto.Email, dto.PhoneNumber, dto.Password);
             if (errors.Any())
@@ -115,6 +120,7 @@ namespace FitCore.BLL.Services.Auth
             {
                 user.Trainer = new Trainer
                 {
+
                     Specialization = "N/A",
                     Bio = "N/A",
                     WorkingHours = "N/A",

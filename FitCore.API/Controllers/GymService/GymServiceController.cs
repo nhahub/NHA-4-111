@@ -91,11 +91,11 @@ namespace FitCore.API.Controllers
         }
 
         [HttpDelete("bookings/{bookingId}/cancel")]
-        public async Task<IActionResult> CancelGymServiceBooking(int bookingId)
+        public async Task<IActionResult> CancelGymServiceBooking(int memberUserId,int bookingId)
         {
             try
             {
-                await _gymService.CancelGymServiceBookingAsync(HardcodedMemberUserId, bookingId);
+                await _gymService.CancelGymServiceBookingAsync(memberUserId, bookingId);
                 return NoContent();
             }
             catch (KeyNotFoundException ex)

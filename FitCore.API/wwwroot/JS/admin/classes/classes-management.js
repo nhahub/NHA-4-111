@@ -13,7 +13,7 @@ let allClasses = [];
 let allTrainers = [];
 let weeklyOccurrences = [];
 let currentPage = 1;
-const PAGE_SIZE = 5;
+const PAGE_SIZE = 6;
 
 let editClassId = null;
 let editClassModal;
@@ -22,6 +22,7 @@ let filters = { trainerId: '', type: '', status: '' };
 let createClassModal;
 
 document.addEventListener('DOMContentLoaded', () => {
+    requireRole(["Admin"]);
     createClassModal = new bootstrap.Modal(document.getElementById('createClassModal'));
     editClassModal = new bootstrap.Modal(
         document.getElementById('editClassModal')
@@ -81,8 +82,9 @@ async function loadClasses() {
     tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-5">Loading classes…</td></tr>`;
 
     try {
-        const data = await FitCoreApi.get('/api/Classes?Page=1&Page_Size=5');
+        const data = await FitCoreApi.get('/api/Classes?Page=1&Page_Size=10');
         allClasses = data.data || data.Data || [];
+        console.log(allClasses);
         await loadWeeklyOccurrences();
         renderTable();
         renderStats();
@@ -98,7 +100,7 @@ async function loadWeeklyOccurrences() {
     const to = toDateInput(weekEnd);
 
     try {
-        const data = await FitCoreApi.get(`/api/Classes/browse?fromDate=${from}&toDate=${to}&Page=1&Page_Size=500`);
+        const data = await FitCoreApi.get(`/api/Classes/browse?fromDate=${from}&toDate=${to}&Page=1&Page_Size=10`);
         weeklyOccurrences = data.data || data.Data || [];
     } catch (error) {
         weeklyOccurrences = [];
@@ -165,7 +167,8 @@ function renderRow(c) {
     const status = Number(pick(c, 'status', 'Status'));
     const NumberOfSessions = Number(pick(c, 'numberOfSessions', 'NumberOfSessions'));
     const schedules = pick(c, 'schedules', 'Schedules') || [];
-
+    const price = Number(pick(c, 'price', 'price'));
+    
     const scheduleText = schedules.length ? scheduleSummary(schedules) : { time: 'No time slots', days: '' };
     const capacity = weeklyCapacityFor(id);
     const barVariant = capacity && capacity.percent >= 90 ? 'bg-danger' : (capacity && capacity.percent >= 70 ? 'bg-warning' : 'bg-primary');
@@ -183,7 +186,7 @@ function renderRow(c) {
                 <span class="class-icon-chip"><i class='bx ${classIconFor(name)}'></i></span>
                 <div>
                     <div class="fw-bold">${escapeHtml(name)}</div>
-                    <div class="text-muted small">${escapeHtml(description)}</div>
+                    <div class="text-muted fs-xs">${escapeHtml(description)}</div>
                 </div>
             </div>
         </td>
@@ -208,7 +211,8 @@ function renderRow(c) {
             ` : `<span class="capacity-empty-text">No sessions this week</span>`}
         </td>
         <td><span class="badge rounded-pill text-bg-${status === 1 ? 'success' : 'secondary'}">${status === 1 ? 'Active' : 'Inactive'}</span></td>
-         <td><span class="">${NumberOfSessions === 0 ? 1 : NumberOfSessions} Session</span></td>
+         <td><span class=""> ${price} EGP</span></td>
+        <td><span class="">${NumberOfSessions === 0 ? 1 : NumberOfSessions} Session</span></td>
         <td class="text-end">
             <div class="dropdown">
                 <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -266,6 +270,9 @@ function wireRowActions() {
             document.getElementById('editClassStatus').value =
                 pick(gymClass, 'status', 'Status') ?? 1;
 
+            document.getElementById('editPrice').value =
+                pick(gymClass, 'price', 'Price') ?? 1000;
+
         });
 
     });
@@ -295,7 +302,8 @@ function wireRowActions() {
                     className: pick(gymClass, 'className', 'ClassName'),
                     description: pick(gymClass, 'description', 'Description'),
                     capacity: pick(gymClass, 'capacity', 'Capacity'),
-                    numberOfSessions: pick(gymClass, 'numberOfSessions', 'NumberOfSessions') || 1,
+                    numberOfSessions: Number(pick(gymClass, 'numberOfSessions', 'NumberOfSessions')) || 1,
+                    price: Number(pick(gymClass, 'price', 'Price')) || 0,
                     status: newStatus,
                 });
                 showMessage('Class status updated.', 'success');
@@ -385,12 +393,13 @@ async function submitCreateClass() {
         startTime: row.querySelector('.cs-start').value + ':00',
         endTime: row.querySelector('.cs-end').value + ':00',
     }));
-    console.log( parseInt(document.getElementById('numSessions').value, 10));
+
     const dto = {
         className: document.getElementById('className').value,
         description: document.getElementById('classDescription').value,
         capacity: parseInt(document.getElementById('classCapacity').value, 10) || 0,
-        NumberOfSessions: parseInt(document.getElementById('numSessions').value, 10) || 0,
+        numberOfSessions: parseInt(document.getElementById('numSessions').value, 10) || 0, 
+        price: parseFloat(document.getElementById('Price').value) || 0,                     
         trainerID: parseInt(document.getElementById('classTrainerSelect').value, 10),
         schedules,
     };
@@ -410,59 +419,28 @@ async function submitCreateClass() {
 }
 
 async function submitEditClass() {
-
     if (!editClassId) {
         showMessage('No class selected', 'error');
         return;
     }
 
-
     const dto = {
         className: document.getElementById('editClassName').value,
         description: document.getElementById('editClassDescription').value,
-        capacity: parseInt(
-            document.getElementById('editClassCapacity').value,
-            10
-        ) || 0,
-
-        numberOfSessions: parseInt(
-            document.getElementById('editNumSessions').value,
-            10
-        ) || 1,
-        status: Number(
-            document.getElementById('editClassStatus').value
-        )
+        capacity: parseInt(document.getElementById('editClassCapacity').value, 10) || 0,
+        numberOfSessions: parseInt(document.getElementById('editNumSessions').value, 10) || 1,
+        status: Number(document.getElementById('editClassStatus').value),
+        price: parseFloat(document.getElementById('editPrice').value) || 0                     
     };
 
-
     try {
-
-        await FitCoreApi.put(
-            `/api/Classes/${editClassId}`,
-            dto
-        );
-
-
-        showMessage(
-            'Class updated successfully.',
-            'success'
-        );
-
-
+        await FitCoreApi.put(`/api/Classes/${editClassId}`, dto);
+        showMessage('Class updated successfully.', 'success');
         editClassModal.hide();
-
         editClassId = null;
-
         await loadClasses();
-
-
     } catch (error) {
-
-        showMessage(
-            error.message,
-            'error'
-        );
-
+        showMessage(error.message, 'error');
     }
 }
 

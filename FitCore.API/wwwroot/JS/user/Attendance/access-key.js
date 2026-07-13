@@ -7,6 +7,7 @@
 // auth yet; window.CURRENT_MEMBER_USER_ID stands in for the logged-in member.
 
 const ATTENDANCE_BASE = '/api/Attendance';
+const user = getCurrentUser();
 
 document.addEventListener('DOMContentLoaded', () => {
     loadQrCode();
@@ -16,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function currentUserId() {
-    return window.CURRENT_MEMBER_USER_ID ?? 1;
+    return user?.userId ;
 }
 
 async function loadQrCode() {

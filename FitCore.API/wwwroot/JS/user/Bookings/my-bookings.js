@@ -1,6 +1,13 @@
-﻿// my-bookings.js
-
-const STATUS_LABELS = ['booked', 'cancelled', 'completed', 'missed']; // BookingStatus: Booked, Cancelled, Attended, NoShow
+﻿// 1. تحديث الحالات لتطابق الـ Enum في السي شارب (0=Booked, 1=Cancelled, 2=Attended, 3=NoShow, 4=Paid)
+const STATUS_LABELS = ['booked', 'cancelled', 'attended', 'noshow', 'paid'];
+const bookingStatuses = {
+    0: 'Booked',
+    1: 'Cancelled',
+    2: 'Attended',
+    3: 'NoShow',
+    4: 'Paid'
+};
+const categories = { 0: 'Memberships', 1: 'Personal Training', 2: 'Spa & Recovery', 3: 'Special Workshops' };
 const CLASS_ICONS = [
     { match: /hiit|sprint|inferno/i, icon: 'bx-bolt' },
     { match: /yoga|flow|yin|zen/i, icon: 'bx-leaf' },
@@ -9,10 +16,13 @@ const CLASS_ICONS = [
 ];
 
 let allBookings = [];
+let allServices = [];
+
+let user = getCurrentUser();
 
 document.addEventListener('DOMContentLoaded', () => {
-    loadBookings();
-
+    requireRole(["Member"]);
+    loadData();
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -37,132 +47,236 @@ function classIconFor(name) {
     return found ? found.icon : 'bx-body';
 }
 
+
+function pick(obj, lowerKey, upperKey) {
+    return obj[lowerKey] !== undefined ? obj[lowerKey] : obj[upperKey];
+}
+
+
 async function loadBookings() {
-    const memberUserId = window.CURRENT_MEMBER_USER_ID;
+    const memberUserId = user?.userId;
+
     try {
         const data = await FitCoreApi.get(`/api/Classes/my-bookings?memberUserId=${memberUserId}`);
         allBookings = Array.isArray(data) ? data : (data.data || data.Data || []);
-        renderStats();
-        renderUpcoming();
-        renderPast();
+        console.log("Retrieved Bookings:", allBookings);
+
     } catch (error) {
         showMessage(`Couldn't load your bookings: ${error.message}`, 'error');
     }
 }
 
+async function loadServices() {
+    const memberUserId = user?.userId;
+
+    try {
+        const data = await FitCoreApi.get(`/api/GymServices/my-services?memberUserId=${memberUserId}`);
+        allServices = Array.isArray(data) ? data : (data.data || data.Data || []);
+        console.log("Retrieved Services:", allServices);
+
+    } catch (error) {
+        showMessage(`Couldn't load your bookings: ${error.message}`, 'error');
+    }
+}
+
+async function loadData() {
+    try {
+        await Promise.all([loadBookings(), loadServices()]);
+        renderStats();
+        renderUpcoming();
+        renderServiceUpcoming();
+        renderPast();
+    } catch (error) {
+        showMessage(`Couldn't load your Data: ${error.message}`, 'error');
+    }
+}
+
+
+function isUpcoming(b) {
+    const rawStatus = pick(b, 'status', 'Status');
+    return rawStatus === 0 ||
+        rawStatus === '0' ||
+        (typeof rawStatus === 'string' && rawStatus.toLowerCase() === 'booked');
+}
+
 function renderStats() {
     const totalBookings = allBookings.length;
+    const totalServices = allServices.length;
 
-    // Training hours: genuinely computed from each booking's schedule start/end time.
-    const totalMinutes = allBookings.reduce((sum, b) => {
-        const start = parseTimeToMinutes(pick(b, 'startTime', 'StartTime'));
-        const end = parseTimeToMinutes(pick(b, 'endTime', 'EndTime'));
-        return sum + Math.max(0, end - start);
-    }, 0);
+    console.log(allServices.filter(b => isUpcoming(b)).length, allServices);
 
-    const upcomingCount = allBookings.filter(b => isUpcoming(b)).length;
+    const upcomingCount = (allBookings.filter(b => isUpcoming(b)).length + allServices.filter(b => isUpcoming(b)).length);
 
     document.getElementById('totalBookingsValue').textContent = totalBookings;
-    document.getElementById('trainingHoursValue').textContent = (totalMinutes / 60).toFixed(1);
+    document.getElementById('totalServicesValue').textContent = totalServices;
+    document.getElementById('trainingHoursValue').textContent = (allBookings.filter(b => !isUpcoming(b)).length * 1).toFixed(1);
     document.getElementById('upcomingCountValue').textContent = upcomingCount;
 }
 
-function parseTimeToMinutes(t) {
-    if (!t) return 0;
-    const parts = t.toString().split(':');
-    return (parseInt(parts[0], 10) || 0) * 60 + (parseInt(parts[1], 10) || 0);
-}
-
-function isUpcoming(b) {
-    const status = Number(pick(b, 'status', 'Status'));
-    const sessionDate = new Date((pick(b, 'sessionDate', 'SessionDate') || '').toString().substring(0, 10) + 'T00:00:00');
-    const today = new Date(); today.setHours(0, 0, 0, 0);
-    return status === 0 && sessionDate >= today; // Booked and not in the past
-}
-
 function renderUpcoming() {
-    const upcoming = allBookings.filter(isUpcoming)
-        .sort((a, b) => new Date(pick(a, 'sessionDate', 'SessionDate')) - new Date(pick(b, 'sessionDate', 'SessionDate')));
+
+    const upcoming = allBookings.filter(b => isUpcoming(b));
 
     const nextCard = document.getElementById('nextClassCard');
-    const list = document.getElementById('upcomingList');
 
     if (upcoming.length === 0) {
-        nextCard.innerHTML = `<div class="state-empty">No upcoming classes booked yet. <br><a href="/html/user/classes/classes-schedule.html">Browse classes →</a></div>`;
-        list.innerHTML = '';
+
+        nextCard.innerHTML = `<div class="state-empty">
+        No upcoming classes booked yet.
+        <br>
+        <a href="/html/user/classes/classes-schedule.html">Browse classes →</a>
+        </div>`;
         return;
     }
 
-    const next = upcoming[0];
-    const rest = upcoming.slice(1);
+    nextCard.innerHTML = upcoming.map((up) => {
+        const currentClassName = pick(up, 'className', 'ClassName');
+        const currentSchedules = pick(up, 'scheduleDetails', 'ScheduleDetails') || [];
+        const currentBookingID = pick(up, 'bookingID', 'BookingID');
+        const status =  pick(up, 'status', 'status');
+        const trainerName = pick(up, 'trainerName', 'trainerName');
+        const price = pick(up, 'price', 'price');
 
-    const sessionDate = new Date((pick(next, 'sessionDate', 'SessionDate') || '').toString().substring(0, 10) + 'T00:00:00');
-    const className = pick(next, 'className', 'ClassName');
-    const start = (pick(next, 'startTime', 'StartTime') || '').toString().substring(0, 5);
-    const end = (pick(next, 'endTime', 'EndTime') || '').toString().substring(0, 5);
-
-    nextCard.innerHTML = `
-        <div class="next-class-media">
-            <span class="next-class-tag">Next Class</span>
-            <i class='bx ${classIconFor(className)}'></i>
-        </div>
-        <div class="next-class-body">
-            <div class="next-class-title-row">
-                <div class="next-class-title">${escapeHtml(className)}</div>
-                <div class="next-class-date-badge">
-                    <span class="month">${sessionDate.toLocaleDateString(undefined, { month: 'short' })}</span>
-                    <span class="day">${sessionDate.getDate()}</span>
+        return `
+        <div class=" col">
+           <div class="card p-3 rounded-4 shadow">
+            <div class="next-class-media rounded-4">
+                <i class='bx ${classIconFor(currentClassName)}'></i>
+            </div>
+            <div class="next-class-body">
+                <div class="next-class-title-row">
+                    <div class="next-class-title">${escapeHtml(currentClassName)}</div>
+                    <div class="badge ${bookingStatuses[status] === 'Paid' ? 'bg-light-success text-success' : 'bg-light-warning text-warning'}" 
+                             style="padding: 6px 10px; font-size: 11px; border-radius: 20px;">
+                            <span class="day">${escapeHtml(bookingStatuses[status])}</span>
+                     </div>
+                </div>
+                <div class="next-class-meta">
+                    
+                </div>
+                <div class="next-class-meta d-flex flex-column gap-1 text-muted mb-3" style="font-size: 13px;">
+                            ${currentSchedules.map((sch) => `
+                                <span> <i class='bx bx-time-five'></i> schedule: ${escapeHtml(sch)}</span>
+                            `).join('')}
+                        <span><i class='bx bx-dumbbell text-primary me-1'></i> trainerName: <strong>${trainerName}</strong></span>
+                        <span><i class='bx bx-money text-primary me-1'></i> Price: <strong class="text-dark">${parseFloat(price).toFixed(0)} EGP</strong></span>
+                 </div>
+                <div class="next-class-actions">
+                    <button class="btn btn-primary fw-semibold"
+                        onclick="checkoutService(${currentBookingID})">
+                        Proceed to Checkout
+                    </button>          
+                    <button class="icon-btn-danger border border-danger text-dangerr" title="Cancel booking" data-cancel="${currentBookingID}"><i class='bx bx-x'></i></button>
                 </div>
             </div>
-            <div class="next-class-meta">
-                <span><i class='bx bx-time-five'></i> ${start} - ${end}</span>
-            </div>
-            <div class="next-class-actions">
-                <button class="btn-primary" onclick="addToCalendar('${escapeHtml(className)}','${start}')">Add to Calendar</button>
-                <button class="icon-btn-danger" title="Cancel booking" data-cancel="${pick(next, 'bookingID', 'BookingID')}"><i class='bx bx-x'></i></button>
-            </div>
-        </div>`;
-
-    list.innerHTML = rest.map(b => {
-        const bSessionDate = new Date((pick(b, 'sessionDate', 'SessionDate') || '').toString().substring(0, 10) + 'T00:00:00');
-        const bStart = (pick(b, 'startTime', 'StartTime') || '').toString().substring(0, 5);
-        const bClassName = pick(b, 'className', 'ClassName');
-        return `
-        <div class="upcoming-item">
-            <div class="upcoming-item-icon"><i class='bx ${classIconFor(bClassName)}'></i></div>
-            <div class="upcoming-item-info">
-                <div class="upcoming-item-title">${escapeHtml(bClassName)}</div>
-                <div class="upcoming-item-sub">${bSessionDate.toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' })} • ${bStart}</div>
-            </div>
-            <button class="cancel-link" data-cancel="${pick(b, 'bookingID', 'BookingID')}">Cancel</button>
+           </div>
         </div>`;
     }).join('');
 
+
     document.querySelectorAll('[data-cancel]').forEach(btn => {
-        btn.addEventListener('click', () => cancelBooking(btn.dataset.cancel));
+        btn.addEventListener('click', () => cancelBooking(parseInt(btn.dataset.cancel)));
+    });
+}
+
+function renderServiceUpcoming() {
+
+    const upcoming = allServices.filter(b => isUpcoming(b));
+
+    const nextCard = document.getElementById('nextServiceCard');
+
+    if (upcoming.length === 0) {
+
+        nextCard.innerHTML = `
+        <div class="state-empty">
+            No upcoming Services booked yet.
+            <br>
+            <a href="/html/user/gymServices/gym-services.html">Browse Services →</a>
+        </div>`;
+        return;
+    }
+
+    nextCard.innerHTML = upcoming.map((up) => {
+        const currentServiceName = pick(up, 'serviceName', 'serviceName');
+        const allowedSessionsCount = pick(up, 'allowedSessionsCount', 'allowedSessionsCount');
+        const price = pick(up, 'price', 'price');
+        const status = pick(up, 'status', 'status');
+        // const category = pick(up, `${categories[category]}`, 'category');
+        const durationInDays = pick(up, 'durationInDays', 'durationInDays') || [];
+        const currentBookingID = pick(up, 'bookingId', 'BookingID');
+        
+
+        return `
+        <div class=" col">
+          <div class="card p-3 rounded-4 shadow h-100">
+                 <div class="next-class-media rounded-4">
+                    <i class='bx ${classIconFor(currentServiceName)}'></i>
+                </div>
+        
+                <div class="next-class-body mt-3">
+                    <div class="next-class-title-row d-flex justify-content-between align-items-start mb-2">
+                        <div class="next-class-title fw-bold text-dark fs-5">${escapeHtml(currentServiceName)}</div>
+                
+                        <div class="badge ${status === 'Paid' ? 'bg-light-success text-success' : 'bg-light-warning text-warning'}" 
+                             style="padding: 6px 10px; font-size: 11px; border-radius: 20px;">
+                            <span class="day">${escapeHtml(status)}</span>
+                        </div>
+                    </div>
+            
+                    <div class="next-class-meta d-flex flex-column gap-1 text-muted mb-3" style="font-size: 13px;">
+                        <span><i class='bx bx-time-five text-primary me-1'></i> Duration: <strong>${durationInDays} Days</strong></span>
+                        <span><i class='bx bx-dumbbell text-primary me-1'></i> Sessions: <strong>${allowedSessionsCount === 0 ? 'Unlimited' : allowedSessionsCount + ' Sessions'}</strong></span>
+                        <span><i class='bx bx-money text-primary me-1'></i> Price: <strong class="text-dark">${parseFloat(price).toFixed(0)} EGP</strong></span>
+                    </div>
+                    <div class="next-class-actions">
+                        ${status === 'Booked' ? `
+                            <button class="btn btn-primary fw-semibold"
+                                    onclick="checkoutService(${currentBookingID})">
+                                Proceed to Checkout
+                            </button>
+                        ` : `
+                            <button class="btn btn-outline-secondary fw-semibold  " disabled>
+                                <i class='bx bx-check'></i> Active Plan
+                            </button>
+                        `}
+                         <button
+                             class="icon-btn-danger border border-danger text-danger"
+                             title="Cancel booking"
+                             data-service="${currentBookingID}"
+                         >          
+                            <i class='bx bx-x'></i>
+                         </button>
+                       
+                    </div>
+                </div>
+            </div>
+        </div>`;
+    }).join('');
+
+
+    document.querySelectorAll('[data-service]').forEach(btn => {
+        btn.addEventListener('click', () => cancelServiceBooking(btn.dataset.service));
     });
 }
 
 function renderPast() {
-    const rangeDays = parseInt(document.getElementById('pastRangeFilter').value, 10);
-    const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - rangeDays);
 
-    const past = allBookings.filter(b => !isUpcoming(b))
-        .filter(b => new Date(pick(b, 'sessionDate', 'SessionDate')) >= cutoff)
-        .sort((a, b) => new Date(pick(b, 'sessionDate', 'SessionDate')) - new Date(pick(a, 'sessionDate', 'SessionDate')));
+    const past = allBookings.filter(b => !isUpcoming(b));
 
     const tbody = document.getElementById('pastTableBody');
     if (past.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" class="state-empty">No past sessions in this range.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="5" class="state-empty">No past Class sessions found.</td></tr>`;
         return;
     }
 
     tbody.innerHTML = past.map(b => {
         const className = pick(b, 'className', 'ClassName');
-        const sessionDate = new Date((pick(b, 'sessionDate', 'SessionDate') || '').toString().substring(0, 10) + 'T00:00:00');
         const status = Number(pick(b, 'status', 'Status'));
         const statusLabel = STATUS_LABELS[status] || 'unknown';
-        const trainerName = pick(b, 'trainerName', 'TrainerName') || '—'; // may be absent depending on API version
+        const bSchedules = pick(b, 'scheduleDetails', 'ScheduleDetails') || [];
+        const bMainSchedule = bSchedules[0] || "—";
+        const trainerName = pick(b, 'trainerName', 'TrainerName') || [];
+        const price = pick(b, 'price', 'price');
 
         return `
         <tr>
@@ -171,31 +285,45 @@ function renderPast() {
                     <div class="class-details-icon"><i class='bx ${classIconFor(className)}'></i></div>
                     <div>
                         <div class="class-details-name">${escapeHtml(className)}</div>
-                        <div class="class-details-date">${sessionDate.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</div>
+                        <div class="class-details-date">${escapeHtml(bMainSchedule)}</div>
                     </div>
                 </div>
             </td>
             <td>${escapeHtml(trainerName)}</td>
-            <td>${sessionDate.toLocaleDateString()}</td>
+            <td>
+                ${bSchedules.map((sch) => `
+                      <div class="class-details-date">${escapeHtml(sch)}</div>
+                 `).join('')}
+            </td>
+            <td>${escapeHtml(price)}</td>
             <td><span class="status-dot ${statusLabel}">${statusLabel.charAt(0).toUpperCase() + statusLabel.slice(1)}</span></td>
-            <td>—</td>
         </tr>`;
     }).join('');
 }
 
 async function cancelBooking(bookingId) {
-    const memberUserId = window.CURRENT_MEMBER_USER_ID;
+    const memberUserId = user?.userId;
+    console.log(memberUserId, bookingId)
+
     try {
         await FitCoreApi.patch(`/api/Classes/bookings/${bookingId}/cancel?memberUserId=${memberUserId}`);
         showMessage('Booking cancelled.', 'success');
-        await loadBookings();
+        loadData();
     } catch (error) {
         showMessage(error.message, 'error');
     }
 }
 
-function addToCalendar(className, startTime) {
-    showMessage(`"${className}" (${startTime}) — calendar file download isn't wired up yet.`, 'success');
+async function cancelServiceBooking(bookingId) {
+    const memberUserId = user?.userId;
+    try {
+        
+        await FitCoreApi.delete(`/api/GymServices/bookings/${bookingId}/cancel?memberUserId=${memberUserId}`);
+        showMessage('Booking cancelled.', 'success');
+        loadData();
+    } catch (error) {
+        showMessage(error.message, 'error');
+    }
 }
 
 function escapeHtml(str) {
