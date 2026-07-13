@@ -448,6 +448,47 @@ namespace FitCore.BLL.Services.Auth
             await dbContext.SaveChangesAsync();
         }
 
-        
+        public async Task<AuthResponseDto> CreateAdmin(RegisterMemberDto dto, string secretKey)
+        {
+
+            const string ExpectedSecretKey = "FitCore_Super_Admin_Secret_2026";
+
+            if (secretKey != ExpectedSecretKey)
+            {
+                throw new UnauthorizedAccessException("Invalid secret key! You cannot create an admin account.");
+            }
+
+            var errors = ValidateBasicInfo(dto.FullName, dto.Email, dto.PhoneNumber, dto.Password);
+            if (errors.Any())
+            {
+                throw new ValidationException(errors);
+            }
+
+            if (await dbContext.Users.AnyAsync(u => u.Email == dto.Email && !u.IsDeleted))
+            {
+                throw new BusinessRuleException("An account with this email already exists.");
+            }
+
+
+            var user = new User
+            {
+                FullName = dto.FullName,
+                Email = dto.Email,
+                PhoneNumber = dto.PhoneNumber,
+                Status = UserStatus.Active,
+                JoinDate = DateTime.UtcNow,
+            };
+
+
+            user.PasswordHash = _passwordHasher.HashPassword(user, dto.Password);
+
+
+            user.UserRoles.Add(new UserRole { Role = UserRoles.Admin });
+
+            await dbContext.Users.AddAsync(user);
+            await dbContext.SaveChangesAsync();
+
+            return BuildAuthResponse(user);
+        }
     }
 }
