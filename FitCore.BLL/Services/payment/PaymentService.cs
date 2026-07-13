@@ -134,9 +134,13 @@ namespace FitCore.BLL.Services
             {
                 _context.CartItems.RemoveRange(cart.CartItems); 
             }
+            var memberId = await _context.MemberProfiles
+                .Where(x => x.UserID == invoice.UserID)
+                .Select(x=> x.MemberProfileId)
+                .FirstOrDefaultAsync();
 
             var pendingBookings = await _context.Bookings
-                .Where(b => b.MemberUserId == invoice.UserID && b.Status == BookingStatus.Booked)
+                .Where(b => b.MemberUserId == memberId && b.Status == BookingStatus.Booked)
                 .ToListAsync();
 
             if (pendingBookings.Any())

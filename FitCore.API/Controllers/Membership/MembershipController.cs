@@ -1,9 +1,11 @@
 ﻿using FitCore.BLL.Interfaces;
+using FitCore.BLL.Interfaces.Auth;
 using FitCore.BLL.Interfaces.Membership;
 using FitCore.DAL.Data.Contexts;
 using FitCore.DAL.Data.Models;
 using FitCore.Shared.DTOs;
 using FitCore.Shared.DTOs.MemberShip;
+using FitCore.Shared.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -18,23 +20,15 @@ namespace FitCore.API.Controllers
     {
         private readonly IMembershipService _membershipService;
         private readonly FitCoreDbContext _dbContext;
-
-        public MembershipsController(IMembershipService membershipService, FitCoreDbContext dbContext)
+        private readonly ICurrentUserService _currentUser;
+        
+        public MembershipsController(IMembershipService membershipService, FitCoreDbContext dbContext,ICurrentUserService currentUser)
         {
             _membershipService = membershipService;
             _dbContext = dbContext;
+            _currentUser = currentUser;
         }
-
-        private int GetUserIdFromToken()
-        {
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-            if (string.IsNullOrEmpty(userIdClaim))
-                throw new UnauthorizedAccessException("User token is invalid or missing.");
-
-            return int.Parse(userIdClaim);
-        }
-
+        
         private async Task<int> GetMemberProfileIdAsync(int userId)
         {
             var profile = await _dbContext.Set<MemberProfile>()
@@ -46,15 +40,15 @@ namespace FitCore.API.Controllers
             return profile.MemberProfileId;
         }
 
+        [Authorize]
         [HttpGet("my-memberships")]
         public async Task<IActionResult> GetMyMemberships()
         {
             try
             {
-                //int userId = GetUserIdFromToken();
-                int userId = 2;
-                //int profileId = await GetMemberProfileIdAsync(userId);
-                var memberships = await _membershipService.GetMemberMembershipsAsync(userId);
+                int userId = _currentUser.UserId ?? throw new UnauthorizedAccessException();
+                int profileId = await GetMemberProfileIdAsync(userId);
+                var memberships = await _membershipService.GetMemberMembershipsAsync(profileId);
 
                 return Ok(memberships);
             }
@@ -64,6 +58,7 @@ namespace FitCore.API.Controllers
             }
         }
 
+        [Authorize]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetMembershipById(int id)
         {
@@ -82,6 +77,7 @@ namespace FitCore.API.Controllers
             }
         }
 
+        [Authorize]
         [HttpPost("{id}/freeze")]
         public async Task<IActionResult> FreezeMembership(int id, [FromBody] int freezeDays)
         {
@@ -100,6 +96,7 @@ namespace FitCore.API.Controllers
             }
         }
 
+        [Authorize]
         [HttpPost("{id}/unfreeze")]
         public async Task<IActionResult> UnfreezeMembership(int id)
         {
@@ -118,8 +115,8 @@ namespace FitCore.API.Controllers
             }
         }
 
+        [Authorize(Roles = nameof(UserRoles.Admin))]
         [HttpGet("admin/active-memberships")]
-        // [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetAllActiveMemberships([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
         {
             try

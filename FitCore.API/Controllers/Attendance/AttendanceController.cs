@@ -1,5 +1,7 @@
 ﻿using FitCore.BLL.Interfaces.Attendance;
+using FitCore.BLL.Interfaces.Auth;
 using FitCore.Shared.DTOs.Attendance;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
@@ -11,54 +13,66 @@ namespace FitCore.API.Controllers
     public class AttendanceController : ControllerBase
     {
         private readonly IAttendanceService _attendanceService;
+        private readonly ICurrentUserService _currentUserService;
 
-        public AttendanceController(IAttendanceService attendanceService)
+        public AttendanceController(IAttendanceService attendanceService,ICurrentUserService currentUserService)
         {
             _attendanceService = attendanceService;
+            _currentUserService = currentUserService;
         }
 
-        // ==========================================
-        // 1) Self-Service (Member App) - 5 Endpoints
-        // ==========================================
+
         [HttpGet("me/qrcode")]
-        public async Task<IActionResult> GetMyQrCode(int userId)
+        [Authorize]
+        public async Task<IActionResult> GetMyQrCode()
         {
-            var result = await _attendanceService.GetMyQrCodeAsync(userId);
-            return Ok(result); 
+            var result = await _attendanceService.GetMyQrCodeAsync(_currentUserService.GetRequiredUserId());
+            return Ok(result);
         }
 
         [HttpPost("me/qrcode/regenerate")]
-        public async Task<IActionResult> RegenerateMyQrCode([FromQuery] int userId) => Ok(await _attendanceService.RegenerateMyQrCodeAsync(userId));
+        [Authorize]
+        public async Task<IActionResult> RegenerateMyQrCode() => Ok(await _attendanceService.RegenerateMyQrCodeAsync(_currentUserService.GetRequiredUserId()));
 
         [HttpGet("me/status-today")]
-        public async Task<IActionResult> GetMyStatusToday([FromQuery] int userId) => Ok(await _attendanceService.GetMyStatusTodayAsync(userId));
+        [Authorize]
+        public async Task<IActionResult> GetMyStatusToday() => Ok(await _attendanceService.GetMyStatusTodayAsync(_currentUserService.GetRequiredUserId()));
 
         [HttpGet("me/history")]
-        public async Task<IActionResult> GetMyHistory([FromQuery] int userId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10) => Ok(await _attendanceService.GetMyHistoryAsync(userId, page, pageSize));
+        [Authorize]
+        public async Task<IActionResult> GetMyHistory([FromQuery] int page = 1, [FromQuery] int pageSize = 10) => Ok(await _attendanceService.GetMyHistoryAsync(_currentUserService.GetRequiredUserId(), page, pageSize));
 
         [HttpGet("me/stats")]
-        public async Task<IActionResult> GetMyStats([FromQuery] int userId) => Ok(await _attendanceService.GetMyStatsAsync(userId));
-
+        [Authorize]
+        public async Task<IActionResult> GetMyStats() => Ok(await _attendanceService.GetMyStatsAsync(_currentUserService.GetRequiredUserId()));
 
         // ==========================================
         // 2) Reception / GymOps Terminal - 6 Endpoints
         // ==========================================
+
+
         [HttpPost("checkin/scan")]
+        [Authorize(Roles = "Receptionist,Admin")]
         public async Task<IActionResult> CheckInByScan([FromBody] CheckInRequestDto request) => Ok(await _attendanceService.CheckInByScanAsync(request));
 
         [HttpPost("checkin/manual")]
+        [Authorize(Roles = "Receptionist,Admin")]
         public async Task<IActionResult> CheckInManual([FromQuery] string searchInput) => Ok(await _attendanceService.CheckInManualAsync(searchInput));
 
-        [HttpGet("members/search")] 
+        [HttpGet("members/search")]
+        [Authorize(Roles = "Receptionist,Admin")]
         public async Task<IActionResult> SearchMembers([FromQuery] string query) => Ok(await _attendanceService.SearchMembersAsync(query));
 
         [HttpGet("members/{userId}/checkin-summary")]
+        [Authorize(Roles = "Receptionist,Admin")]
         public async Task<IActionResult> GetMemberCheckInSummary([FromRoute] int userId) => Ok(await _attendanceService.GetMemberCheckInSummaryAsync(userId));
 
         [HttpGet("recent-scans")]
+        [Authorize(Roles = "Receptionist,Admin")]
         public async Task<IActionResult> GetRecentScans() => Ok(await _attendanceService.GetRecentScansAsync());
 
         [HttpGet("daily-logs")]
+        [Authorize(Roles = "Receptionist,Admin")]
         public async Task<IActionResult> GetDailyLogs() => Ok(await _attendanceService.GetDailyLogsAsync());
 
 
@@ -72,6 +86,7 @@ namespace FitCore.API.Controllers
         public async Task<IActionResult> GetClassAvailability([FromRoute] int id) => Ok(await _attendanceService.GetClassAvailabilityAsync(id));
 
         [HttpPost("checkin/class")]
-        public async Task<IActionResult> CheckInClass([FromQuery] int userId, [FromQuery] int classId) => Ok(await _attendanceService.CheckInClassAsync(userId, classId));
+        [Authorize]
+        public async Task<IActionResult> CheckInClass([FromQuery] int classId) => Ok(await _attendanceService.CheckInClassAsync(_currentUserService.GetRequiredUserId(), classId));
     }
 }

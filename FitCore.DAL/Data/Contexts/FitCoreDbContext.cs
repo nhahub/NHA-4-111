@@ -1,13 +1,16 @@
 ﻿using FitCore.DAL.Data.Models;
 using FitCore.DAL.Interfaces;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Security.AccessControl;
+using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -16,8 +19,7 @@ namespace FitCore.DAL.Data.Contexts
 {
     public class FitCoreDbContext : DbContext
     {
-        //private readonly ICurrentService currentService;
-        //private readonly IHttpContextAccessor httpContextAccessor;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         private static readonly HashSet<string> SensitiveProperties = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
@@ -32,11 +34,9 @@ namespace FitCore.DAL.Data.Contexts
             "NormalizedUserName"
         };
 
-        public FitCoreDbContext(DbContextOptions<FitCoreDbContext> options) : base(options)
+        public FitCoreDbContext(DbContextOptions<FitCoreDbContext> options, IHttpContextAccessor httpContextAccessor) : base(options)
         {
-            //, ICurrentService _currentService, IHttpContextAccessor _httpContextAccessor
-            //currentService = _currentService;
-            //httpContextAccessor = _httpContextAccessor;
+            httpContextAccessor = _httpContextAccessor;
         }
 
         public DbSet<User> Users { get; set; }
@@ -64,13 +64,15 @@ namespace FitCore.DAL.Data.Contexts
         public DbSet<PrivateSession> PrivateSessions { get; set; }
         public DbSet<Booking> Bookings { get; set; }
         public DbSet<TrainerWorkingHour> TrainerWorkingHours { get; set; }
-
+        public DbSet<RoleChangeRequest> RoleChangeRequests { get; set; }
 
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
             var currentTime = DateTime.UtcNow;
-            //var userId = currentService.UserId;
-            var userId = 1;
+            var userIdClaim = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            int? userId = int.TryParse(userIdClaim, out var id) ? id : null;
+            
+            //var userId = 1;
 
 
             var auditEntries = new List<(AuditLog audit, EntityEntry entry)>();

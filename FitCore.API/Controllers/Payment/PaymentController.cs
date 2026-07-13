@@ -1,5 +1,7 @@
 ﻿using FitCore.BLL.DTOs.Payment;
 using FitCore.BLL.Interfaces.Payment;
+using FitCore.Shared.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.IO;
@@ -20,6 +22,7 @@ namespace FitCore.API.Controllers
 
         // Called by your frontend when the user clicks "Pay now"
         [HttpPost("create-checkout-session")]
+        [Authorize]
         public async Task<IActionResult> CreateCheckoutSession([FromBody] CreateCheckoutSessionRequestDto request)
         {
             try
@@ -42,6 +45,7 @@ namespace FitCore.API.Controllers
 
         // Called by Stripe, not by your frontend. Must accept the raw request body.
         [HttpPost("webhook")]
+        [Authorize]
         public async Task<IActionResult> StripeWebhook()
         {
             var json = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync();

@@ -12,6 +12,7 @@ namespace FitCore.Shared.Enums
         productExpiry,
         Announcement,
         LowStock,
+        RoleChange
 
     }
 }

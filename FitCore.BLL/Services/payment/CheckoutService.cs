@@ -5,9 +5,12 @@ using FitCore.DAL.Data.Contexts;
 using FitCore.DAL.Data.Models;
 using FitCore.Shared.Enums;
 using Microsoft.EntityFrameworkCore;
+using Stripe;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Invoice = FitCore.DAL.Data.Models.Invoice;
+using InvoiceItem = FitCore.DAL.Data.Models.InvoiceItem;
 
 namespace FitCore.BLL.Services
 {
@@ -32,11 +35,15 @@ namespace FitCore.BLL.Services
 
             bool hasCartItems = cart != null && cart.CartItems.Any();
 
+            var memberId = await _context.MemberProfiles
+                .Where(x => x.UserID == userId)
+                .Select(x => x.MemberProfileId)
+                .FirstOrDefaultAsync();
 
             var pendingBookings = await _context.Set<Booking>()
                 .Include(b => b.GymService)
                 .Include(b => b.Class)
-                .Where(b => b.MemberUserId == userId && b.Status == BookingStatus.Booked)
+                .Where(b => b.MemberUserId == memberId && b.Status == BookingStatus.Booked)
                 .ToListAsync();
 
             bool hasBookings = pendingBookings.Any();
@@ -113,7 +120,6 @@ namespace FitCore.BLL.Services
 
                     }
 
-                    //_context.Bookings.UpdateRange(pendingBookings);
                 }
 
                 invoice.TotalAmount = totalAmount;

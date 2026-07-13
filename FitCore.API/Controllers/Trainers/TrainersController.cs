@@ -1,12 +1,14 @@
 ﻿using FitCore.BLL.Interfaces.Trainers;
 using FitCore.Shared.DTOs.Trainers;
+using FitCore.Shared.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FitCore.API.Controllers.Trainers
 {
     [ApiController]
     [Route("api/[controller]")]
-    //[Authorize(Roles = "Admin")]
+    [Authorize(Roles = nameof(UserRoles.Admin) + "," + nameof(UserRoles.Receptionist))]
     public class TrainersController(ITrainerService trainerService) : ControllerBase
     {
         [HttpPost("staff")]

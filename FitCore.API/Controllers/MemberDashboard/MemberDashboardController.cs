@@ -1,4 +1,8 @@
-﻿using FitCore.BLL.Interfaces.MemberDashboard;
+﻿using FitCore.BLL.Interfaces.Auth;
+using FitCore.BLL.Interfaces.MemberDashboard;
+using FitCore.DAL.Data.Models;
+using FitCore.Shared.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -6,25 +10,55 @@ namespace FitCore.API.Controllers.MemberDashboard
 {
     [Route("api/member/[controller]")]
     [ApiController]
+    [Authorize(Roles = nameof(UserRoles.Member))]
     public class MemberDashboardController : ControllerBase
     {
         private readonly IMemberDashboardService _service;
+        private readonly ICurrentUserService _currentUser;
 
-        public MemberDashboardController(IMemberDashboardService service) => _service = service;
+        public MemberDashboardController(IMemberDashboardService service, ICurrentUserService currentUser)
+        {
+            _service = service;
+            _currentUser = currentUser;
+        }
 
-        [HttpGet("profile")]
-        public async Task<IActionResult> GetProfile([FromQuery] int userId) => Ok(await _service.GetProfileStatsAsync(userId));
+        //[Authorize]
+        //[HttpGet("profile")]
+        //public async Task<IActionResult> GetProfile()
+        //{
+        //    int userId = _currentUser.UserId ?? throw new UnauthorizedAccessException();
+        //    var result = await _service.GetProfileStatsAsync(userId);
+        //    return Ok(result);
+        //}
 
         [HttpGet("next-class")]
-        public async Task<IActionResult> GetNextClass([FromQuery] int userId) => Ok(await _service.GetNextClassAsync(userId));
+        [Authorize]
+        public async Task<IActionResult> GetNextClass()
+        {
+            int userId = _currentUser.UserId ?? throw new UnauthorizedAccessException();
+            var result = await _service.GetNextClassAsync(userId);
+            return Ok(result);
+        }
 
         [HttpPost("attendance/check-in")]
-        public async Task<IActionResult> CheckIn([FromQuery] int userId) => Ok(await _service.CheckInAsync(userId));
+        [Authorize]
+        public async Task<IActionResult> CheckIn()
+        {
+            int userId = _currentUser.UserId ?? throw new UnauthorizedAccessException();
+            var result = await _service.CheckInAsync(userId);
+            return Ok(result);
+        }
 
-        [HttpGet("notifications")]
-        public async Task<IActionResult> GetNotifications([FromQuery] int userId) => Ok(await _service.GetNotificationsAsync(userId));
+        //[HttpGet("notifications")]
+        //[Authorize]
+        //public async Task<IActionResult> GetNotifications([FromQuery] int userId) => Ok(await _service.GetNotificationsAsync(userId));
 
         [HttpGet("digital-pass")]
-        public async Task<IActionResult> GetDigitalPass([FromQuery] int userId) => Ok(await _service.GetDigitalPassAsync(userId));
+        public async Task<IActionResult> GetDigitalPass()
+        {
+            int userId = _currentUser.UserId ?? throw new UnauthorizedAccessException();
+            var result = await _service.GetDigitalPassAsync(userId);
+            return Ok(result);
+        }  
     }
 }

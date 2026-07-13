@@ -1,26 +1,27 @@
 ﻿using FitCore.BLL.Exceptions;
+using FitCore.BLL.Interfaces.Auth;
 using FitCore.BLL.Interfaces.GymService;
 using FitCore.DAL.Data.Models;
 using FitCore.Shared.DTOs.GymService;
 using FitCore.Shared.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FitCore.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class GymServicesController(IGymServiceService _gymService) : ControllerBase
+    public class GymServicesController(IGymServiceService _gymService,ICurrentUserService _currentUser) : ControllerBase
     {
 
-        private const int HardcodedMemberUserId = 1;
-
-
         [HttpPost("bookings")]
+        [Authorize]
         public async Task<IActionResult> AddGymServiceToBooking([FromQuery] int gymServiceId)
         {
+            int userId = _currentUser.UserId ?? throw new UnauthorizedAccessException();
             try
             {
-                var result = await _gymService.AddGymServiceToBookingAsync(HardcodedMemberUserId, gymServiceId);
+                var result = await _gymService.AddGymServiceToBookingAsync(userId, gymServiceId);
                 return Ok(result);
             }
             catch (KeyNotFoundException ex)
@@ -34,6 +35,7 @@ namespace FitCore.API.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> CreateGymService([FromBody] CreateGymServiceDto dto)
         {
             try
@@ -48,6 +50,7 @@ namespace FitCore.API.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize]
         public async Task<IActionResult> UpdateGymService(int id, [FromBody] UpdateGymServiceDto dto)
         {
             try
@@ -66,6 +69,7 @@ namespace FitCore.API.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize]
         public async Task<IActionResult> DeleteGymService(int id)
         {
             try
@@ -80,6 +84,7 @@ namespace FitCore.API.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         public async Task<IActionResult> GetGymServices(
             [FromQuery] int page = 1,
             [FromQuery] int pageSize = 20,
@@ -91,11 +96,14 @@ namespace FitCore.API.Controllers
         }
 
         [HttpDelete("bookings/{bookingId}/cancel")]
-        public async Task<IActionResult> CancelGymServiceBooking(int memberUserId,int bookingId)
+        [Authorize]
+        public async Task<IActionResult> CancelGymServiceBooking(int bookingId)
         {
+            int userId = _currentUser.UserId ?? throw new UnauthorizedAccessException();
+
             try
             {
-                await _gymService.CancelGymServiceBookingAsync(memberUserId, bookingId);
+                await _gymService.CancelGymServiceBookingAsync(userId, bookingId);
                 return NoContent();
             }
             catch (KeyNotFoundException ex)

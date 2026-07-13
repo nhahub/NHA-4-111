@@ -1,4 +1,5 @@
 ﻿using FitCore.Shared.DTOs.Auth;
+using FitCore.Shared.Enums;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -20,5 +21,16 @@ namespace FitCore.BLL.Interfaces.Auth
 
         /// <summary>عرض كل المستخدمين لصفحة إدارة المستخدمين (Admin بس).</summary>
         Task<List<ManageUserDto>> GetAllUsers();
+
+        
+        
+        
+        Task<RoleChangeResultDto> RequestRoleChange(int userId, UserRoles requestedRole);
+
+        Task<List<RoleChangeRequestDto>> GetPendingRoleChangeRequests();
+
+        Task ApproveRoleChangeRequest(int requestId, int adminUserId, string? note);
+
+        Task RejectRoleChangeRequest(int requestId, int adminUserId, string? note);
     }
 }
