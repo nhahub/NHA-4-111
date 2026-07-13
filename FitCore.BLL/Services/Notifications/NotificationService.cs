@@ -1,4 +1,5 @@
 ﻿using FitCore.BLL.Exceptions;
+using FitCore.BLL.Interfaces.Auth;
 using FitCore.BLL.Interfaces.Notifications;
 using FitCore.DAL.Data.Contexts;
 using FitCore.DAL.Data.Models;
@@ -10,12 +11,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FitCore.BLL.Services.Notifications
 {
-    public class NotificationService(FitCoreDbContext DbContext) : INotificationService
+    public class NotificationService(FitCoreDbContext DbContext,ICurrentUserService _currentService) : INotificationService
     {
         public async Task<PaginationResponseDto<NotificationDto>> GetAllNotifications(int page, int pageSize)
         {
-            int userId = 2;
-            //int userId = _currentService.UserId ?? throw new UnauthorizedAccessException("No user id assigned");
+            //int userId = 2;
+            int userId = _currentService.UserId ?? throw new UnauthorizedAccessException("No user id assigned");
             if (page <= 0) page = 1;
 
             const int maxPageSize = 20;
@@ -51,8 +52,8 @@ namespace FitCore.BLL.Services.Notifications
         }
         public async Task<bool> MarkAsReadAsync(int notificationId)
         {
-            //int userId = _currentService.UserId ?? throw new UnauthorizedAccessException("No user id assigned");
-            int userId = 2;
+            int userId = _currentService.UserId ?? throw new UnauthorizedAccessException("No user id assigned");
+            //int userId = 2;
 
             var notification = await DbContext.Notifications.FirstOrDefaultAsync(x => x.NotificationID == notificationId);
 
@@ -71,8 +72,8 @@ namespace FitCore.BLL.Services.Notifications
 
         public async Task MarkAllAsReadAsync()
         {
-            int userId = 2;
-            //int userId = _currentService.UserId ?? throw new UnauthorizedAccessException("No branch id assigned");
+            //int userId = 2;
+            int userId = _currentService.UserId ?? throw new UnauthorizedAccessException("No branch id assigned");
 
             var unreadNotifications = await DbContext.Set<Notification>()
                 .Where(n => n.UserID == userId && !n.IsRead)
@@ -92,8 +93,8 @@ namespace FitCore.BLL.Services.Notifications
 
         public async Task<bool> SendNotification(RequestNotificationDto notificationDto)
         {
-            int userId = 3;
-            //int userId = _currentService.UserId ?? throw new UnauthorizedAccessException("No user id assigned");
+            //int userId = 3;
+            int userId = _currentService.UserId ?? throw new UnauthorizedAccessException("No user id assigned");
             
             var SentUserRoles =await DbContext.Set<User>().Where(x => x.UserID == userId)
                 .Select(x=> x.UserRoles)
@@ -264,12 +265,11 @@ namespace FitCore.BLL.Services.Notifications
 
         public async Task<int> GetUnReadNotificationsCount()
         {
-            int userId = 2;
-            //int userId = _currentService.UserId ?? throw new UnauthorizedAccessException("No branch id assigned");
+            //int userId = 2;
+            int userId = _currentService.UserId ?? throw new UnauthorizedAccessException("No branch id assigned");
 
             int count = await DbContext.Notifications
              .Where(n => !n.IsRead && n.UserID == userId)
-            //.Where(n => !n.IsRead)
             .CountAsync();
 
             return count;
