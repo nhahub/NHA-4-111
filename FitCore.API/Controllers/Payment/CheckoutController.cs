@@ -16,9 +16,10 @@ namespace FitCore.API.Controllers
         private readonly ICheckoutService _checkoutService;
         private readonly ICurrentUserService _currentUserService;
 
-        public CheckoutController(ICheckoutService checkoutService)
+        public CheckoutController(ICheckoutService checkoutService,ICurrentUserService currentUserService)
         {
             _checkoutService = checkoutService;
+            _currentUserService = currentUserService;
         }
         //call it when press checkout then take the invoice id returned to create-checkout-session api then redirects it to his final order
         [Authorize]

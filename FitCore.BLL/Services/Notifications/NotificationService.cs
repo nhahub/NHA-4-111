@@ -39,6 +39,7 @@ namespace FitCore.BLL.Services.Notifications
                 CreatedAt = x.CreatedAt,
                 Message = x.Content,
                 Type = x.Type,
+                ActionUrl = x.ActionUrl,
             }).ToListAsync();
 
 
@@ -170,6 +171,7 @@ namespace FitCore.BLL.Services.Notifications
                         IsRead = false,
                         Type = NotificationTypeEnum.MembershipExpiration,
                         UserID = membership.MemberProfile.UserID,
+                        ActionUrl = $"/html/user/Memberships/member-ship-details.html?id={membership.MembershipID}"
                     };
                     await DbContext.Set<Notification>().AddAsync(notification);
                 }
