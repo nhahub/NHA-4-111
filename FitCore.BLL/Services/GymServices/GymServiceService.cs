@@ -246,14 +246,14 @@ namespace FitCore.BLL.Services.GymServices
         //        throw new ValidationException("No booking IDs provided for checkout processing.");
 
             // 1. نجيب البروفايل هنا كمان عشان نصلح نفس المشكلة
-            var member = await DbContext.Set<MemberProfile>().FirstOrDefaultAsync(m => m.UserID == memberUserId);
-            if (member == null)
-                throw new KeyNotFoundException("Member profile not found.");
+            //var member = await DbContext.Set<MemberProfile>().FirstOrDefaultAsync(m => m.UserID == memberUserId);
+            //if (member == null)
+            //    throw new KeyNotFoundException("Member profile not found.");
 
-            // 2. نعدل الشرط لـ member.MemberProfileId
-            var bookings = await DbContext.Set<Booking>()
-                .Where(b => bookingIds.Contains(b.BookingID) && b.MemberUserId == member.MemberProfileId && b.Status == BookingStatus.Booked)
-                .ToListAsync();
+            //// 2. نعدل الشرط لـ member.MemberProfileId
+            //var bookings = await DbContext.Set<Booking>()
+            //    .Where(b => bookingIds.Contains(b.BookingID) && b.MemberUserId == member.MemberProfileId && b.Status == BookingStatus.Booked)
+            //    .ToListAsync();
 
         //    if (bookings.Count != bookingIds.Count)
         //        throw new BusinessRuleException("One or more bookings are invalid, not owned by the user, or have already been processed.");
