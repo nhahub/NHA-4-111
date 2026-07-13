@@ -208,9 +208,17 @@ namespace FitCore.BLL.Services.Classes
 
             // 4. جلب حسابات الحجوزات المعلقة للكلاسات الحالية
             var classIds = classes.Select(c => c.ClassID).ToList();
-            var pendingBookingsCount = await DbContext.Set<Booking>()
-                .Where(b => b.ClassID != null
-                         && classIds.Contains(b.ClassID.Value)
+
+            var activeMembershipsCount = await DbContext.Set<Membership>()
+                .Where(m => m.ClassID != null && classIds.Contains(m.ClassID.Value)
+                         && (m.Status == MemberShipStatus.Active || m.Status == MemberShipStatus.Freezed)
+                         && m.EndDate >= DateTime.UtcNow)
+                .GroupBy(m => m.ClassID)
+                .Select(g => new { ClassID = g.Key!.Value, Count = g.Count() })
+                .ToDictionaryAsync(x => x.ClassID, x => x.Count);
+
+            var pendingBookingsCount = await DbContext.Bookings
+                .Where(b => b.ClassID != null && classIds.Contains(b.ClassID.Value)
                          && b.Status == BookingStatus.Booked)
                 .GroupBy(b => b.ClassID)
                 .Select(g => new
@@ -300,8 +308,7 @@ namespace FitCore.BLL.Services.Classes
             if (hasActiveMembership)
                 throw new BusinessRuleException("You already have an active membership for this class.");
 
-
-            var alreadyInBooking = await DbContext.Set<Booking>().AnyAsync(b =>
+            var alreadyInBooking = await DbContext.Bookings.AnyAsync(b =>
                 b.MemberUserId == member.MemberProfile.MemberProfileId &&
                 b.ClassID == classId &&
                 b.Status == BookingStatus.Booked);
@@ -318,7 +325,7 @@ namespace FitCore.BLL.Services.Classes
                 CreatedAt = DateTime.UtcNow
             };
 
-            await DbContext.Set<Booking>().AddAsync(booking);
+            await DbContext.Bookings.AddAsync(booking);
             await DbContext.SaveChangesAsync();
 
             return new ClassBookingDto
@@ -355,7 +362,7 @@ namespace FitCore.BLL.Services.Classes
             }
 
             booking.Status = BookingStatus.Cancelled;
-            DbContext.Set<Booking>().Update(booking);
+            DbContext.Bookings.Update(booking);
             var affected = await DbContext.SaveChangesAsync();
 
             return affected > 0;

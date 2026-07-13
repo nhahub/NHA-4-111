@@ -12,7 +12,26 @@ namespace FitCore.API.Controllers
     public class GymServicesController(IGymServiceService _gymService) : ControllerBase
     {
 
-        //private const int HardcodedMemberUserId = 1;
+        private const int HardcodedMemberUserId = 1;
+
+
+        [HttpPost("bookings")]
+        public async Task<IActionResult> AddGymServiceToBooking([FromQuery] int gymServiceId)
+        {
+            try
+            {
+                var result = await _gymService.AddGymServiceToBookingAsync(HardcodedMemberUserId, gymServiceId);
+                return Ok(result);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { Message = ex.Message });
+            }
+            catch (BusinessRuleException ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+        }
 
         [HttpPost]
         public async Task<IActionResult> CreateGymService([FromBody] CreateGymServiceDto dto)
@@ -89,49 +108,22 @@ namespace FitCore.API.Controllers
             }
         }
 
-        [HttpPost("bookings/checkout-cleanup")]
-        public async Task<IActionResult> RemoveBookingsAfterCheckout(int memberUserId,[FromBody] List<int> bookingIds)
-        {
-            try
-            {
-                await _gymService.RemoveBookingsAfterCheckoutAsync(memberUserId, bookingIds);
-                return Ok(new { Message = "Bookings successfully processed after checkout." });
-            }
-            catch (ValidationException ex)
-            {
-                return BadRequest(new { Message = ex.Message });
-            }
-            catch (BusinessRuleException ex)
-            {
-                return BadRequest(new { Message = ex.Message });
-            }
-        }
-
-        [HttpPost("book")]
-        public async Task<IActionResult> BookGymService([FromQuery] int memberUserId, [FromQuery] int gymServiceId)
-        {
-            try
-            {
-
-                var result = await _gymService.AddGymServiceToBookingAsync(memberUserId, gymServiceId);
-                return Ok(result);
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(new { Message = ex.Message });
-            }
-            catch (BusinessRuleException ex)
-            {
-                return BadRequest(new { Message = ex.Message });
-            }
-        }
-
-        [HttpGet("my-services")]
-        public async Task<IActionResult> GetMyServiceBookings([FromQuery] int memberUserId)
-        {
-
-            var result = await _gymService.GetMemberGymServiceBookingsAsync(memberUserId);
-            return Ok(result);
-        }
+        //[HttpPost("bookings/checkout-cleanup")]
+        //public async Task<IActionResult> RemoveBookingsAfterCheckout([FromBody] List<int> bookingIds)
+        //{
+        //    try
+        //    {
+        //        await _gymService.RemoveBookingsAfterCheckoutAsync(HardcodedMemberUserId, bookingIds);
+        //        return Ok(new { Message = "Bookings successfully processed after checkout." });
+        //    }
+        //    catch (ValidationException ex)
+        //    {
+        //        return BadRequest(new { Message = ex.Message });
+        //    }
+        //    catch (BusinessRuleException ex)
+        //    {
+        //        return BadRequest(new { Message = ex.Message });
+        //    }
+        //}
     }
 }
