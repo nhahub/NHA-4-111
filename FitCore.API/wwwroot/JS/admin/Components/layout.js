@@ -180,7 +180,7 @@ function renderNotifications(notifications, append) {
 
     notifications.forEach(notif => {
         // تظبيط حالة الحروف حسب الـ JSON
-        const id = notif.id || notif.Id;
+        const id = notif.id || notif.Id || notif.notificationId || notif.NotificationId;
         const title = notif.title || notif.Title;
         const message = notif.message || notif.Message;
         const isRead = notif.isRead || notif.IsRead;
