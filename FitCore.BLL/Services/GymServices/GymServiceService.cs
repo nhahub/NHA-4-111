@@ -1,4 +1,5 @@
-﻿using FitCore.BLL.Exceptions;
+﻿using FitCore.BLL.DTOs.Booking;
+using FitCore.BLL.Exceptions;
 using FitCore.BLL.Interfaces.GymService;
 using FitCore.DAL.Data.Contexts;
 using FitCore.DAL.Data.Models;

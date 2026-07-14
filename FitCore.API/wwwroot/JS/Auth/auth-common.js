@@ -68,6 +68,7 @@ function requireRole(allowedRoles) {
     );
 
     const roles = Array.isArray(roleClaim) ? roleClaim : (roleClaim ? [roleClaim] : []);
+    console.log("Found Roles:", roles);
 
     const isAllowed = allowedRoles.some(r => roles.includes(r));
     if (!isAllowed) {

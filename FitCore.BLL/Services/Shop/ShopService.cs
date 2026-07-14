@@ -128,46 +128,46 @@ namespace FitCore.BLL.Services
             return await DbContext.SaveChangesAsync() > 0;
         }
 
-        public async Task<int> CheckoutAsync(int userId, CheckoutDTO checkoutDto)
-        {
-            // 1. جلب السلة
-            var cart = await DbContext.Set<Cart>()
-                .Include(c => c.CartItems).ThenInclude(ci => ci.Product)
-                .FirstOrDefaultAsync(c => c.UserID == userId && !c.IsDeleted);
+        //public async Task<int> CheckoutAsync(int userId, CheckoutDTO checkoutDto)
+        //{
+        //    // 1. جلب السلة
+        //    var cart = await DbContext.Set<Cart>()
+        //        .Include(c => c.CartItems).ThenInclude(ci => ci.Product)
+        //        .FirstOrDefaultAsync(c => c.UserID == userId && !c.IsDeleted);
 
             if (cart == null || !cart.CartItems.Any()) throw new BusinessRuleException("The Cart is empty");
 
-            // 2. إنشاء الفاتورة
-            var invoice = new Invoice
-            {
-                UserID = userId,
-                IssueDate = DateTime.UtcNow,
-                InvoiceStatus = InvoiceStatus.Pending, // تأكد من الـ Enum عندك
-                Description = checkoutDto.Description,
-                TotalAmount = cart.CartItems.Sum(ci => ci.Quantity * ci.Product.CurrentSellPrice)
-            };
+        //    // 2. إنشاء الفاتورة
+        //    var invoice = new Invoice
+        //    {
+        //        UserID = userId,
+        //        IssueDate = DateTime.UtcNow,
+        //        InvoiceStatus = InvoiceStatus.Pending, // تأكد من الـ Enum عندك
+        //        Description = checkoutDto.Description,
+        //        TotalAmount = cart.CartItems.Sum(ci => ci.Quantity * ci.Product.CurrentSellPrice)
+        //    };
 
-            await DbContext.Set<Invoice>().AddAsync(invoice);
-            await DbContext.SaveChangesAsync(); // عشان ناخد الـ InvoiceID
+        //    await DbContext.Set<Invoice>().AddAsync(invoice);
+        //    await DbContext.SaveChangesAsync(); // عشان ناخد الـ InvoiceID
 
-            // 3. تحويل عناصر السلة لفاتورة
-            foreach (var item in cart.CartItems)
-            {
-                var invoiceItem = new InvoiceItem
-                {
-                    InvoiceID = invoice.InvoiceID,
-                    ProductID = item.ProductID,
-                    ItemName = item.Product.Name,
-                    Quantity = item.Quantity,
-                    SellPrice = item.Product.CurrentSellPrice,
-                    LineTotal = item.Quantity * item.Product.CurrentSellPrice,
-                    ItemType = InvoiceItemType.Product // حدد النوع المناسب
-                };
-                await DbContext.Set<InvoiceItem>().AddAsync(invoiceItem);
+        //    // 3. تحويل عناصر السلة لفاتورة
+        //    foreach (var item in cart.CartItems)
+        //    {
+        //        var invoiceItem = new InvoiceItem
+        //        {
+        //            InvoiceID = invoice.InvoiceID,
+        //            ProductID = item.ProductID,
+        //            ItemName = item.Product.Name,
+        //            Quantity = item.Quantity,
+        //            SellPrice = item.Product.CurrentSellPrice,
+        //            LineTotal = item.Quantity * item.Product.CurrentSellPrice,
+        //            ItemType = InvoiceItemType.Product // حدد النوع المناسب
+        //        };
+        //        await DbContext.Set<InvoiceItem>().AddAsync(invoiceItem);
 
-                // 4. عمل Soft Delete لعناصر السلة بعد التحويل
-                item.IsDeleted = true;
-            }
+        //        // 4. عمل Soft Delete لعناصر السلة بعد التحويل
+        //        item.IsDeleted = true;
+        //    }
 
             await DbContext.SaveChangesAsync();
             return invoice.InvoiceID; // نرجع رقم الفاتورة للفرونت إيند
