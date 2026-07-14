@@ -91,6 +91,53 @@ let notifPage = 1;
 const notifPageSize = 10;
 
 // استدعاء الدالة دي بعد ما الـ Header HTML يترسم في الشاشة
+//function initNotificationSystem() {
+//    const bellBtn = document.getElementById('notificationBellBtn');
+//    const panel = document.getElementById('notificationPanel');
+//    const closeBtn = document.getElementById('closeNotificationBtn');
+//    const loadMoreBtn = document.getElementById('loadMoreNotifsBtn');
+//    const markAllReadBtn = document.getElementById('markAllReadBtn');
+
+//    // 1. فتح وقفل البانل
+//    bellBtn.addEventListener('click', () => {
+//        panel.classList.add('open');
+//        // لو أول مرة يفتح، نحمل الداتا
+//        if (notifPage === 1 && document.getElementById('notificationList').innerHTML.trim() === '') {
+//            fetchNotifications(notifPage);
+//        }
+//    });
+
+//    closeBtn.addEventListener('click', () => {
+//        panel.classList.remove('open');
+//    });
+
+//    // 2. زرار Load More
+//    loadMoreBtn.addEventListener('click', () => {
+//        notifPage++;
+//        fetchNotifications(notifPage, true);
+//    });
+
+//    // 3. Mark All as Read
+//    markAllReadBtn.addEventListener('click', async () => {
+//        try {
+//            await authFetch('/api/Notification/mark-all-read', { method: 'PATCH' });
+
+//            // نخلي كل الإشعارات اللي في الشاشة مقروءة
+//            document.querySelectorAll('.notification-item.unread').forEach(item => {
+//                item.classList.remove('unread');
+//            });
+//            updateBadge(0); // نخفي النقطة الحمرا
+//        } catch (error) {
+//            console.error("Error marking all as read", error);
+//        }
+//    });
+
+//    // نحمل أول صفحة في الخلفية عشان نعرف في إشعارات جديدة ولا لأ
+//    fetchNotifications(1);
+//    setInterval(pollUnreadCount, 30000);
+//}
+
+// استدعاء الدالة دي بعد ما الـ Header HTML يترسم في الشاشة
 function initNotificationSystem() {
     const bellBtn = document.getElementById('notificationBellBtn');
     const panel = document.getElementById('notificationPanel');
@@ -98,10 +145,15 @@ function initNotificationSystem() {
     const loadMoreBtn = document.getElementById('loadMoreNotifsBtn');
     const markAllReadBtn = document.getElementById('markAllReadBtn');
 
+    // 👇 السطر السحري: لو ملقاش الجرس، يوقف الكود بهدوء من غير ما يعمل شلل للصفحة
+    if (!bellBtn || !panel) {
+        console.warn("Notification elements not found. Skipping init.");
+        return;
+    }
+
     // 1. فتح وقفل البانل
     bellBtn.addEventListener('click', () => {
         panel.classList.add('open');
-        // لو أول مرة يفتح، نحمل الداتا
         if (notifPage === 1 && document.getElementById('notificationList').innerHTML.trim() === '') {
             fetchNotifications(notifPage);
         }
@@ -122,17 +174,15 @@ function initNotificationSystem() {
         try {
             await authFetch('/api/Notification/mark-all-read', { method: 'PATCH' });
 
-            // نخلي كل الإشعارات اللي في الشاشة مقروءة
             document.querySelectorAll('.notification-item.unread').forEach(item => {
                 item.classList.remove('unread');
             });
-            updateBadge(0); // نخفي النقطة الحمرا
+            updateBadge(0);
         } catch (error) {
             console.error("Error marking all as read", error);
         }
     });
 
-    // نحمل أول صفحة في الخلفية عشان نعرف في إشعارات جديدة ولا لأ
     fetchNotifications(1);
     setInterval(pollUnreadCount, 30000);
 }

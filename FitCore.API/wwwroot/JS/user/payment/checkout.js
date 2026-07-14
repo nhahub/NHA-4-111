@@ -1,5 +1,6 @@
 ﻿document.addEventListener('DOMContentLoaded', () => {
-    const token = localStorage.getItem('token');
+    const token = getToken();
+
     if (!token) {
         window.location.href = '/html/Auth/login.html';
         return;
@@ -235,9 +236,69 @@
         }
     }
 
-    checkoutBtn.addEventListener('click', () => {
-        // Here we will implement the checkout flow based on your next instructions!
-        console.log("Proceeding to checkout with total:", productsSubtotal + bookingsSubtotal);
+    checkoutBtn.addEventListener('click', async () => {
+        try {
+            // 1. تغيير شكل الزرار لـ Loading لمنع التكرار
+            checkoutBtn.disabled = true;
+            checkoutBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processing...';
+
+            // ⚠️ ملحوظة: تأكدي من اسم الـ Controller بتاعك هنا، أنا افترضت إنه Checkout
+            // 2. مناداة الـ API الأول لإنشاء الفاتورة
+            const processResponse = await fetch(`${API_BASE}/Checkout/process`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!processResponse.ok) {
+                const errorData = await processResponse.json();
+                throw new Error(errorData.message || "Failed to process checkout.");
+            }
+
+            const processData = await processResponse.json();
+            const invoiceId = processData.invoiceId;
+
+            if (!invoiceId) {
+                throw new Error("Server did not return an Invoice ID.");
+            }
+
+            // 3. مناداة الـ API الثاني لإنشاء رابط الدفع الخاص بـ Stripe
+            const sessionResponse = await fetch(`${API_BASE}/Payments/create-checkout-session`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ invoiceID: invoiceId }) // بنبعت الـ ID في الـ Body زي ما الـ C# طالب
+            });
+
+            if (!sessionResponse.ok) {
+                const errorData = await sessionResponse.json();
+                throw new Error(errorData.error || "Failed to create payment session.");
+            }
+
+            const sessionData = await sessionResponse.json();
+
+            // عشان نتفادى اختلاف حالة الحروف بين الـ C# والـ JS
+            const sessionUrl = sessionData.sessionUrl || sessionData.SessionUrl;
+
+            if (!sessionUrl) {
+                throw new Error("Stripe Session URL not found.");
+            }
+
+            // 4. توجيه اليوزر لصفحة الدفع الخاصة بـ Stripe
+            window.location.href = sessionUrl;
+
+        } catch (error) {
+            console.error("Checkout Error:", error);
+            alert("Checkout Error: " + error.message);
+
+            // إرجاع الزرار لشكله الطبيعي لو حصل إيرور
+            checkoutBtn.disabled = false;
+            checkoutBtn.innerHTML = 'Proceed to Checkout <i class="fa-solid fa-arrow-right"></i>';
+        }
     });
 
     // Start fetching

@@ -240,5 +240,33 @@ namespace FitCore.BLL.Services.GymServices
             DbContext.Set<Booking>().Update(booking);
             await DbContext.SaveChangesAsync();
         }
+
+        public async Task<List<BookingResponseDto>> GetAllBookingsAsync(int userId)
+        {
+            int memberId = await DbContext.MemberProfiles.Where(x => x.UserID == userId).Select(x => x.MemberProfileId).FirstOrDefaultAsync();
+            var bookings = await DbContext.Bookings
+                .Include(b => b.MemberProfile).ThenInclude(mp => mp.User)
+                .Include(b => b.Class).ThenInclude(c => c.Trainer).ThenInclude(t => t.User)
+                .Include(b => b.GymService)
+                .Where(b => !b.IsDeleted && b.MemberUserId == memberId)
+                .OrderByDescending(b => b.CreatedAt)
+                .Select(b => new BookingResponseDto
+                {
+                    BookingID = b.BookingID,
+                    MemberName = b.MemberProfile.User.FullName,
+                    BookedItemName = b.ClassID != null ? b.Class!.ClassName : b.GymService!.Name,
+                    ItemType = b.ClassID != null ? "Class" : "Gym Service",
+                    Price = b.ClassID != null ? b.Class!.Price : b.GymService!.Price,
+                    TrainerName = b.ClassID != null && b.Class!.Trainer != null
+                                  ? b.Class.Trainer.User.FullName
+                                  : "N/A",
+
+                    Status = b.Status.ToString(),
+                    CreatedAt = b.CreatedAt
+                })
+                .ToListAsync();
+
+            return bookings;
+        }
     }
 }

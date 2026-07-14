@@ -135,7 +135,7 @@ namespace FitCore.BLL.Services
         //        .Include(c => c.CartItems).ThenInclude(ci => ci.Product)
         //        .FirstOrDefaultAsync(c => c.UserID == userId && !c.IsDeleted);
 
-            if (cart == null || !cart.CartItems.Any()) throw new BusinessRuleException("The Cart is empty");
+            //if (cart == null || !cart.CartItems.Any()) throw new BusinessRuleException("The Cart is empty");
 
         //    // 2. إنشاء الفاتورة
         //    var invoice = new Invoice
@@ -169,9 +169,9 @@ namespace FitCore.BLL.Services
         //        item.IsDeleted = true;
         //    }
 
-            await DbContext.SaveChangesAsync();
-            return invoice.InvoiceID; // نرجع رقم الفاتورة للفرونت إيند
-        }
+        //    await DbContext.SaveChangesAsync();
+        //    return invoice.InvoiceID; // نرجع رقم الفاتورة للفرونت إيند
+        //}
 
         // =========================================================
         // Admin: Product catalog management
