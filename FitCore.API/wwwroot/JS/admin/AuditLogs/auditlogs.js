@@ -112,7 +112,7 @@ function renderTable(logs) {
         row.innerHTML = `
                 <td>${formattedDate}</td>
                 <td class="user-cell">
-                   <div class="avatar-sm">${escapeHtml(userName).substring(0, 2).toUpperCase()}</div>
+                  
                    ${escapeHtml(userName)}
                 </td>
                 <td>
