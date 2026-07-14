@@ -248,7 +248,7 @@ namespace FitCore.BLL.Services.GymServices
                 .Include(b => b.MemberProfile).ThenInclude(mp => mp.User)
                 .Include(b => b.Class).ThenInclude(c => c.Trainer).ThenInclude(t => t.User)
                 .Include(b => b.GymService)
-                .Where(b => !b.IsDeleted && b.MemberUserId == memberId)
+                .Where(b => !b.IsDeleted && b.MemberUserId == memberId && b.Status == BookingStatus.Booked)
                 .OrderByDescending(b => b.CreatedAt)
                 .Select(b => new BookingResponseDto
                 {

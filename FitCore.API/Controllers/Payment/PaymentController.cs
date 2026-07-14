@@ -45,7 +45,7 @@ namespace FitCore.API.Controllers
 
         // Called by Stripe, not by your frontend. Must accept the raw request body.
         [HttpPost("webhook")]
-        [Authorize]
+        [AllowAnonymous]
         public async Task<IActionResult> StripeWebhook()
         {
             var json = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync();
