@@ -34,6 +34,7 @@ using Microsoft.EntityFrameworkCore;
 using FitCore.BLL.Interfaces.GymService;
 using FitCore.BLL.Services.GymServices;
 using FitCore.BLL.Interfaces.Payment;
+using FitCore.BLL.Services.Invoices;
 
 namespace FitCore.API
 {
@@ -81,6 +82,7 @@ namespace FitCore.API
 
             Stripe.StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
             builder.Services.AddScoped<IPaymentService,PaymentService>();
+            builder.Services.AddScoped<IInvoiceService,InvoiceService>();
             #region Added Hangfire
 
             builder.Services.AddHangfire(config => config.SetDataCompatibilityLevel(CompatibilityLevel.Version_180)

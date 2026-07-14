@@ -31,7 +31,7 @@ namespace FitCore.API.Controllers
                 
                 var result = await _paymentService.CreateCheckoutSessionAsync(
                     request.InvoiceID,
-                    successUrl: "http://localhost:5184/html/SuccessPayment.html",
+                    successUrl: $"http://localhost:5184/html/user/payment/invoice-details.html?id={request.InvoiceID}",
                     cancelUrl: "http://localhost:5184/html/FailedPayment.html"
                 );
 

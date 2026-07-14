@@ -22,7 +22,7 @@ namespace FitCore.API.Controllers.Auth
 
         
         [HttpPost("register-member")]
-        [Authorize(Roles = "Receptionist,Admin")]
+        [AllowAnonymous]
         public async Task<IActionResult> RegisterMember(RegisterMemberDto dto)
         {
             var result = await _authService.RegisterMember(dto);

@@ -98,26 +98,28 @@ namespace FitCore.BLL.Services
                             Quantity = 1,
                         };
 
-                        if (booking.GymServiceId.HasValue)
+                        if (booking.GymServiceId.HasValue && booking.GymService != null)
                         {
                             invoiceItem.ItemType = InvoiceItemType.GymService;
                             invoiceItem.ServiceID = booking.GymServiceId;
-                            invoiceItem.ItemName = booking.GymService!.Name;
+                            invoiceItem.ItemName = booking.GymService.Name ?? "Gym Service";
                             invoiceItem.SellPrice = booking.GymService.Price;
                             invoiceItem.LineTotal = booking.GymService.Price;
                         }
-                        else if (booking.ClassID.HasValue)
-                        {
+                        else if (booking.ClassID.HasValue && booking.Class != null) { 
                             invoiceItem.ItemType = InvoiceItemType.Class;
                             invoiceItem.ClassID = booking.ClassID;
-                            invoiceItem.ItemName = booking.Class!.ClassName;
+                            invoiceItem.ItemName = booking.Class.ClassName ?? "Class";
                             invoiceItem.SellPrice = booking.Class.Price;
                             invoiceItem.LineTotal = booking.Class.Price;
+                        }
+                        else
+                        {
+                            continue;
                         }
 
                         totalAmount += invoiceItem.LineTotal;
                         await _context.InvoiceItems.AddAsync(invoiceItem);
-
                     }
 
                 }
