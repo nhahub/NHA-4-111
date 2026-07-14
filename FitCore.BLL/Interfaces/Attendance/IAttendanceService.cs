@@ -13,7 +13,8 @@ namespace FitCore.BLL.Interfaces.Attendance
         Task<object> GetMyHistoryAsync(int userId, int page, int pageSize);
         Task<object> GetMyStatsAsync(int userId);
 
-        Task<CheckInResponseDto> CheckInByScanAsync(CheckInRequestDto request);
+        public Task<CheckInResponseDto> CheckInByScanAsync(CheckInRequestDto request);
+
         Task<CheckInResponseDto> CheckInManualAsync(string searchInput);
         Task<object> SearchMembersAsync(string query); 
         Task<object> GetMemberCheckInSummaryAsync(int userId);

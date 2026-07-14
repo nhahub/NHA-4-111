@@ -107,7 +107,8 @@ button {
     color: var(--text-muted);
     font-weight: 500;
     font-size: var(--fs-base);
-    border:none;
+    background: transparent;
+    border: none;
     transition: background-color var(--transition-fast), color var(--transition-fast);
 }
     .logout:hover {
@@ -162,7 +163,7 @@ button {
     border-right: 1px solid var(--border-color);
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    height: 100dvh;
     overflow-y: auto;
 }
     /* تجميل شكل الـ Scrollbar الخاص بالـ Sidebar */
@@ -251,6 +252,7 @@ button {
 
 .sidebar-footer {
     margin-top: auto;
+    padding-block:15px;
 }
 
 .w-100 {

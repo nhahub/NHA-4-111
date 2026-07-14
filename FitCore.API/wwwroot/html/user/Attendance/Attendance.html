@@ -70,16 +70,9 @@
     </main>
 
     <script src="/JS/admin/Components/api.js"></script>
-    <script>
-    window.FITCORE_LAYOUT_CONFIG = {
-        sidebar: 'member',
-        header: 'simple',
-        activeNav: 'History'
-    };
-    // TODO: replace with the authenticated member's UserID once auth is wired in.
-    window.CURRENT_MEMBER_USER_ID = 4;
-    </script>
-    <script src="/JS/Receptionist/Components/layout.js"></script>
-    <script src="/JS/Receptionist/Attendance/Attendance.js"></script>
+
+    <script src="/JS/Auth/auth-common.js"></script>
+    <script src="/JS/user/Components/layout.js"></script>
+    <script src="/JS/user/Attendance/Attendance.js"></script>
 </body>
 </html>

@@ -2,12 +2,13 @@
 
 const STATUS_LABELS = ['booked', 'cancelled', 'attended', 'noshow'];
 const STATUS_BADGE = { booked: 'primary', cancelled: 'secondary', attended: 'success', noshow: 'danger' };
-
+const STATUS_SERVICE = { Booked: 'primary', Cancelled: 'secondary', Attended: 'success', Noshow: 'danger' };
 let currentMemberUserId = null;
 let allClasses = [];
 let allServices = [];
 
 document.addEventListener('DOMContentLoaded', () => {
+    requireRole(["Receptionist"]);
     document.getElementById('loadMemberBtn').addEventListener('click', loadMember);
 
     document.querySelectorAll('#bookingTabs button').forEach(btn => {
@@ -20,10 +21,30 @@ document.addEventListener('DOMContentLoaded', () => {
             if (btn.dataset.tab === 'history' && currentMemberUserId) loadMemberHistory();
         });
     });
-
+    init();
     loadClasses();
     loadServices();
 });
+
+
+async function init() {
+    try {
+        const allMembers = await FitCoreApi.get('/api/Auth/users');
+        const membersOnly = allMembers.filter(user => user.roles.includes('Member'));
+
+
+        const Memberoptions = membersOnly.map(t => {
+            const id = pick(t, 'userID', 'userID');
+            const name = pick(t, 'fullName', 'FullName') || `Member #${id}`;
+            return { id, name };
+        });
+
+        document.getElementById('memberSelect').innerHTML = Memberoptions.map(o => `<option value="${o.id}">${escapeHtml(o.name)}</option>`).join('');
+
+    } catch (error) {
+        showMessage(`Couldn't load trainers: ${error.message}`, 'error');
+    }
+}
 
 function showMessage(text, type) {
     const banner = document.getElementById('msgBanner');
@@ -32,7 +53,7 @@ function showMessage(text, type) {
 }
 
 function loadMember() {
-    const value = parseInt(document.getElementById('memberUserId').value, 10);
+    const value = parseInt(document.getElementById('memberSelect').value, 10);
     if (!value) {
         showMessage('Enter a valid Member User ID first.', 'error');
         return;
@@ -56,7 +77,7 @@ async function loadClasses() {
 
 async function loadServices() {
     try {
-        const data = await FitCoreApi.get('/api/GymServices?page=1&pageSize=5');
+        const data = await FitCoreApi.get('/api/GymServices?page=1&pageSize=7');
         allServices = Array.isArray(data) ? data : (data.data || data.Data || []);
         renderServicesTable();
     } catch (error) {
@@ -119,7 +140,7 @@ async function bookClass(classId, btn) {
     if (!currentMemberUserId) { showMessage('Load a member first.', 'error'); return; }
     btn.disabled = true;
     try {
-        await FitCoreApi.post(`/api/Classes/book?memberUserId=${currentMemberUserId}&classId=${classId}`);
+        await FitCoreApi.post(`/api/Classes/admin/book?memberUserId=${currentMemberUserId}&classId=${classId}`);
         showMessage('Class booked for member.', 'success');
     } catch (error) {
         showMessage(error.message, 'error');
@@ -132,7 +153,7 @@ async function bookService(serviceId, btn) {
     if (!currentMemberUserId) { showMessage('Load a member first.', 'error'); return; }
     btn.disabled = true;
     try {
-        await FitCoreApi.post(`/api/Classes/book-service?memberUserId=${currentMemberUserId}&gymServiceId=${serviceId}`);
+        await FitCoreApi.post(`/api/GymServices/admin/book?userId=${currentMemberUserId}&gymServiceId=${serviceId}`);
         showMessage('Gym service booked for member.', 'success');
     } catch (error) {
         showMessage(error.message, 'error');
@@ -150,7 +171,7 @@ async function loadMemberHistory() {
     serviceContainer.innerHTML = `<div class="text-muted small">Loading…</div>`;
 
     try {
-        const bookings = await FitCoreApi.get(`/api/Classes/my-bookings?memberUserId=${currentMemberUserId}`);
+        const bookings = await FitCoreApi.get(`/api/Classes/admin/users/${currentMemberUserId}/bookings`);
         const list = Array.isArray(bookings) ? bookings : (bookings.data || bookings.Data || []);
 
         classContainer.innerHTML = list.length === 0
@@ -168,20 +189,21 @@ async function loadMemberHistory() {
     }
 
     try {
-        const serviceBookings = await FitCoreApi.get(`/api/Classes/my-service-bookings?memberUserId=${currentMemberUserId}`);
+        const serviceBookings = await FitCoreApi.get(`/api/GymServices/admin/users/${currentMemberUserId}/bookings`);
         const list = Array.isArray(serviceBookings) ? serviceBookings : (serviceBookings.data || serviceBookings.Data || []);
-
+        console.log(list);
         serviceContainer.innerHTML = list.length === 0
             ? `<div class="text-muted small">No service bookings yet.</div>`
-            : list.map(b => renderBookingRow(
+            : list.map(b => renderBookingServiceRow(
                 pick(b, 'serviceName', 'ServiceName'),
                 [],
-                Number(pick(b, 'status', 'Status')),
-                pick(b, 'bookingID', 'BookingID')
+                pick(b, 'status', 'status'),
+                pick(b, 'bookingId', 'bookingId')
             )).join('');
 
         wireCancelButtons(serviceContainer);
     } catch (error) {
+        console.log(error)
         serviceContainer.innerHTML = `<div class="text-danger small">Couldn't load service bookings.</div>`;
     }
 }
@@ -201,6 +223,20 @@ function renderBookingRow(name, scheduleDetails, status, bookingId) {
     </div>`;
 }
 
+function renderBookingServiceRow(name, scheduleDetails, status, bookingId) {
+    return `
+    <div class="d-flex justify-content-between align-items-center border-bottom py-2">
+        <div>
+            <div class="fw-semibold small">${escapeHtml(name)}</div>
+            ${scheduleDetails.length ? `<div class="text-muted" style="font-size:11px;">${scheduleDetails.map(escapeHtml).join(' • ')}</div>` : ''}
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <span class="badge text-bg-${STATUS_SERVICE[status] || 'secondary'}">${status}</span>
+            ${status === "Booked" ? `<button class="btn btn-outline-danger btn-sm" data-cancel-booking="${bookingId}">Cancel</button>` : ''}
+        </div>
+    </div>`;
+}
+
 function wireCancelButtons(container) {
     container.querySelectorAll('[data-cancel-booking]').forEach(btn => {
         btn.addEventListener('click', () => cancelBooking(btn.dataset.cancelBooking));
@@ -209,7 +245,7 @@ function wireCancelButtons(container) {
 
 async function cancelBooking(bookingId) {
     try {
-        await FitCoreApi.patch(`/api/Classes/bookings/${bookingId}/cancel?memberUserId=${currentMemberUserId}`);
+        await FitCoreApi.patch(`/api/Classes/admin/bookings/${bookingId}/cancel/${currentMemberUserId}`);
         showMessage('Booking cancelled.', 'success');
         loadMemberHistory();
     } catch (error) {

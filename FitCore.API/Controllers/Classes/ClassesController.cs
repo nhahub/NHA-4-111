@@ -1,30 +1,52 @@
 ﻿using FitCore.BLL.Interfaces.Classes;
+using FitCore.DAL.Data.Models;
 using FitCore.Shared.DTOs.Classes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace FitCore.API.Controllers.Classes
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
     public class ClassesController(IClassService classService) : ControllerBase
     {
-        //[Authorize(Roles = "Admin")]
+  
+        private int GetUserIdFromToken()
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(userIdClaim))
+                throw new UnauthorizedAccessException("User token is invalid or missing.");
+
+            return int.Parse(userIdClaim);
+        }
+
+        [Authorize(Roles = "Admin")]
         [HttpPost]
-        public async Task<IActionResult> CreateClass([FromBody] CreateClassDto dto)
+        public async Task<IActionResult> CreateClass(CreateClassDto dto)
         {
             var result = await classService.CreateClassAsync(dto);
             return CreatedAtAction(nameof(GetClassById), new { classId = result.ClassID }, result);
         }
 
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         [HttpPut("{classId}")]
-
-        public async Task<IActionResult> UpdateClass(int classId, [FromBody] UpdateClassDto dto)
+        public async Task<IActionResult> UpdateClass(int classId, UpdateClassDto dto)
         {
             var result = await classService.UpdateClassAsync(classId, dto);
             return Ok(result);
+        }
+
+  
+        [Authorize(Roles = "Admin")]
+        [HttpDelete("{classId}")]
+        public async Task<IActionResult> DeleteClass(int classId)
+        {
+            var result = await classService.DeleteClassAsync(classId);
+            if (!result) return BadRequest();
+
+            return Ok(new { Message = "Class deleted." });
         }
 
         [HttpGet]
@@ -41,7 +63,7 @@ namespace FitCore.API.Controllers.Classes
             return Ok(result);
         }
 
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         [HttpPost("{classId}/schedules")]
         public async Task<IActionResult> AddSchedule(int classId, ClassScheduleDto dto)
         {
@@ -49,7 +71,7 @@ namespace FitCore.API.Controllers.Classes
             return Ok(result);
         }
 
-        // Members browse bookable class occurrences within a date range
+
         [HttpGet("browse")]
         public async Task<IActionResult> BrowseClasses(
             [FromQuery] DateTime? fromDate,
@@ -64,30 +86,60 @@ namespace FitCore.API.Controllers.Classes
             return Ok(result);
         }
 
-        // TODO: memberUserId should come from the authenticated user's context once auth is wired in.
+        [Authorize]
         [HttpPost("book")]
-        public async Task<IActionResult> BookClass([FromQuery] int memberUserId, int classId)
+        public async Task<IActionResult> BookClass(int classId)
         {
+            var memberUserId = GetUserIdFromToken();
             var result = await classService.BookClassAsync(memberUserId, classId);
             return Ok(result);
         }
 
+        [Authorize]
         [HttpPatch("bookings/{bookingId}/cancel")]
-        public async Task<IActionResult> CancelBooking([FromQuery] int memberUserId, int bookingId)
+        public async Task<IActionResult> CancelBooking(int bookingId)
         {
+            var memberUserId = GetUserIdFromToken();
             var result = await classService.CancelBookingAsync(memberUserId, bookingId);
             if (!result) return BadRequest();
 
             return Ok(new { Message = "Booking cancelled." });
         }
 
+        [Authorize]
         [HttpGet("my-bookings")]
-        public async Task<IActionResult> GetMyBookings([FromQuery] int memberUserId)
+        public async Task<IActionResult> GetMyBookings()
         {
-            Console.WriteLine($"Controller memberUserId = {memberUserId}");
+            var memberUserId = GetUserIdFromToken();
             var result = await classService.GetMemberBookingsAsync(memberUserId);
             return Ok(result);
         }
 
+        [Authorize]
+        [HttpGet("admin/users/{userId}/bookings")]
+        public async Task<IActionResult> GetUserBookings(int userId)
+        {
+            var result = await classService.GetMemberBookingsAsync(userId);
+            return Ok(result);
+        }
+
+
+        [Authorize]
+        [HttpPatch("admin/bookings/{bookingId}/cancel/{currentMemberUserId}")]
+        public async Task<IActionResult> CancelBookingAsync(int currentMemberUserId, int bookingId)
+        {
+            var result = await classService.CancelBookingAsync(currentMemberUserId,bookingId);
+            return Ok(result);
+        }
+
+        [Authorize]
+        [HttpPost("admin/book")]
+        public async Task<IActionResult> BookAdminClass([FromQuery] int memberUserId, [FromQuery] int classId)
+        {
+            var result = await classService.BookClassAsync(memberUserId, classId);
+            return Ok(result);
+        }
+
     }
+
 }

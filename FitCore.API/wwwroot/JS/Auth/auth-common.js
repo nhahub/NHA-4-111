@@ -53,13 +53,20 @@ function decodeTokenPayload(token) {
 // any protected page.
 function requireRole(allowedRoles) {
     const token = getToken();
+
     if (!token) {
         window.location.href = "/html/Auth/login.html";
         return null;
     }
 
     const payload = decodeTokenPayload(token);
-    const roleClaim = payload && payload["role"];
+
+
+    const roleClaim = payload && (
+        payload["role"] ||
+        payload["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"]
+    );
+
     const roles = Array.isArray(roleClaim) ? roleClaim : (roleClaim ? [roleClaim] : []);
 
     const isAllowed = allowedRoles.some(r => roles.includes(r));

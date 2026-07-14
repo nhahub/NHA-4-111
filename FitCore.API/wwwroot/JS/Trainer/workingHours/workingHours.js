@@ -3,6 +3,7 @@
 const DAY_LABELS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 const user = getCurrentUser();
 document.addEventListener('DOMContentLoaded', () => {
+    requireRole(["Trainer"]);
     loadHours();
     document.getElementById('addRowBtn').addEventListener('click', () => addRow());
     document.getElementById('saveBtn').addEventListener('click', save);
@@ -60,7 +61,7 @@ async function save() {
     }));
 
     try {
-        console.log(user.userId);
+
         await FitCoreApi.put(`/api/Trainers/${user.userId}/working-hours`, { workingHours });
         showMessage('Working hours saved.', 'success');
     } catch (error) {

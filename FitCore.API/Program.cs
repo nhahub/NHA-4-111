@@ -70,6 +70,8 @@ namespace FitCore.API
             builder.Services.AddScoped<IAttendanceService, AttendanceService>();
             builder.Services.AddScoped<IMemberDashboardService, MemberDashboardService>();
             builder.Services.AddScoped<IShopService, ShopService>();
+            builder.Services.AddScoped<FitCore.BLL.Interfaces.Category.ICategoryService, FitCore.BLL.Services.Category.CategoryService>();
+            
             // Add Checkout and Subscription services
             builder.Services.AddScoped<FitCore.BLL.Services.CheckoutService>();
             builder.Services.AddHttpContextAccessor();

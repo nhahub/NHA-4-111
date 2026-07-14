@@ -10,6 +10,7 @@ function showMessage(text, type) {
 }
 
 async function loadSessions() {
+    requireRole(["Trainer"]);
     const tbody = document.getElementById('sessionsTableBody');
     tbody.innerHTML = `<tr class="state-row"><td colspan="6">Loading sessions…</td></tr>`;
     try {

@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
         page = 1;
         loadAdminTable();
     });
-
+    document.getElementById('exportPdfBtn').addEventListener('click', () => window.print());
     document.getElementById('adminCategoryFilter').addEventListener('change', (e) => {
         category = e.target.value;
         page = 1;

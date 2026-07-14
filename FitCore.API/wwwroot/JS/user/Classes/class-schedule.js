@@ -177,7 +177,6 @@ function renderGrid() {
 
     grid.innerHTML = filtered.map((o, index) => renderCard(o, index === 0)).join('');
 
-    // 💡 تصحيح هنا: قراءة dataset.classId بحروف صغيرة لتفادي الـ NaN
     grid.querySelectorAll('[data-book]').forEach(btn => {
         btn.addEventListener('click', () => bookOccurrence(btn.dataset.classId, btn.dataset.sessionDate, btn));
     });
@@ -197,7 +196,6 @@ function renderCard(o, featured) {
     const cat = categoryFor(className);
     const schedules = pick(o, 'schedules', 'Schedules') || [];
 
-
     let schedulesHtml = '';
     if (schedules.length === 0) {
         schedulesHtml = `<div class="no-schedules"><i class='bx bx-info-circle'></i> No upcoming schedules</div>`;
@@ -216,7 +214,7 @@ function renderCard(o, featured) {
             const end = (pick(s, 'endTime', 'EndTime') || '').toString().substring(0, 5);
 
             schedulesHtml += `
-            <div class="p-2 rounded-3 bg-light border-start border-primary border-3 d-flex flex-column justify-content-center">
+            <div class="p-2 rounded-3 bg-light shadow-sm d-flex flex-column justify-content-center">
                 <div class="d-flex align-items-center justify-content-between">
                     <span class="fw-bold text-dark" style="font-size: 13.5px;">
                         ${dayName} 
@@ -235,7 +233,6 @@ function renderCard(o, featured) {
 
     if (featured) {
         return `
-        <div class="card featured bg-transparent border-0">
             <article class="card featured">
                 <div class="featured-media">
                     <div class="featured-badges">
@@ -268,7 +265,6 @@ function renderCard(o, featured) {
                     </button>
                 </div>
             </article>
-        </div>
         `;
     }
 
@@ -319,7 +315,7 @@ async function bookOccurrence(classID, sessionDate, btn) {
     try {
         
         console.log(parseInt(classID, 10));
-        await FitCoreApi.post(`/api/Classes/book?memberUserId=${memberUserId}&classID=${parseInt(classID, 10)}`);
+        await FitCoreApi.post(`/api/Classes/book?classID=${parseInt(classID, 10)}`);
         showToast('You are booked in! Check My Bookings for details.');
         await loadOccurrences(true);
     } catch (error) {

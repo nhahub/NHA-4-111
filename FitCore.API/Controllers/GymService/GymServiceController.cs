@@ -1,6 +1,7 @@
 ﻿using FitCore.BLL.Exceptions;
 using FitCore.BLL.Interfaces.Auth;
 using FitCore.BLL.Interfaces.GymService;
+using FitCore.BLL.Services.Classes;
 using FitCore.DAL.Data.Models;
 using FitCore.Shared.DTOs.GymService;
 using FitCore.Shared.Enums;
@@ -13,9 +14,8 @@ namespace FitCore.API.Controllers
     [ApiController]
     public class GymServicesController(IGymServiceService _gymService,ICurrentUserService _currentUser) : ControllerBase
     {
-
-        [HttpPost("bookings")]
         [Authorize]
+        [HttpPost("bookings")]
         public async Task<IActionResult> AddGymServiceToBooking([FromQuery] int gymServiceId)
         {
             int userId = _currentUser.UserId ?? throw new UnauthorizedAccessException();
@@ -34,8 +34,8 @@ namespace FitCore.API.Controllers
             }
         }
 
-        [HttpPost]
         [Authorize]
+        [HttpPost]
         public async Task<IActionResult> CreateGymService([FromBody] CreateGymServiceDto dto)
         {
             try
@@ -49,8 +49,9 @@ namespace FitCore.API.Controllers
             }
         }
 
-        [HttpPut("{id}")]
         [Authorize]
+        [HttpPut("{id}")]
+
         public async Task<IActionResult> UpdateGymService(int id, [FromBody] UpdateGymServiceDto dto)
         {
             try
@@ -68,8 +69,9 @@ namespace FitCore.API.Controllers
             }
         }
 
-        [HttpDelete("{id}")]
         [Authorize]
+        [HttpDelete("{id}")]
+
         public async Task<IActionResult> DeleteGymService(int id)
         {
             try
@@ -83,8 +85,9 @@ namespace FitCore.API.Controllers
             }
         }
 
-        [HttpGet]
         [Authorize]
+        [HttpGet]
+
         public async Task<IActionResult> GetGymServices(
             [FromQuery] int page = 1,
             [FromQuery] int pageSize = 20,
@@ -95,8 +98,9 @@ namespace FitCore.API.Controllers
             return Ok(result);
         }
 
-        [HttpDelete("bookings/{bookingId}/cancel")]
         [Authorize]
+        [HttpDelete("bookings/{bookingId}/cancel")]
+
         public async Task<IActionResult> CancelGymServiceBooking(int bookingId)
         {
             int userId = _currentUser.UserId ?? throw new UnauthorizedAccessException();
@@ -116,22 +120,59 @@ namespace FitCore.API.Controllers
             }
         }
 
-        //[HttpPost("bookings/checkout-cleanup")]
-        //public async Task<IActionResult> RemoveBookingsAfterCheckout([FromBody] List<int> bookingIds)
-        //{
-        //    try
-        //    {
-        //        await _gymService.RemoveBookingsAfterCheckoutAsync(HardcodedMemberUserId, bookingIds);
-        //        return Ok(new { Message = "Bookings successfully processed after checkout." });
-        //    }
-        //    catch (ValidationException ex)
-        //    {
-        //        return BadRequest(new { Message = ex.Message });
-        //    }
-        //    catch (BusinessRuleException ex)
-        //    {
-        //        return BadRequest(new { Message = ex.Message });
-        //    }
-        //}
+        [Authorize]
+        [HttpPost("book")]
+        public async Task<IActionResult> BookGymService([FromQuery] int gymServiceId)
+        {
+            try
+            {
+                int userId = _currentUser.UserId ?? throw new UnauthorizedAccessException();
+
+                var result = await _gymService.AddGymServiceToBookingAsync(userId, gymServiceId);
+                return Ok(result);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { Message = ex.Message });
+            }
+            catch (BusinessRuleException ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+        }
+
+        [Authorize]
+        [HttpGet("my-services")]
+        public async Task<IActionResult> GetMyServiceBookings()
+        {
+            int userId = _currentUser.UserId ?? throw new UnauthorizedAccessException();
+
+            var result = await _gymService.GetMemberGymServiceBookingsAsync(userId);
+            return Ok(result);
+        }
+
+        [Authorize]
+        [HttpGet("admin/users/{userId}/bookings")]
+        public async Task<IActionResult> GetUserServiceBookings(int userId)
+        {
+            var result = await _gymService.GetMemberGymServiceBookingsAsync(userId);
+            return Ok(result);
+        }
+
+        [Authorize]
+        [HttpPatch("/admin/bookings/{bookingId}/cancel/{userId}")]
+        public async Task<IActionResult> CancelServiceBooking(int userId, int bookingId)
+        {
+           await _gymService.CancelGymServiceBookingAsync(userId, bookingId);
+            return Ok(1);
+        }
+
+        [Authorize]
+        [HttpPost("admin/book")]
+        public async Task<IActionResult> BookAdminGymService([FromQuery] int userId, [FromQuery] int gymServiceId)
+        {
+            var result = await _gymService.AddGymServiceToBookingAsync(userId, gymServiceId);
+            return Ok(result);
+        }
     }
 }

@@ -39,16 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('trainerFilter').addEventListener('change', (e) => { filters.trainerId = e.target.value; currentPage = 1; renderTable(); });
     document.getElementById('typeFilter').addEventListener('change', (e) => { filters.type = e.target.value; currentPage = 1; renderTable(); });
     document.getElementById('statusFilter').addEventListener('change', (e) => { filters.status = e.target.value; currentPage = 1; renderTable(); });
-    setTimeout(() => {
 
-        const targetLink = Array.from(document.querySelectorAll('.sidebar-nav a'))
-            .find(a => a.textContent.includes('Schedules') || a.textContent.includes('Gym Services'));
-
-        if (targetLink) {
-            document.querySelectorAll('.sidebar-nav li').forEach(li => li.classList.remove('active'));
-            targetLink.parentElement.classList.add('active');
-        }
-    }, 100);
     addScheduleRow();
 });
 
@@ -236,7 +227,7 @@ function renderRow(c) {
                     <button class="btn btn-outline-secondary btn-sm w-100" data-toggle-status="${id}">
                         ${status === 1 ? 'Deactivate class' : 'Activate class'}
                     </button>
-                    
+                   <button class="btn btn-sm text-danger  w-100 border-danger" onclick="deleteServiceAsset(${id})"><i class='bx bx-trash fs-5'></i></button> 
                 </div>
             </div>
         </td>
@@ -465,4 +456,19 @@ function escapeHtml(str) {
     const div = document.createElement('div');
     div.textContent = str ?? '';
     return div.innerHTML;
+}
+
+async function deleteServiceAsset(id) {
+
+    try {
+
+        await FitCoreApi.delete(`/api/Classes/${id}`);
+
+        await loadClasses();
+
+        showMessage('Class deleted successfully.', 'success');
+
+    } catch (err) {
+        showMessage(err.message, "error");
+    }
 }

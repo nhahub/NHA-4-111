@@ -18,7 +18,7 @@ namespace FitCore.BLL.Interfaces.Classes
              int page,
              int pageSize
          );
-
+        Task<bool> DeleteClassAsync(int classId);
         Task<ClassBookingDto> BookClassAsync(int memberUserId, int classId);
         Task<bool> CancelBookingAsync(int memberUserId, int bookingId);
         Task<ICollection<ClassBookingDto>> GetMemberBookingsAsync(int memberUserId);

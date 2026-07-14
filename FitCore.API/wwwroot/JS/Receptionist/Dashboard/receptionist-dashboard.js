@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', init);
 function toDateInput(date) { return date.toISOString().substring(0, 10); }
 
 async function init() {
+    requireRole(["Receptionist"]);
     const today = new Date();
     document.getElementById('todayLabel').textContent =
         `Today's operations at a glance — ${today.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}.`;
@@ -50,7 +51,7 @@ async function loadTodayPrivateSessions() {
         const today = toDateInput(new Date());
 
         const results = await Promise.all(trainers.map(async t => {
-            const id = pick(t, 'trainerID', 'TrainerID');
+            const id = pick(t, 'userID', 'userID');
             try {
                 const sessions = await FitCoreApi.get(`/api/PrivateSessions/trainer/${id}`);
                 return sessions || [];

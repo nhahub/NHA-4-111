@@ -5,9 +5,10 @@ let searchTerm = '';
 let category = '';
 const user = getCurrentUser();
 const categories = { 0: 'Memberships', 1: 'Personal Training', 2: 'Spa & Recovery', 3: 'Special Workshops' };
-
+const token = getToken();
 
 let myBookedServiceIds = new Map(); 
+
 function showMessage(text, type) {
     const banner = document.getElementById('msgBanner');
     if (!banner) return;
@@ -26,6 +27,11 @@ function showToast(message) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    if (!token) {
+        window.location.href = "/html/Auth/login.html";
+        return null;
+    }
+    requireRole(["Member"]);
     loadMyServices().then(loadUserServices);
 
     document.getElementById('userSearchInput').addEventListener('input', (e) => {
@@ -50,7 +56,7 @@ async function loadMyServices() {
     if (!memberUserId) return;
 
     try {
-        const data = await FitCoreApi.get(`${API_URL}/my-services?memberUserId=${memberUserId}`);
+        const data = await FitCoreApi.get(`${API_URL}/my-services`);
         const list = Array.isArray(data) ? data : (data.data || data.Data || []);
 
         myBookedServiceIds = new Map();
@@ -72,8 +78,8 @@ async function loadUserServices() {
     if (category !== '') url += `&category=${category}`;
 
     try {
-        const response = await fetch(url);
-        const result = await response.json();
+        const result = await FitCoreApi.get(url);
+        // const result = await response.json();
 
         const data = result.data || result;
         const totalCount = result.totalCount || data.length;
@@ -108,9 +114,9 @@ function renderCards(services) {
 
         col.innerHTML = `
         ${isFirst ? `
-            <div class="d-flex gap-4 border p-2 rounded border-primary">
+            <div class="d-flex flex-lg-row flex-column gap-4 border p-2 shadow-lg rounded border-primary">
                 <div class="position-relative">
-                    <img src="/Images/vip.png" alt="Gym Image" class="img-fluid rounded" style="max-height:350px;"/>
+                    <img src="/Images/vip.png" alt="Gym Image" class="img-fluid w-100 rounded" style="max-height:350px;"/>
                 </div>
                 <div class=" ${isFirst ? 'featured' : ''}">
                     <span class="card-badge">${categories[service.category] || 'General'}</span>
@@ -126,7 +132,7 @@ function renderCards(services) {
                     ${actionButton}
                 </div>
             </div>
-        `: `<div class="border px-4 pt-4 pb-2 rounded">
+        `: `<div class="border px-4 pt-4 pb-2 rounded shadow">
                 <span class="card-badge">${categories[service.category] || 'General'}</span>
                 <h3 class="fw-bold m-0 text-dark">${service.name}</h3>
                 <div class="card-price">

@@ -1,4 +1,7 @@
-﻿document.addEventListener("DOMContentLoaded", () => {
+﻿const token = getToken();
+
+document.addEventListener("DOMContentLoaded", () => {
+    requireRole(["Member"]);
     const tableBody = document.getElementById("membershipsTableBody");
     const freezeModal = document.getElementById("freezeModal");
     const freezeDaysInput = document.getElementById("freezeDaysInput");
@@ -12,8 +15,8 @@
             const response = await fetch('/api/Memberships/my-memberships', {
                 method: 'GET',
                 headers: {
-                    'Content-Type': 'application/json'
-                    // 'Authorization': `Bearer ${localStorage.getItem('token')}` 
+                    "Accept": "application/json",
+                    "Authorization": `Bearer ${token}`
                 }
             });
 

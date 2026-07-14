@@ -1,16 +1,32 @@
-﻿document.addEventListener("DOMContentLoaded", () => {
+﻿const userRole = getCurrentUser();
+const token = getToken();
+
+document.addEventListener("DOMContentLoaded", () => {
+    dynamicLoadLayout(userRole.roles);
     const form = document.getElementById("editProfileForm");
     const saveBtn = document.getElementById("saveBtn");
     const goBackBtn = document.getElementById("goBackBtn");
     const errorContainer = document.getElementById("errorContainer");
     const trainerSection = document.getElementById("trainerSection");
 
-    // متغير هنحفظ فيه حالة اليوزر (هل هو مدرب ولا لأ) بناءً على الباك إند
+    
     let isUserTrainer = false;
+
+    if (userRole.roles[0] === "Trainer") {
+        isUserTrainer = true
+    }
 
     async function loadCurrentProfileData() {
         try {
-            const response = await fetch("/api/Profile", { method: "GET" });
+            const response = await fetch("/api/Profile",
+                {
+                    method: "GET",
+                    headers: {
+                        "Accept": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    }
+                }
+            );
 
             if (response.ok) {
                 const data = await response.json();
@@ -75,11 +91,13 @@
             const response = await fetch("/api/Profile", {
                 method: "PUT",
                 headers: {
-                    "Content-Type": "application/json"
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",   
+                    "Authorization": `Bearer ${token}`
                 },
                 body: JSON.stringify(payload)
             });
-
+            console.log(response.message);
             if (response.ok) {
                 alert("Profile updated successfully!");
                 window.location.href = "/HTML/Profile/profile.html";
@@ -122,3 +140,38 @@
         errorContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 });
+
+function dynamicLoadLayout(userRoles) {
+    if (!userRole.roles || userRole.roles.length === 0) return;
+
+
+    const primaryRole = userRole.roles[0];
+    let scriptSrc = "";
+
+
+    switch (primaryRole) {
+        case "Admin":
+        case 0:
+            scriptSrc = "/JS/admin/Components/layout.js";
+            break;
+        case "Trainer":
+        case 1:
+            scriptSrc = "/JS/Trainer/Components/layout.js";
+            break;
+        case "Receptionist":
+        case 3:
+            scriptSrc = "/JS/Receptionist/Components/layout.js";
+            break;
+        default:
+            scriptSrc = "/JS/user/Components/layout.js";
+            break;
+    }
+
+
+    const script = document.createElement("script");
+    script.src = scriptSrc;
+    script.defer = true;
+
+    document.body.appendChild(script);
+
+}

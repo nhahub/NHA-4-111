@@ -2,6 +2,7 @@
 using FitCore.BLL.Interfaces.PrivateSessions;
 using FitCore.DAL.Data.Contexts;
 using FitCore.DAL.Data.Models;
+using FitCore.Shared.DTOs;
 using FitCore.Shared.DTOs.PrivateSessions;
 using FitCore.Shared.Enums;
 using Microsoft.EntityFrameworkCore;
@@ -20,16 +21,16 @@ namespace FitCore.BLL.Services.PrivateSessions
             var trainer = await DbContext.Set<Trainer>().Include(t => t.User).FirstOrDefaultAsync(t => t.TrainerID == dto.TrainerID);
             if (trainer == null) throw new KeyNotFoundException("No trainer found with this id.");
 
-
             var member = await DbContext.Set<MemberProfile>().Include(m => m.User).FirstOrDefaultAsync(m => m.UserID == dto.MemberUserId);
             if (member == null) throw new KeyNotFoundException("No member profile found for this user.");
 
-            await EnsureTrainerAvailableAsync(dto.TrainerID, dto.SessionDate.Date, dto.StartTime, dto.EndTime, null);
+           
+            await EnsureParticipantsAvailableAsync(dto.TrainerID, member.MemberProfileId, dto.SessionDate.Date, dto.StartTime, dto.EndTime, null);
 
             var session = new PrivateSession
             {
                 TrainerID = dto.TrainerID,
-                MemberUserId = member.MemberProfileId,
+                MemberUserId = member.MemberProfileId, 
                 SessionDate = dto.SessionDate.Date,
                 StartTime = dto.StartTime,
                 EndTime = dto.EndTime,
@@ -76,10 +77,19 @@ namespace FitCore.BLL.Services.PrivateSessions
 
         public async Task<ICollection<PrivateSessionDto>> GetSessionsByTrainerAsync(int trainerId)
         {
+            var trainer = await DbContext.Set<Trainer>()
+               .Include(t => t.WorkingHoursSchedule)
+               .FirstOrDefaultAsync(t => t.UserID == trainerId);
+
+            if (trainer == null)
+            {
+                throw new KeyNotFoundException("No trainer found with this id.");
+            }
+
             var sessions = await DbContext.Set<PrivateSession>()
                 .Include(s => s.Trainer).ThenInclude(t => t.User)
                 .Include(s => s.MemberProfile).ThenInclude(m => m.User)
-                .Where(s => s.TrainerID == trainerId)
+                .Where(s => s.TrainerID == trainer.TrainerID)
                 .OrderByDescending(s => s.SessionDate)
                 .ToListAsync();
 
@@ -137,7 +147,20 @@ namespace FitCore.BLL.Services.PrivateSessions
 
             return affected > 0;
         }
+        private async Task EnsureParticipantsAvailableAsync(int trainerId, int memberProfileId, DateTime sessionDate, TimeSpan startTime, TimeSpan endTime, int? excludingSessionId)
+        {
+            var conflict = await DbContext.Set<PrivateSession>().AnyAsync(s =>
+                s.SessionDate == sessionDate &&
+                s.Status == PrivateSessionStatus.Scheduled && 
+                (excludingSessionId == null || s.PrivateSessionID != excludingSessionId) &&
+                s.StartTime < endTime && startTime < s.EndTime &&
+                (s.TrainerID == trainerId || s.MemberUserId == memberProfileId)); 
 
+            if (conflict)
+            {
+                throw new BusinessRuleException("The trainer or the member already has an active session that overlaps this time slot.");
+            }
+        }
         private async Task EnsureTrainerAvailableAsync(int trainerId, DateTime sessionDate, TimeSpan startTime, TimeSpan endTime, int? excludingSessionId)
         {
             var conflict = await DbContext.Set<PrivateSession>().AnyAsync(s =>
@@ -152,7 +175,41 @@ namespace FitCore.BLL.Services.PrivateSessions
                 throw new BusinessRuleException("The trainer already has a private session that overlaps this time slot.");
             }
         }
+        public async Task<PaginationResponseDto<PrivateSessionDto>> GetAllSessionsAsync(int page, int pageSize, PrivateSessionStatus? status)
+        {
+            if (page <= 0) page = 1;
+            if (pageSize <= 0 || pageSize > 50) pageSize = 20;
 
+            var query = DbContext.Set<PrivateSession>()
+                .Include(s => s.Trainer).ThenInclude(t => t.User)
+                .Include(s => s.MemberProfile).ThenInclude(m => m.User)
+                .Where(s => !s.IsDeleted)
+                .AsQueryable();
+
+            if (status.HasValue)
+            {
+                query = query.Where(s => s.Status == status.Value);
+            }
+
+            var totalCount = await query.CountAsync();
+
+            var sessions = await query
+                .OrderByDescending(s => s.SessionDate)
+                .ThenByDescending(s => s.StartTime)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            var data = sessions.Select(s => MapToDto(s, s.Trainer.User.FullName, s.MemberProfile.User.FullName)).ToList();
+
+            return new PaginationResponseDto<PrivateSessionDto>
+            {
+                CurrentPage = page,
+                PageSize = pageSize,
+                TotalCount = totalCount,
+                Data = data
+            };
+        }
         private static PrivateSessionDto MapToDto(PrivateSession session, string trainerName, string memberName)
         {
             return new PrivateSessionDto

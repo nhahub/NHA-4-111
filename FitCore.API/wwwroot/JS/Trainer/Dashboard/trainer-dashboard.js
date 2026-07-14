@@ -1,15 +1,16 @@
 // trainer-dashboard.js
 const user = getCurrentUser();
-const token = getToken();
+
 document.addEventListener('DOMContentLoaded', init);
 
 function setGreeting() {
     const hour = new Date().getHours();
     const label = hour < 12 ? 'Good morning' : (hour < 18 ? 'Good afternoon' : 'Good evening');
-    document.getElementById('greetingText').textContent = `${label}, ${window.FITCORE_LAYOUT_CONFIG.user.name.split(' ')[0]}.`;
+    document.getElementById('greetingText').textContent = `${label}, ${user.fullName} `;
 }
 
 async function init() {
+    requireRole(["Trainer"]);
     setGreeting();
     await Promise.all([loadClasses(), loadPrivateSessions()]);
 }
@@ -17,20 +18,20 @@ async function init() {
 function toDateInput(date) { return date.toISOString().substring(0, 10); }
 
 async function loadClasses() {
-    const TranierId = user.userId;
+    const trainerName = user.fullName;
     const container = document.getElementById('classesList');
     try {
         const [classesData, occurrencesData] = await Promise.all([
             FitCoreApi.get('/api/Classes?Page=1&Page_Size=200'),
             loadWeeklyOccurrences(),
         ]);
-        console.log(classesData, occurrencesData)
+        
         const allClasses = classesData.data || classesData.Data || [];
-        const myClasses = allClasses.filter(c => Number(pick(c, 'trainerID', 'TrainerID')) === Number(TranierId));
+        const myClasses = allClasses.filter(c => pick(c, 'trainerName', 'trainerName') === trainerName);
         const myIds = new Set(myClasses.map(c => Number(pick(c, 'classID', 'ClassID'))));
         const myOccurrences = occurrencesData.filter(o => myIds.has(Number(pick(o, 'classID', 'ClassID'))));
         const totalStudents = myOccurrences.reduce((sum, o) => sum + (Number(pick(o, 'bookedCount', 'BookedCount')) || 0), 0);
-
+       
         document.getElementById('assignedClassesValue').textContent = myClasses.length;
         document.getElementById('sessionsThisWeekValue').textContent = myOccurrences.length;
         document.getElementById('studentsBookedValue').textContent = totalStudents;
@@ -74,7 +75,10 @@ async function loadPrivateSessions() {
     const TranierId = user.userId;
     try {
         const sessions = await FitCoreApi.get(`/api/PrivateSessions/trainer/${TranierId}`);
-        const today = new Date(); today.setHours(0, 0, 0, 0);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        console.log(sessions);
 
         const upcoming = (sessions || [])
             .filter(s => Number(pick(s, 'status', 'Status')) === 0 && new Date((pick(s, 'sessionDate', 'SessionDate') || '').substring(0, 10)) >= today)

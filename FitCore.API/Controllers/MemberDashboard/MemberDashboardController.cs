@@ -23,14 +23,14 @@ namespace FitCore.API.Controllers.MemberDashboard
             _currentUser = currentUser;
         }
 
-        //[Authorize]
-        //[HttpGet("profile")]
-        //public async Task<IActionResult> GetProfile()
-        //{
-        //    int userId = _currentUser.UserId ?? throw new UnauthorizedAccessException();
-        //    var result = await _service.GetProfileStatsAsync(userId);
-        //    return Ok(result);
-        //}
+        [Authorize]
+        [HttpGet("profile")]
+        public async Task<IActionResult> GetProfile()
+        {
+            int userId = _currentUser.UserId ?? throw new UnauthorizedAccessException();
+            var result = await _service.GetProfileStatsAsync(userId);
+            return Ok(result);
+        }
 
         [HttpGet("next-class")]
         [Authorize]
@@ -50,9 +50,9 @@ namespace FitCore.API.Controllers.MemberDashboard
             return Ok(result);
         }
 
-        //[HttpGet("notifications")]
-        //[Authorize]
-        //public async Task<IActionResult> GetNotifications([FromQuery] int userId) => Ok(await _service.GetNotificationsAsync(userId));
+        [HttpGet("notifications")]
+        [Authorize]
+        public async Task<IActionResult> GetNotifications([FromQuery] int userId) => Ok(await _service.GetNotificationsAsync(userId));
 
         [HttpGet("digital-pass")]
         public async Task<IActionResult> GetDigitalPass()

@@ -34,6 +34,17 @@ namespace FitCore.API.Controllers.PrivateSessions
             return Ok(result);
         }
 
+        [HttpGet]
+        [Authorize(Roles = nameof(UserRoles.Admin) + "," + nameof(UserRoles.Receptionist))]
+        public async Task<IActionResult> GetAllSessions(
+            [FromQuery(Name = "Page")] int page = 1,
+            [FromQuery(Name = "Page_Size")] int pageSize = 20,
+            [FromQuery] PrivateSessionStatus? status = null)
+        {
+            var result = await privateSessionService.GetAllSessionsAsync(page, pageSize, status);
+            return Ok(result);
+        }
+
         [HttpGet("member/{memberUserId}")]
         public async Task<IActionResult> GetSessionsByMember(int memberUserId)
         {

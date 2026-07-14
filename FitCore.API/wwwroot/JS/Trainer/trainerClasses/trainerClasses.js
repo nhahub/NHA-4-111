@@ -12,6 +12,8 @@ function showMessage(text, type) {
 }
 
 async function loadMyClasses() {
+    requireRole(["Trainer"]);
+    const trainerName = user.fullName;
     const grid = document.getElementById('classesGrid');
     grid.innerHTML = `<div class="state-empty">Loading your classes…</div>`;
 
@@ -22,7 +24,8 @@ async function loadMyClasses() {
         ]);
 
         const allClasses = classesData.data || classesData.Data || [];
-        const myClasses = allClasses.filter(c => Number(pick(c, 'trainerID', 'TrainerID')) === Number(user.userId));
+        // const myClasses = allClasses.filter(c => Number(pick(c, 'trainerID', 'TrainerID')) === Number(user.userId));
+        const myClasses = allClasses.filter(c => pick(c, 'trainerName', 'trainerName') === trainerName);
 
         renderStats(myClasses, occurrencesData);
         renderGrid(myClasses, occurrencesData);
@@ -79,7 +82,7 @@ function renderCard(c, occurrences) {
     const percent = totalCapacity > 0 ? Math.round((booked / totalCapacity) * 100) : 0;
 
     return `
-    <div class="class-card">
+    <div class="class-card shadow">
         <div class="class-card-top">
             <div class="class-card-icon"><i class='bx bx-dumbbell'></i></div>
             <span class="pill ${status === 1 ? 'active' : 'inactive'}">${status === 1 ? 'Active' : 'Inactive'}</span>

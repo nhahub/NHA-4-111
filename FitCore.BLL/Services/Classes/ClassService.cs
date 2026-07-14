@@ -89,6 +89,41 @@ namespace FitCore.BLL.Services.Classes
             return MapToDto(gymClass, gymClass.Trainer);
         }
 
+        public async Task<bool> DeleteClassAsync(int classId)
+        {
+            var gymClass = await DbContext.Set<Class>()
+                .Include(c => c.Schedules)
+                .FirstOrDefaultAsync(c => c.ClassID == classId);
+
+            if (gymClass == null)
+            {
+                throw new KeyNotFoundException("No class found with this id.");
+            }
+
+            var hasActiveMemberships = await DbContext.Set<Membership>().AnyAsync(m =>
+                m.ClassID == classId &&
+                (m.Status == MemberShipStatus.Active || m.Status == MemberShipStatus.Freezed));
+
+            if (hasActiveMemberships)
+            {
+                throw new BusinessRuleException("This class has active or frozen memberships and cannot be deleted. Deactivate it instead.");
+            }
+
+            var hasPendingBookings = await DbContext.Set<Booking>().AnyAsync(b =>
+                b.ClassID == classId && b.Status == BookingStatus.Booked);
+
+            if (hasPendingBookings)
+            {
+                throw new BusinessRuleException("This class has pending bookings and cannot be deleted. Cancel them first, or deactivate the class instead.");
+            }
+
+            DbContext.Set<ClassSchedule>().RemoveRange(gymClass.Schedules);
+            DbContext.Set<Class>().Remove(gymClass);
+            var affected = await DbContext.SaveChangesAsync();
+
+            return affected > 0;
+        }
+
         public async Task<PaginationResponseDto<ClassDto>> GetAllClassesAsync(int page, int pageSize)
         {
             if (page <= 0) page = 1;

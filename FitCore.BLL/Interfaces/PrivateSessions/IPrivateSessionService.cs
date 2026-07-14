@@ -1,4 +1,6 @@
-﻿using FitCore.Shared.DTOs.PrivateSessions;
+﻿using FitCore.Shared.DTOs;
+using FitCore.Shared.DTOs.PrivateSessions;
+using FitCore.Shared.Enums;
 
 namespace FitCore.BLL.Interfaces.PrivateSessions
 {
@@ -10,5 +12,6 @@ namespace FitCore.BLL.Interfaces.PrivateSessions
         Task<ICollection<PrivateSessionDto>> GetSessionsByMemberAsync(int memberUserId);
         Task<bool> CancelSessionAsync(int privateSessionId);
         Task<bool> CompleteSessionAsync(int privateSessionId);
+        Task<PaginationResponseDto<PrivateSessionDto>> GetAllSessionsAsync(int page, int pageSize, PrivateSessionStatus? status);
     }
 }

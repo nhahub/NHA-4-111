@@ -57,7 +57,7 @@ async function loadBookings() {
     const memberUserId = user?.userId;
 
     try {
-        const data = await FitCoreApi.get(`/api/Classes/my-bookings?memberUserId=${memberUserId}`);
+        const data = await FitCoreApi.get(`/api/Classes/my-bookings`);
         allBookings = Array.isArray(data) ? data : (data.data || data.Data || []);
         console.log("Retrieved Bookings:", allBookings);
 
@@ -138,7 +138,7 @@ function renderUpcoming() {
         const price = pick(up, 'price', 'price');
 
         return `
-        <div class=" col">
+        <div class="col">
            <div class="card p-3 rounded-4 shadow">
             <div class="next-class-media rounded-4">
                 <i class='bx ${classIconFor(currentClassName)}'></i>
@@ -161,12 +161,12 @@ function renderUpcoming() {
                         <span><i class='bx bx-dumbbell text-primary me-1'></i> trainerName: <strong>${trainerName}</strong></span>
                         <span><i class='bx bx-money text-primary me-1'></i> Price: <strong class="text-dark">${parseFloat(price).toFixed(0)} EGP</strong></span>
                  </div>
-                <div class="next-class-actions">
+                <div class=" d-flex flex-md-row flex-column justify-content-between gap-2">
                     <button class="btn btn-primary fw-semibold"
                         onclick="checkoutService(${currentBookingID})">
                         Proceed to Checkout
                     </button>          
-                    <button class="icon-btn-danger border border-danger text-dangerr" title="Cancel booking" data-cancel="${currentBookingID}"><i class='bx bx-x'></i></button>
+                    <button class="icon-btn-danger border border-danger text-danger" title="Cancel booking" data-cancel="${currentBookingID}"><i class='bx bx-x'></i></button>
                 </div>
             </div>
            </div>

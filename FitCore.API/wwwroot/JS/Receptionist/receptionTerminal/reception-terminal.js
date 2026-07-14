@@ -15,6 +15,7 @@
 const ATTENDANCE_BASE = '/api/Attendance';
 
 document.addEventListener('DOMContentLoaded', () => {
+    requireRole(["Receptionist"]);
     loadRecentScans();
 
     document.getElementById('manualCheckInBtn')?.addEventListener('click', () => doCheckIn('manual'));

@@ -9,6 +9,7 @@
 // GET  /api/member/MemberDashboard/digital-pass?userId=X    -> DigitalPassDto  { memberName, membershipType, validUntil, qrCodeData }
 
 const user = getCurrentUser();
+const token = getToken();
 
 const MEMBER_DASHBOARD_ENDPOINTS = {
     profile: '/api/member/MemberDashboard/profile',
@@ -19,10 +20,10 @@ const MEMBER_DASHBOARD_ENDPOINTS = {
 };
 
 document.addEventListener('DOMContentLoaded', () => {
-    // if (!user?.userId) {
-    //     showBanner('Please log in to view your dashboard.', true);
-    //     return;
-    // }
+    if (!token) {
+        window.location.href = "/html/Auth/login.html";
+        return null;
+    }
     requireRole(["Member"]);
     loadMemberDashboard();
     document.getElementById('checkInBtn')?.addEventListener('click', performCheckIn);
@@ -41,7 +42,6 @@ async function loadMemberDashboard() {
         getJson(withUserId(MEMBER_DASHBOARD_ENDPOINTS.notifications)),
         getJson(withUserId(MEMBER_DASHBOARD_ENDPOINTS.digitalPass)),
     ]);
-    console.log(results);
     const [profileRes, nextClassRes, notificationsRes, passRes] = results;
 
     if (profileRes.status === 'fulfilled') {
@@ -140,7 +140,16 @@ async function performCheckIn() {
     }
 
     try {
-        const response = await fetch(withUserId(MEMBER_DASHBOARD_ENDPOINTS.checkIn), { method: 'POST' });
+        const response = await fetch(withUserId(MEMBER_DASHBOARD_ENDPOINTS.checkIn),
+            {
+                method: 'POST',
+                headers: {
+                    "Accept": "application/json",
+                    "Authorization": `Bearer ${token}`
+                }
+            }
+        );
+
         if (!response.ok) throw new Error(`Check-in failed (${response.status})`);
         const result = await response.json();
         const success = pick(result, 'success', 'Success');
@@ -218,9 +227,16 @@ function renderDigitalPass(pass) {
 // ---------------------------------------------------------------
 // Small helpers
 // ---------------------------------------------------------------
-async function getJson(url, options) {
+async function getJson(url, options = {}) {
+
+    options.headers = options.headers || {};
+
+    if (token) {
+        options.headers['Authorization'] = `Bearer ${token}`;
+    }
+
     const response = await fetch(url, options);
-    console.log(response);
+
     if (!response.ok) throw new Error(`${url} failed (${response.status})`);
     return response.json();
 }

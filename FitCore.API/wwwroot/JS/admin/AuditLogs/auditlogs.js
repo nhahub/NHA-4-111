@@ -9,8 +9,6 @@ let isDescending = true;
 document.addEventListener('DOMContentLoaded', () => {
     requireRole(["Admin"]);
     fetchAuditLogs();
-    requireRole(["Admin"]);
-    // ربط الأزرار بالفانكشنز
     document.getElementById('applyBtn').addEventListener('click', applyFilters);
     document.getElementById('sortDirBtn').addEventListener('click', toggleSortDirection);
 });
@@ -19,19 +17,12 @@ async function fetchAuditLogs() {
     showLoadingState();
 
     try {
-        // الـ API اللي عملناها في الـ .NET
+
         const url = `/api/AuditLogs?page=${currentPage}&pageSize=10&searchTerm=${encodeURIComponent(currentSearch)}&sortBy=${encodeURIComponent(currentSortBy)}&isDescending=${isDescending}`;
 
-        const response = await fetch(url);
+        const data = await FitCoreApi.get(url);
 
-        if (!response.ok) {
-            throw new Error(`Request failed with status ${response.status}`);
-        }
 
-        const data = await response.json();
-
-        // مهم: fallback لـ [] عشان لو الـ API رجّع null بدل array فاضية
-        // (ده كان سبب ظهور "Error loading data" بدل "No data" لما النتيجة فاضية فعلاً)
         const logsArray = data.data || data.Data || [];
         const totalCount = data.totalCount ?? data.TotalCount ?? 0;
         const page = data.currentPage ?? data.CurrentPage ?? currentPage;

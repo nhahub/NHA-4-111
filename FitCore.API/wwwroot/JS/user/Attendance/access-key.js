@@ -10,6 +10,7 @@ const ATTENDANCE_BASE = '/api/Attendance';
 const user = getCurrentUser();
 
 document.addEventListener('DOMContentLoaded', () => {
+    requireRole(["Member"]);
     loadQrCode();
     loadStatusToday();
 

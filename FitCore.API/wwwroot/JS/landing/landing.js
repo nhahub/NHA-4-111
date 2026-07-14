@@ -18,8 +18,27 @@ const FALLBACK_PLANS = [
 ];
 
 document.addEventListener('DOMContentLoaded', () => {
+    CheckToken();
     renderPlans(FALLBACK_PLANS);
 });
+
+const CheckToken = () => {
+    const token = getToken();
+    const tokenHead = document.getElementById("tokenHead");
+    if (!token) {
+        tokenHead.innerHTML = `
+           <a href="/html/Auth/login.html" class="btn btn-primary" role="button">Login</a>
+            <a href="/html/Auth/signup.html" class="btn btn-outline-primary" role="button">Sign up</a>
+        `;
+    }
+    else { 
+        tokenHead.innerHTML = `
+            <a href="/html/Profile/profile.html" class="profile-chip bg-info-subtle py-2 px-3 rounded-circle" id="profileChip">
+                <div class="avatar" id="headerAvatar"><i class="fa-solid fa-user"></i></div>
+            </a>
+        `;
+    }
+}
 
 function renderPlans(plans) {
     const grid = document.getElementById('plansGrid');

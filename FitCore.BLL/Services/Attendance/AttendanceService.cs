@@ -51,7 +51,7 @@ namespace FitCore.BLL.Services.Attendance
         {
             var today = DateTime.UtcNow.Date;
             return await context.Set<AttendanceEntity>()
-                .AnyAsync(a => a.UserId == userId && a.CheckInTime.Date == today);
+                .AnyAsync(a => a.MemberProfile.UserID == userId && a.CheckInTime.Date == today);
         }
 
         public async Task<object> GetMyHistoryAsync(int userId, int page, int pageSize)
@@ -60,7 +60,7 @@ namespace FitCore.BLL.Services.Attendance
             if (pageSize <= 0 || pageSize > 50) pageSize = 10;
 
             var query = context.Set<AttendanceEntity>()
-                .Where(a => a.UserId == userId)
+                .Where(a => a.MemberProfile.UserID == userId)
                 .OrderByDescending(a => a.CheckInTime);
 
             int totalRecords = await query.CountAsync();
@@ -100,7 +100,7 @@ namespace FitCore.BLL.Services.Attendance
 
             var monthStart = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
             int totalDaysThisMonth = await context.Set<AttendanceEntity>()
-                .Where(a => a.UserId == userId && a.CheckInTime >= monthStart)
+                .Where(a => a.MemberProfile.UserID == userId && a.CheckInTime >= monthStart)
                 .Select(a => a.CheckInTime.Date)
                 .Distinct()
                 .CountAsync();
@@ -317,6 +317,7 @@ namespace FitCore.BLL.Services.Attendance
 
         public async Task<CheckInResponseDto> CheckInClassAsync(int userId, int classId)
         {
+
             var profile = await context.Set<MemberProfile>()
                 .Include(m => m.User)
                 .Include(m => m.Memberships).ThenInclude(mb => mb.GymService)
@@ -332,6 +333,7 @@ namespace FitCore.BLL.Services.Attendance
             {
                 return new CheckInResponseDto { IsSuccess = false, Message = "Class not found." };
             }
+            
 
             return await RecordCheckIn(profile, AttendenceType.ClassSession, $"Checked in to {gymClass.ClassName} successfully.");
         }
@@ -367,7 +369,8 @@ namespace FitCore.BLL.Services.Attendance
 
             var attendance = new AttendanceEntity
             {
-                UserId = profile.UserID,
+
+                UserId = profile.MemberProfileId,
                 MembershipID = activeMembership?.MembershipID,
                 Type = type,
                 CheckInTime = DateTime.UtcNow

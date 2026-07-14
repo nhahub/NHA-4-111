@@ -9,8 +9,9 @@ const PAGE_SIZE = 10;
 
 let currentPage = 1;
 let totalRecords = 0;
-
+const user = getCurrentUser();
 document.addEventListener('DOMContentLoaded', () => {
+    requireRole(["Member"]);
     loadStats();
     loadHistory(1);
 
@@ -20,14 +21,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-function currentUserId() {
-    return window.CURRENT_MEMBER_USER_ID ?? 1;
-}
 
 async function loadStats() {
     const grid = document.getElementById('statsGrid');
     try {
-        const stats = await FitCoreApi.get(`${ATTENDANCE_BASE}/me/stats?userId=${currentUserId()}`);
+        const stats = await FitCoreApi.get(`${ATTENDANCE_BASE}/me/stats`);
 
         document.getElementById('statAttendanceRate').textContent =
             pick(stats, 'attendanceRate', 'AttendanceRate') ?? '--';
@@ -50,7 +48,7 @@ async function loadHistory(page, append = false) {
 
     try {
         const data = await FitCoreApi.get(
-            `${ATTENDANCE_BASE}/me/history?userId=${currentUserId()}&page=${page}&pageSize=${PAGE_SIZE}`
+            `${ATTENDANCE_BASE}/me/history?userId=${user.userId}&page=${page}&pageSize=${PAGE_SIZE}`
         );
 
         const history = pick(data, 'history', 'History') || [];

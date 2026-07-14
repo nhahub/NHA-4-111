@@ -10,15 +10,14 @@ let trainerWorkingModal;
 let trainers;
 let receptionists;
 let dataRoles;
-let Role;
+
 document.addEventListener('DOMContentLoaded', () => {
     requireRole(["Admin"]);
     
     document.getElementById('adminRolesFilter').addEventListener('change', (e) => {
-        Role = e.target.value;
-        
-        renderTrainersTable();
+        loadTrainers();
     });
+
     loadTrainers();
     createStaffModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('createStaffModal'));
     trainerWorkingModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('trainerWorkingModal'));
@@ -27,7 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('addWorkingHourRowBtn').addEventListener('click', () => addWorkingHourRow());
     document.getElementById('saveWorkingHoursBtn').addEventListener('click', saveWorkingHours);
     document.getElementById('workingHoursTrainerSelect').addEventListener('change', loadWorkingHoursForSelected);
-
+    document.getElementById('exportPdfBtn').addEventListener('click', () => window.print());
     toggleTrainerOnlyFields();
     addWorkingHourRow();
 });
@@ -76,7 +75,16 @@ async function loadTrainers() {
         trainers = allStaff.filter(user => user.role === 1);
         receptionists = allStaff.filter(user => user.role === 3);
 
-        console.log(trainers, receptionists)
+        const filterValue = document.getElementById('adminRolesFilter')?.value || '';
+
+        if (filterValue === "1") {
+            dataRoles = trainers;
+        } else if (filterValue === "3") {
+            dataRoles = receptionists;
+        } else {
+            dataRoles = allStaff; // "all" أو لو مفيش اختيار
+        }
+        
         populateTrainerSelect();
         renderTrainersTable();
     } catch (error) {
@@ -102,21 +110,8 @@ function renderTrainersTable() {
         tbody.innerHTML = `<tr class="state-row"><td colspan="5">No trainers yet.</td></tr>`;
         return;
     }
-    
-    if (Role !== '') {
-        console.log(Role);
-        if (Role === 1) {
-            dataRoles = trainers;
-        }
-        else if (Role === 3) {
-            dataRoles = receptionists;
-        }
-        else {
-            dataRoles = allStaff;
-        }
-
-    }
-    tbody.innerHTML = allStaff.map(t => {
+    console.log(dataRoles)
+    tbody.innerHTML = dataRoles.map(t => {
         const id = pick(t, 'trainerID', 'userID');
         const userID = pick(t, 'userID', 'userID');
         const name = pick(t, 'fullName', 'FullName') || '—';
@@ -215,9 +210,9 @@ async function deleteServiceAsset(userID) {
 
         await FitCoreApi.delete(`/api/Trainers/staff/${userID}`);
 
-        await renderTrainersTable();
+        await loadTrainers();
 
-        showMessage('Service deleted successfully.', 'success');
+        showMessage('Staff deleted successfully.', 'success');
 
     } catch (err) {
         showMessage(err.message, "error");

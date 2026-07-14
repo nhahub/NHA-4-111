@@ -12,14 +12,15 @@ function setActiveSidebarLink() {
     const currentPage = document.body.dataset.page;
     if (!currentPage) return;
 
-    // بنحول اسم الصفحة لحروف صغيرة
     const currentPageLower = currentPage.toLowerCase();
 
     document.querySelectorAll('.sidebar-nav ul li').forEach(item => {
-        // بنحول اسم الزرار كمان لحروف صغيرة ونقارنهم ببعض
         if (item.dataset.page) {
             const itemPageLower = item.dataset.page.toLowerCase();
-            item.classList.toggle('active', itemPageLower === currentPageLower);
+
+            const isMatch = itemPageLower === currentPageLower;
+            item.classList.toggle('active', isMatch);
+
         }
     });
 }

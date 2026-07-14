@@ -1,10 +1,12 @@
-﻿document.addEventListener("DOMContentLoaded", () => {
+﻿let token = getToken();
+
+document.addEventListener("DOMContentLoaded", () => {
     requireRole(["Admin"]);
     const form = document.getElementById('pushForm');
     const titleInput = document.getElementById('notifTitle');
     const messageInput = document.getElementById('notifMessage');
     const sendBtn = document.getElementById('sendBtn');
-
+    token = getToken();
     // عناصر الـ Preview
     const previewTitle = document.getElementById('previewTitle');
     const previewMessage = document.getElementById('previewMessage');
@@ -52,7 +54,8 @@
             const response = await fetch('/api/Notification', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    "Accept": "application/json",
+                    "Authorization": `Bearer ${token}`
                 },
                 body: JSON.stringify(payload)
             });
