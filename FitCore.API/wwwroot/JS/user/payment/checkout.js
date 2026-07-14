@@ -208,13 +208,19 @@
                 //const type = e.currentTarget.dataset.type;
                 //const userId = localStorage.getItem('userId');
 
-                if (confirm('Are you sure you want to cancel this booking?')) {              
-                    await fetch(`${API_BASE}/GymServices/bookings/${bookingId}/cancel`, {
+                // جوه attachBookingEvents
+                if (confirm('Are you sure you want to cancel this booking?')) {
+                    const response = await fetch(`${API_BASE}/GymServices/bookings/${bookingId}/cancel`, {
                         method: 'DELETE',
                         headers: { 'Authorization': `Bearer ${token}` }
                     });
-                    await fetchBookings();
-                    updateGrandTotal();
+
+                    if (response.ok) {
+                        await fetchBookings();
+                        updateGrandTotal();
+                    } else {
+                        alert("Failed to cancel this booking.");
+                    }
                 }
             });
         });

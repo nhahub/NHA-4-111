@@ -132,6 +132,11 @@ namespace FitCore.BLL.Services
             catch (Exception ex)
             {
                 await transaction.RollbackAsync();
+                Console.WriteLine("🚨 [CheckoutService Error]: " + ex.Message);
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine("🚨 [Inner Exception]: " + ex.InnerException.Message);
+                }
                 return null;
             }
         }

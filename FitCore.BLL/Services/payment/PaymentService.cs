@@ -99,59 +99,95 @@ namespace FitCore.BLL.Services
 
         private async Task ConfirmPaymentAsync(Session session)
         {
+            Console.WriteLine("✅ [Webhook] ConfirmPaymentAsync Started...");
+
+            // 1. التأكد من وجود الـ InvoiceID في الـ Metadata
             if (!session.Metadata.TryGetValue("InvoiceID", out var invoiceIdStr) ||
                 !int.TryParse(invoiceIdStr, out var invoiceId))
+            {
+                Console.WriteLine("❌ [Webhook Error] No InvoiceID found in Metadata.");
                 return;
+            }
+
+            Console.WriteLine($"✅ [Webhook] Processing Invoice ID: {invoiceId}");
 
             var invoice = await _context.Invoices.FirstOrDefaultAsync(i => i.InvoiceID == invoiceId);
 
-            // Missing invoice, or already processed (Stripe can send the same webhook more than once) - skip.
-            if (invoice == null || invoice.InvoiceStatus == InvoiceStatus.Completed)
+            // 2. التأكد إن الفاتورة موجودة ومش مدفوعة قبل كده
+            if (invoice == null)
+            {
+                Console.WriteLine("❌ [Webhook Error] Invoice not found in DB.");
                 return;
-
-            var payment = new Payment
-            {
-                InvoiceID = invoice.InvoiceID,
-                UserId = invoice.UserID,
-                AmountPaid = (session.AmountTotal ?? 0) / 100m,
-                PaymentDate = DateTime.UtcNow,
-                PaymentMethod = PaymentMethod.Card,
-                TransactionReference = session.PaymentIntentId ?? session.Id,
-                GatewayResponse = session.PaymentStatus
-            };
-
-            await _context.Payments.AddAsync(payment);
-
-            invoice.InvoiceStatus = InvoiceStatus.Completed;
-            _context.Invoices.Update(invoice);
-
-
-            var cart = await _context.Carts
-                .Include(c => c.CartItems)
-                .FirstOrDefaultAsync(c => c.UserID == invoice.UserID);
-
-            if (cart != null && cart.CartItems.Any())
-            {
-                _context.CartItems.RemoveRange(cart.CartItems); 
-            }
-            var memberId = await _context.MemberProfiles
-                .Where(x => x.UserID == invoice.UserID)
-                .Select(x=> x.MemberProfileId)
-                .FirstOrDefaultAsync();
-
-            var pendingBookings = await _context.Bookings
-                .Where(b => b.MemberUserId == memberId && b.Status == BookingStatus.Booked)
-                .ToListAsync();
-
-            if (pendingBookings.Any())
-            {
-                _context.Bookings.RemoveRange(pendingBookings);
             }
 
-            await _context.SaveChangesAsync();
+            if (invoice.InvoiceStatus == InvoiceStatus.Completed)
+            {
+                Console.WriteLine("⚠️ [Webhook Warning] Invoice is already marked as Completed. Skipping.");
+                return;
+            }
 
-            // Memberships are only generated once payment is actually confirmed
-            await _membershipService.GenerateMembershipsFromInvoiceAsync(invoice.InvoiceID);
+            try
+            {
+                // 3. إنشاء الـ Payment
+                var payment = new Payment
+                {
+                    InvoiceID = invoice.InvoiceID,
+                    UserId = invoice.UserID,
+                    AmountPaid = (session.AmountTotal ?? 0) / 100m,
+                    PaymentDate = DateTime.UtcNow,
+                    PaymentMethod = PaymentMethod.Card,
+                    TransactionReference = session.PaymentIntentId ?? session.Id,
+                    GatewayResponse = session.PaymentStatus
+                };
+
+                await _context.Payments.AddAsync(payment);
+                invoice.InvoiceStatus = InvoiceStatus.Completed;
+                _context.Invoices.Update(invoice);
+
+                // 4. مسح السلة (صح)
+                var cart = await _context.Carts
+                    .Include(c => c.CartItems)
+                    .FirstOrDefaultAsync(c => c.UserID == invoice.UserID);
+
+                if (cart != null && cart.CartItems.Any())
+                {
+                    _context.CartItems.RemoveRange(cart.CartItems);
+                }
+
+                // 5. تأكيد الحجوزات (بدل مسحها ❌ -> ✅)
+                var memberProfile = await _context.MemberProfiles
+                    .FirstOrDefaultAsync(x => x.UserID == invoice.UserID);
+
+                if (memberProfile != null)
+                {
+                    var pendingBookings = await _context.Bookings
+                        .Where(b => b.MemberUserId == memberProfile.MemberProfileId && b.Status == BookingStatus.Booked)
+                        .ToListAsync();
+
+                    foreach (var booking in pendingBookings)
+                    {
+                        // افترضت إن عندك Enum اسمه Confirmed أو Paid، عدليها حسب اللي عندك
+                        booking.Status = BookingStatus.Paid;
+                    }
+                    _context.Bookings.UpdateRange(pendingBookings);
+                }
+
+                // حفظ التغييرات في الداتا بيز
+                await _context.SaveChangesAsync();
+                Console.WriteLine("✅ [Webhook] Payment saved successfully and Cart/Bookings updated!");
+
+                // 6. إنشاء الاشتراكات
+                await _membershipService.GenerateMembershipsFromInvoiceAsync(invoice.InvoiceID);
+                Console.WriteLine("✅ [Webhook] Memberships generated successfully!");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ [Webhook Exception] Failed to save payment: {ex.Message}");
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine($"❌ [Inner Exception]: {ex.InnerException.Message}");
+                }
+            }
         }
     }
 }
