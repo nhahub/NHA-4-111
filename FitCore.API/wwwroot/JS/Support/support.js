@@ -1,4 +1,4 @@
-// support.js
+
 const token = getToken();
 const userRole = getCurrentUser();
 document.addEventListener('DOMContentLoaded', () => {

@@ -43,7 +43,7 @@
     padding-bottom: var(--space-3);
 }
 
-/* Form Styles */
+
 .form-group {
     margin-bottom: var(--space-5);
 }
@@ -83,7 +83,7 @@ textarea.form-control {
     margin-top: var(--space-6);
 }
 
-/* Preview Card Specifics */
+
 .preview-container {
     background-color: var(--bg-main);
     padding: var(--space-6) var(--space-4);
@@ -93,20 +93,20 @@ textarea.form-control {
     justify-content: center;
 }
 
-/* بنستخدم نفس الكلاسات بتاعة الإشعارات عشان البريڤيو يبقى متطابق */
+
 .preview-container .notification-item {
     width: 100%;
-    pointer-events: none; /* عشان متبقاش clickable في الـ preview */
+    pointer-events: none; 
 }
 
 /* Responsive */
 @media (max-width: 1024px) {
     .push-grid {
-        grid-template-columns: 1fr; /* بيخليهم تحت بعض في الشاشات الأصغر */
+        grid-template-columns: 1fr; 
     }
 }
 
-/* تنسيق قسم اختيار الأدوار (Roles) */
+
 .checkbox-group {
     display: flex;
     flex-wrap: wrap;
@@ -135,7 +135,7 @@ textarea.form-control {
     accent-color: var(--primary-blue);
 }
 
-/* تنسيق نوع الإشعار الثابت */
+
 .type-badge {
     display: inline-flex;
     align-items: center;
@@ -147,5 +147,5 @@ textarea.form-control {
     font-weight: 600;
     font-size: var(--fs-sm);
     border: 1px solid rgba(59, 130, 246, 0.2);
-    width: 100%; /* عشان ياخد نفس عرض الـ input العادي */
+    width: 100%; 
 }

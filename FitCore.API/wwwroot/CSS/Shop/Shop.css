@@ -131,7 +131,7 @@
     gap: var(--space-2);
 }
 
-/* ---------- Qty stepper (shared between grid card & cart item) ---------- */
+/* ---------- Qty stepper  ---------- */
 .qty-stepper {
     display: flex;
     align-items: center;
@@ -160,7 +160,7 @@
         font-weight: 600;
     }
 
-/* ---------- Cart items (inside offcanvas) ---------- */
+/* ---------- Cart items  ---------- */
 .cart-item {
     display: flex;
     gap: var(--space-3);

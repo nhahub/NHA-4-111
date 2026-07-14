@@ -1,10 +1,3 @@
-// Shop page (user area) — wired to the real ShopController endpoints.
-// GET    /api/Shop/products
-// POST   /api/Shop/cart                body: { productID, quantity }
-// GET    /api/Shop/cart
-// PATCH  /api/Shop/cart/{cartItemId}   body: quantity (raw number)
-// DELETE /api/Shop/cart/{cartItemId}
-// POST   /api/Shop/checkout            body: { description }
 
 const SHOP_ENDPOINTS = {
     products: '/api/Shop/products',
@@ -14,7 +7,7 @@ const SHOP_ENDPOINTS = {
 };
 
 let allProducts = [];
-const pendingQuantities = {}; // productId -> chosen quantity before "Add to Cart"
+const pendingQuantities = {}; 
 
 document.addEventListener('DOMContentLoaded', () => {
     requireRole(["Member"]);
@@ -24,9 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
     wireSearch();
 });
 
-// ---------------------------------------------------------------
-// Products
-// ---------------------------------------------------------------
+
 async function loadProducts() {
     const grid = document.getElementById('productsGrid');
     const emptyState = document.getElementById('productsEmptyState');
@@ -80,7 +71,7 @@ function buildProductCard(product) {
 
     const imgFile = imageUrl ? escapeAttr(imageUrl.split('/').pop()) : '';
     const outOfStock = totalStock <= 0;
-
+    console.log(imgFile);
     col.innerHTML = `
         <div class="product-card ${outOfStock ? 'out-of-stock' : ''}">
             <div class="product-card-img-wrap">
@@ -148,9 +139,7 @@ async function addToCart(productId, totalStock ,quantity, buttonEl) {
     }
 }
 
-// ---------------------------------------------------------------
-// Search
-// ---------------------------------------------------------------
+
 function wireSearch() {
     const input = document.getElementById('productSearchInput');
     if (!input) return;
@@ -170,9 +159,7 @@ function wireSearch() {
     });
 }
 
-// ---------------------------------------------------------------
-// Cart (Bootstrap offcanvas)
-// ---------------------------------------------------------------
+
 function wireCart() {
     const cartOffcanvasEl = document.getElementById('cartOffcanvas');
     const checkoutBtn = document.getElementById('checkoutBtn');
@@ -188,6 +175,7 @@ async function loadCart() {
 
     try {
         const items = await FitCoreApi.get(SHOP_ENDPOINTS.cart);
+        console.log(items);
         renderCartItems(items || []);
     } catch (error) {
         console.error('Error loading cart:', error);
@@ -198,7 +186,16 @@ async function loadCart() {
         }
     }
 }
-
+async function loadItems() {
+    
+    try {
+        const items = await FitCoreApi.get(SHOP_ENDPOINTS.cart);
+        console.log(items);
+        return items;
+    } catch (error) {
+        console.error('Error loading cart:', error);
+    }
+}
 function renderCartItems(items) {
     const container = document.getElementById('cartItems');
     const emptyState = document.getElementById('cartEmptyState');
@@ -317,34 +314,17 @@ function updateCartBadgeCount(count) {
     badge.style.display = count > 0 ? 'inline-block' : 'none';
 }
 
-// ---------------------------------------------------------------
-// Checkout
-// ---------------------------------------------------------------
 async function checkout() {
     const checkoutBtn = document.getElementById('checkoutBtn');
-    const description = document.getElementById('checkoutDescription')?.value || '';
 
-    // Capture the cart total *before* checkout clears it, so we can hand it
-    // off to the Invoice/payment page (the API has no "get invoice by id"
-    // endpoint yet, so this is the only way that page can know the amount).
-    const totalText = document.getElementById('cartTotal')?.innerText || '';
-    const totalAmount = Number(totalText.replace(/[^0-9.]/g, '')) || 0;
 
     checkoutBtn.disabled = true;
     checkoutBtn.innerText = 'Processing…';
 
     try {
-        const result = await FitCoreApi.post(SHOP_ENDPOINTS.checkout, { description });
-        const invoiceId = pick(result, 'invoiceId', 'InvoiceId');
 
-        // Hand the invoice off to the payment page and navigate there.
-        sessionStorage.setItem('fitcore_pending_invoice', JSON.stringify({
-            invoiceId: invoiceId,
-            amount: totalAmount,
-            description: description || 'Shop order',
-        }));
 
-        window.location.href = '/html/Invoice/Payment.html';
+        window.location.href = '/html/user/payment/checkout.html';
     } catch (error) {
         console.error('Error during checkout:', error);
         showToast(error.message || 'Checkout failed', true);
@@ -353,9 +333,7 @@ async function checkout() {
     }
 }
 
-// ---------------------------------------------------------------
-// Small helpers
-// ---------------------------------------------------------------
+
 function pick(obj, ...keys) {
     for (const key of keys) {
         if (obj && obj[key] !== undefined && obj[key] !== null) return obj[key];

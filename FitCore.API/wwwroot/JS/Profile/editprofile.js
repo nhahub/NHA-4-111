@@ -31,17 +31,17 @@ document.addEventListener("DOMContentLoaded", () => {
             if (response.ok) {
                 const data = await response.json();
 
-                // ملء البيانات الأساسية
+
                 document.getElementById("fullName").value = data.fullName || data.FullName || '';
                 document.getElementById("email").value = data.email || data.Email || '';
                 document.getElementById("phoneNumber").value = data.phoneNumber || data.PhoneNumber || '';
 
-                // هنا السيستم بيتحقق: لو الباك إند باعت TrainerDto، يبقى ده مدرب
+
                 const trainerData = data.trainerDto || data.TrainerDto;
 
                 if (trainerData != null) {
-                    isUserTrainer = true; // نحدث المتغير
-                    trainerSection.classList.remove("hidden"); // نظهر خانات المدرب
+                    isUserTrainer = true; 
+                    trainerSection.classList.remove("hidden"); 
 
                     document.getElementById("specialization").value = trainerData.specialization || trainerData.Specialization || '';
                     document.getElementById("workingHours").value = trainerData.workingHours || trainerData.WorkingHours || '';
@@ -74,7 +74,6 @@ document.addEventListener("DOMContentLoaded", () => {
             trainerDto: null
         };
 
-        // لو المتغير ده بـ true (يعني هو أصلاً مدرب)، نبعت بياناته الجديدة
         if (isUserTrainer) {
             payload.trainerDto = {
                 specialization: document.getElementById("specialization").value.trim(),

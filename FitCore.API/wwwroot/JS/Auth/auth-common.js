@@ -1,16 +1,8 @@
-﻿// ============================================================
-// auth-common.js
-// Shared helpers used by every Auth-related page: storing the
-// JWT, reading the logged-in user's roles from it, guarding
-// pages by role, and a small fetch wrapper that attaches the
-// Authorization header automatically.
-// ============================================================
-
+﻿
 const AUTH_TOKEN_KEY = "fitcore_token";
 const AUTH_USER_KEY = "fitcore_user";
 
 function saveSession(authResponse) {
-    // authResponse: { userID, fullName, email, roles: [...], token, expiresAt }
     localStorage.setItem(AUTH_TOKEN_KEY, authResponse.token);
     localStorage.setItem(AUTH_USER_KEY, JSON.stringify({
         userId: authResponse.userID ?? authResponse.userId,
@@ -35,8 +27,7 @@ function logout() {
     window.location.href = "/html/Auth/login.html";
 }
 
-// Decodes the JWT payload (no verification — verification always
-// happens server-side; this is only for client-side UX/redirects).
+
 function decodeTokenPayload(token) {
     try {
         const payload = token.split(".")[1];
@@ -48,9 +39,7 @@ function decodeTokenPayload(token) {
     }
 }
 
-// Redirects unauthenticated users to login, and users whose role
-// doesn't match to a "not allowed" fallback. Call at the top of
-// any protected page.
+
 function requireRole(allowedRoles) {
     const token = getToken();
 
@@ -79,8 +68,6 @@ function requireRole(allowedRoles) {
     return roles;
 }
 
-// fetch() wrapper that attaches the JWT and gives back parsed JSON,
-// throwing a readable error using the API's { message } shape.
 async function authFetch(url, options = {}) {
     const token = getToken();
     const headers = Object.assign(
@@ -97,7 +84,7 @@ async function authFetch(url, options = {}) {
     }
 
     let data = null;
-    try { data = await response.json(); } catch (e) { /* no body */ }
+    try { data = await response.json(); } catch (e) { }
 
     if (!response.ok) {
         const message = (data && (data.message || data.Message)) || `Request failed (${response.status})`;

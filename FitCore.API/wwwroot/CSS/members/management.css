@@ -1,8 +1,4 @@
-﻿/* ============================================================
-   Fit Core Management & Form Creation Stylesheet
-============================================================ */
-
-/* 1️⃣ التخطيط العام والصفحة */
+﻿
 .page-content {
     padding: var(--space-6);
     max-width: 1200px;
@@ -12,7 +8,7 @@
     gap: var(--space-6);
 }
 
-/* 2️⃣ رأس الصفحة (Page Header) */
+
 .page-header {
     border-bottom: 1px solid var(--border-color);
     padding-bottom: var(--space-4);
@@ -45,7 +41,7 @@
     margin: 0;
 }
 
-/* 3️⃣ كارت الفورم الرئيسي (The Form Card) */
+
 .card {
     background-color: var(--bg-card);
     border: 1px solid var(--border-color);
@@ -65,10 +61,10 @@
         border-bottom: 1px solid var(--border-color);
     }
 
-/* 4️⃣ شبكة الحقول (Form Grid System) */
+
 .form-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr); /* حقلين جنب بعض دايماً على الشاشات الكبيرة */
+    grid-template-columns: repeat(2, 1fr); 
     gap: var(--space-4);
     margin-bottom: var(--space-4);
 }
@@ -76,10 +72,10 @@
 .form-group {
     display: flex;
     flex-direction: column;
-    gap: 8px; /* المسافة بين الـ Label والـ Input */
+    gap: 8px; 
 }
 
-    /* 5️⃣ الـ Labels والحقول الإدخال */
+
     .form-group label {
         font-size: var(--fs-sm);
         font-weight: 600;
@@ -88,7 +84,7 @@
         letter-spacing: 0.03em;
     }
 
-/* استايل الحقول المشترك (Text, Email, Tel, Password, Select) */
+
 .text-input,
 #memberForm select,
 #staffForm select {
@@ -103,7 +99,7 @@
     transition: border-color var(--transition-fast, 0.2s), box-shadow var(--transition-fast, 0.2s);
 }
 
-/* استايل مخصص للـ Select Dropdown لإخفاء السهم الافتراضي ووضع سهم شيك */
+
 #memberForm select,
 #staffForm select {
     cursor: pointer;
@@ -116,7 +112,7 @@
     padding-right: 40px;
 }
 
-    /* تأثير الـ Focus عند الضغط على الحقول */
+
     .text-input:focus,
     #memberForm select:focus,
     #staffForm select:focus {
@@ -124,9 +120,8 @@
         box-shadow: 0 0 0 3px var(--primary-blue-soft);
     }
 
-/* 6️⃣ الـ Banner الخاص برسائل النجاح والخطأ */
 .msg-banner {
-    display: none; /* بيتحكم فيه الـ JS */
+    display: none; 
     padding: var(--space-4);
     border-radius: var(--radius-md);
     font-size: var(--fs-base);
@@ -149,7 +144,7 @@
         border-color: #f5c6cb;
     }
 
-/* 7️⃣ الأزرار والفئات المساعدة (Utility Classes) */
+
 .btn-primary {
     display: inline-flex;
     align-items: center;
@@ -176,15 +171,12 @@
         transform: translateY(0);
     }
 
-/* كلاس ممدد بنسبة 100% لتملأ المساحة المتاحة */
+
 .w-100 {
     width: 100%;
 }
 
 
-/* ============================================================
-   📱 التجاوب (Media Queries) للهواتف والشاشات الصغيرة
-============================================================ */
 
 @media (max-width: 768px) {
     .page-content {
@@ -195,7 +187,7 @@
         font-size: 24px;
     }
 
-    /* تحويل الحقول من وضع "جنب بعض" لوضع "تحت بعض" تلقائياً */
+
     .form-grid {
         grid-template-columns: 1fr;
         gap: var(--space-3);

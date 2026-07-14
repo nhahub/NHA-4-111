@@ -53,9 +53,7 @@ function showMessage(text, type) {
     setTimeout(() => banner.classList.add('d-none'), 4000);
 }
 
-// =========================================================
-// Lookups
-// =========================================================
+
 async function loadCategories() {
     try {
         categories = await FitCoreApi.get(`${SHOP_API}/categories`);
@@ -104,9 +102,7 @@ async function loadSuppliers() {
     }
 }
 
-// =========================================================
-// Products
-// =========================================================
+
 async function loadProducts() {
     const tbody = document.getElementById('productsTableBody');
     let url = `${SHOP_API}/admin/products?page=${currentPage}&pageSize=${pageSize}`;
@@ -145,7 +141,7 @@ async function loadProducts() {
 }
 
 function updateStockStats(pageData) {
-    // Best-effort stats based on the loaded page; refined further once inventory tab is opened.
+
     const totalStock = pageData.reduce((sum, p) => sum + (pick(p, 'totalStock', 'TotalStock') || 0), 0);
     const lowStock = pageData.filter(p => (pick(p, 'totalStock', 'TotalStock') || 0) <= (pick(p, 'reorderLevel', 'ReorderLevel') || 0)).length;
     document.getElementById('statTotalStock').textContent = totalStock;
@@ -307,9 +303,7 @@ function renderPagination(totalPages) {
     }
 }
 
-// =========================================================
-// Inventory
-// =========================================================
+
 async function loadInventory() {
     const tbody = document.getElementById('inventoryTableBody');
     tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted py-4">Loading inventory...</td></tr>`;

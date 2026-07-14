@@ -5,9 +5,9 @@
         return;
     }
 
-    const API_BASE = 'http://localhost:5184/api';
+    const API_BASE = '/api';
 
-    // استخراج رقم الفاتورة من الـ URL (مثال: ?id=5)
+
     const urlParams = new URLSearchParams(window.location.search);
     const invoiceId = urlParams.get('id');
 
@@ -27,7 +27,6 @@
         const data = await response.json();
         renderInvoiceDetails(data);
 
-        // إخفاء التحميل وإظهار الفاتورة
         document.getElementById('loadingMessage').style.display = 'none';
         document.getElementById('invoiceReceipt').style.display = 'block';
 
@@ -37,27 +36,26 @@
     }
 
     function renderInvoiceDetails(inv) {
-        // Basic Info
+
         document.getElementById('invNumber').textContent = `Invoice #INV-${inv.invoiceId || inv.InvoiceId}`;
         document.getElementById('invDate').textContent = new Date(inv.issueDate || inv.IssueDate).toLocaleDateString();
         document.getElementById('invDescription').textContent = inv.description || inv.Description || "—";
 
-        // لو عندك اسم اليوزر متخزن في الـ LocalStorage نعرضه
         const user = getCurrentUser();
         document.getElementById('invCustomerName').textContent = user ? user.fullName : "Valued Member";
 
-        // Status
+
         const statusEl = document.getElementById('invStatus');
         const statusCode = inv.invoiceStatus || inv.InvoiceStatus;
         if (statusCode === 1 || statusCode === "Pending") { statusEl.textContent = "Pending"; statusEl.className = "status-pill status-pending"; }
         else if  (statusCode === 2 || statusCode === "Completed") { statusEl.textContent = "Paid"; statusEl.className = "status-pill status-completed"; }
         else { statusEl.textContent = "Cancelled"; statusEl.className = "status-pill status-cancelled"; }
 
-        // Render Items
+
         const itemsBody = document.getElementById('invItemsBody');
         const items = inv.items || inv.Items || [];
         items.forEach(item => {
-            const itemTypeMap = ["Service", "Class", "Product"]; // Adjust based on your Enum (0,1,2)
+            const itemTypeMap = ["Service", "Class", "Product"]; 
             const typeText = itemTypeMap[item.itemType || item.ItemType] || "Item";
             const price = (item.sellPrice || item.SellPrice || 0).toFixed(2);
             const total = (item.lineTotal || item.LineTotal || 0).toFixed(2);
@@ -73,7 +71,7 @@
             `;
         });
 
-        // Render Payments
+
         const payments = inv.payments || inv.Payments || [];
         if (payments.length > 0) {
             document.getElementById('paymentsSection').style.display = 'block';
@@ -82,7 +80,7 @@
             payments.forEach(pay => {
                 const date = new Date(pay.paymentDate || pay.PaymentDate).toLocaleDateString();
                 const amount = (pay.amountPaid || pay.AmountPaid || 0).toFixed(2);
-                const methodMap = ["Cash", "Card", "Stripe"]; // Adjust Enum mapping
+                const methodMap = ["Cash", "Card", "Stripe"]; 
                 const method = methodMap[pay.paymentMethod || pay.PaymentMethod] || "Card";
 
                 paymentsBody.innerHTML += `
@@ -96,7 +94,7 @@
             });
         }
 
-        // Totals
+
         const sub = (inv.subTotal || inv.SubTotal || 0).toFixed(2);
         const disc = (inv.discountAmount || inv.DiscountAmount || 0).toFixed(2);
         const grand = (inv.totalAmount || inv.TotalAmount || 0).toFixed(2);

@@ -1,8 +1,4 @@
-// Attendance.js (Activity History page)
-// Wires to AttendanceController's self-service endpoints:
-//   GET /api/Attendance/me/history?userId=&page=&pageSize=
-//   GET /api/Attendance/me/stats?userId=
-// userId is a required query param since there is no auth yet.
+
 
 const ATTENDANCE_BASE = '/api/Attendance';
 const PAGE_SIZE = 10;

@@ -131,13 +131,6 @@
         color: var(--status-red);
     }
 
-/* ============================================================
-   Grid: the featured (first) card is allowed to be as tall as
-   its content needs (it spans 2 rows). Every OTHER card in the
-   grid is forced to the exact same fixed height as its siblings,
-   regardless of how many schedule slots/description length it has -
-   see .card.regular below for how that's enforced.
-============================================================ */
 .classes-grid {
     display: block;
     column-count: 3;
@@ -289,12 +282,7 @@
         text-transform: uppercase;
     }
 
-/* ============================================================
-   Regular cards: all forced to the SAME fixed height, no matter
-   how much description or how many schedule slots they contain.
-   The schedule list becomes its own scroll area if it overflows,
-   and the button is pinned to the bottom via margin-top: auto.
-============================================================ */
+
 .card.regular {
     height: auto;
 }
@@ -373,9 +361,6 @@
         color: var(--text-faint);
     }
 
-/* The schedule list is the one part whose content length varies card to
-   card - capping its height and letting it scroll internally is what
-   keeps every regular card the same overall height. */
 .card.regular .no-schedules,
 .card.regular > div.mt-3 {
     flex: 1 1 auto;

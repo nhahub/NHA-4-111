@@ -1,4 +1,4 @@
-// trainer-dashboard.js
+
 const user = getCurrentUser();
 
 document.addEventListener('DOMContentLoaded', init);

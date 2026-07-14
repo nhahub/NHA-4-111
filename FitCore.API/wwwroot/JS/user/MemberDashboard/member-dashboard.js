@@ -1,12 +1,3 @@
-// Member Home / Dashboard — wired ONLY to MemberDashboardController.
-// (Attendance history / QR key / reception are handled on their own pages
-// via AttendanceController, on purpose — kept separate.)
-//
-// GET  /api/member/MemberDashboard/profile?userId=X         -> ProfileStatsDto { attendancePercentage, membershipStatus }
-// GET  /api/member/MemberDashboard/next-class?userId=X      -> NextClassDto    { className, studioName, trainerName, startTime }
-// GET  /api/member/MemberDashboard/notifications?userId=X   -> NotificationDto[] { title, content, timeAgo }
-// GET  /api/member/MemberDashboard/digital-pass?userId=X    -> DigitalPassDto  { memberName, membershipType, validUntil, qrCodeData }
-
 
 const user = getCurrentUser();
 const token = getToken();
@@ -30,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('checkInBtn')?.addEventListener('click', goToMyQrCode);
 });
 
-// Appends ?userId=... (or &userId=... if the endpoint already has a query string).
+
 function withUserId(url) {
     const separator = url.includes('?') ? '&' : '?';
     return `${url}${separator}userId=${user?.userId}`;
@@ -74,9 +65,7 @@ async function loadMemberDashboard() {
     }
 }
 
-// ---------------------------------------------------------------
-// Profile stats — attendance % + membership status
-// ---------------------------------------------------------------
+
 function renderProfile(profile) {
     if (!profile) return;
     const attendancePercentage = Number(pick(profile, 'attendancePercentage', 'AttendancePercentage') ?? 0);
@@ -102,9 +91,7 @@ function renderProfile(profile) {
     }
 }
 
-// ---------------------------------------------------------------
-// Next class / hero card
-// ---------------------------------------------------------------
+
 function renderNextClass(nextClass) {
     const className = pick(nextClass, 'className', 'ClassName');
     const studioName = pick(nextClass, 'studioName', 'StudioName');
@@ -125,17 +112,12 @@ function renderNextClass(nextClass) {
     setText('nextClassMeta', metaParts.length ? metaParts.join(' • ') : 'Details coming soon.');
 }
 
-// ---------------------------------------------------------------
-// Check-in — takes the member to their fixed QR code so it can be
-// scanned at the reception terminal (the real check-in mechanism).
-// ---------------------------------------------------------------
+
 function goToMyQrCode() {
     window.location.href = MY_QR_PAGE_URL;
 }
 
-// ---------------------------------------------------------------
-// Notifications
-// ---------------------------------------------------------------
+
 function renderNotifications(notifications) {
     const container = document.getElementById('notificationsList');
     const emptyState = document.getElementById('notificationsEmptyState');
@@ -168,9 +150,7 @@ function renderNotifications(notifications) {
     });
 }
 
-// ---------------------------------------------------------------
-// Digital pass
-// ---------------------------------------------------------------
+
 function renderDigitalPass(pass) {
     if (!pass) return;
     const memberName = pick(pass, 'memberName', 'MemberName') ?? '—';
@@ -191,9 +171,7 @@ function renderDigitalPass(pass) {
     }
 }
 
-// ---------------------------------------------------------------
-// Small helpers
-// ---------------------------------------------------------------
+
 async function getJson(url, options = {}) {
 
     options.headers = options.headers || {};

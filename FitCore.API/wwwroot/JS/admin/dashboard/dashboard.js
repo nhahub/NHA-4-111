@@ -1,7 +1,3 @@
-// Admin Dashboard — wires the page to the real AdminDashboardController endpoints.
-// Base path: /api/admin/AdminDashboard/...
-// Uses the shared FitCoreApi wrapper + pick() helper from /JS/admin/Components/api.js
-
 const DASHBOARD_ENDPOINTS = {
     stats: '/api/admin/AdminDashboard/stats',
     planDistribution: '/api/admin/AdminDashboard/plan-distribution',
@@ -68,9 +64,7 @@ async function loadDashboardData() {
     document.getElementById('statsGrid')?.removeAttribute('aria-busy');
     document.getElementById('exportReportBtn')?.addEventListener('click', exportReportCsv); }
 
-// ---------------------------------------------------------------
-// KPI cards — DashboardStatsDto { totalMembers, monthlyRevenue, activePlans, dailyAttendance }
-// ---------------------------------------------------------------
+
 function renderStats(stats) {
     if (!stats) return;
     const totalMembers = pick(stats, 'totalMembers', 'TotalMembers') ?? 0;
@@ -84,9 +78,7 @@ function renderStats(stats) {
     setText('statDailyAttendance', Number(dailyAttendance).toLocaleString());
 }
 
-// ---------------------------------------------------------------
-// Revenue vs Expenses — List<RevenueChartDto> { monthName, totalRevenue, totalExpenses }
-// ---------------------------------------------------------------
+
 function renderRevenueChart(data) {
     const container = document.getElementById('revenueChart');
     const emptyState = document.getElementById('revenueEmptyState');
@@ -130,9 +122,7 @@ function renderRevenueChart(data) {
     });
 }
 
-// ---------------------------------------------------------------
-// Plan Distribution — List<PlanDistributionDto> { planName, count, percentage }
-// ---------------------------------------------------------------
+
 function renderPlanDistribution(plans) {
     const container = document.getElementById('planDistribution');
     const emptyState = document.getElementById('planEmptyState');
@@ -168,9 +158,7 @@ function renderPlanDistribution(plans) {
         });
 }
 
-// ---------------------------------------------------------------
-// Recent System Alerts — List<RecentAlertDto> { title, content, type, timeAgo }
-// ---------------------------------------------------------------
+
 function renderAlerts(alerts) {
     const container = document.getElementById('alertsList');
     const emptyState = document.getElementById('alertsEmptyState');
@@ -221,9 +209,7 @@ function alertVisualsForType(type) {
     return { icon: 'fa-circle-info', className: 'icon-info' };
 }
 
-// ---------------------------------------------------------------
-// Recent Enrolments — List<RecentEnrolmentDto> { memberName, planType, status, joinDate }
-// ---------------------------------------------------------------
+
 function renderRecentEnrolments(members) {
     const tableBody = document.getElementById('enrolmentsTableBody');
     const emptyState = document.getElementById('enrolmentsEmptyState');
@@ -277,24 +263,6 @@ function initialsFor(name) {
         .join('');
 }
 
-// ---------------------------------------------------------------
-// Export Report — client-side CSV of the currently loaded revenue chart.
-// (The API doesn't expose a dedicated export endpoint yet, so this
-// builds the file from data already on the page rather than calling
-// a non-existent /export route.)
-// ---------------------------------------------------------------
-//function exportReportCsv() {
-//    console.log("Export button clicked!");
-
-//    if (!lastRevenueChartData || lastRevenueChartData.length === 0) {
-//        showBanner('Nothing to export yet — the revenue chart is still loading.');
-//        return;
-//    }
-
-//    window.location.href = '/api/admin/AdminDashboard/export-report';
-//}
-
-
 
 async function exportReportCsv() {
     console.log("Export button clicked!");
@@ -322,7 +290,6 @@ async function exportReportCsv() {
 
         const blob = await response.blob();
 
-        // Prefer the filename the server sent, fall back to a sensible default.
         const contentDisposition = response.headers.get('Content-Disposition') || '';
         const fileNameMatch = contentDisposition.match(/filename="?([^"]+)"?/i);
         const fileName = fileNameMatch ? fileNameMatch[1] : `RevenueReport_${new Date().toISOString().slice(0, 10)}.csv`;
@@ -345,12 +312,6 @@ async function exportReportCsv() {
 
 
 
-
-
-
-// ---------------------------------------------------------------
-// Small helpers
-// ---------------------------------------------------------------
 function setText(id, value) {
     const el = document.getElementById(id);
     if (el) el.innerText = value;

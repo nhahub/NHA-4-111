@@ -26,11 +26,11 @@
     border: 1px solid var(--border-color);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-sm);
-    overflow: hidden; /* عشان حواف الجدول متخرجش برا الكارت */
+    overflow: hidden; 
 }
 
 .table-container {
-    overflow-x: auto; /* عشان الجدول ميبوظش الموبايل */
+    overflow-x: auto;
 }
 
 .table {
@@ -75,7 +75,7 @@
     padding: var(--space-8) !important;
 }
 
-/* الأزرار اللي جوه الجدول */
+
 .action-buttons {
     display: flex;
     gap: var(--space-2);
@@ -103,16 +103,14 @@
         cursor: not-allowed;
     }
 
-/* ============================================================
-   Freeze Modal (Popup) Styles
-============================================================ */
+
 .modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
     height: 100vh;
-    background-color: rgba(15, 23, 42, 0.6); /* لون كحلي شفاف */
+    background-color: rgba(15, 23, 42, 0.6); 
     backdrop-filter: blur(4px);
     z-index: 10000;
     display: flex;
@@ -228,7 +226,6 @@
    Membership Details Page Styles
 ============================================================ */
 
-/* سهم الرجوع مع الأنيميشن */
 .back-link {
     display: inline-flex;
     align-items: center;
@@ -250,10 +247,9 @@
     }
 
     .back-link:hover .arrow-icon {
-        transform: translateX(-5px); /* السهم بيتحرك للشمال بنعومة */
+        transform: translateX(-5px); 
     }
 
-/* تنسيق كارت التفاصيل */
 .details-card {
     padding: var(--space-6);
 }
@@ -284,7 +280,7 @@
     font-weight: 600;
 }
 
-/* فئة مساعدة للإخفاء */
+
 .hidden {
     display: none !important;
 }

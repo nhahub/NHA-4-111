@@ -1,7 +1,4 @@
-﻿/* ============================================================
-   auth.css — Login screen (public, no sidebar/header chrome)
-   Uses design tokens from style.css (must load after it).
-============================================================ */
+﻿
 
 html, body.auth-body {
     height: 100%;
@@ -101,8 +98,7 @@ body.auth-body {
     max-width: 320px;
 }
 
-/* Role tabs (Member / Staff / Admin) — purely a UX hint for the
-   form's copy; the backend always trusts the account's real roles. */
+
 .role-tabs {
     display: flex;
     background-color: var(--bg-hover);

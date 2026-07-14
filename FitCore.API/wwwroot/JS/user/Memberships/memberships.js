@@ -103,8 +103,8 @@ document.addEventListener("DOMContentLoaded", () => {
             const response = await fetch(`/api/Memberships/${membershipId}/unfreeze`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
-                    // 'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
                 }
             });
 
@@ -149,8 +149,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 const response = await fetch(`/api/Memberships/${currentFreezeMembershipId}/freeze`, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
-                        // 'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        "Content-Type": "application/json",
+                        "Accept": "application/json",
+                        "Authorization": `Bearer ${token}`
                     },
                     body: JSON.stringify(days)
                 });
@@ -158,7 +159,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (response.ok) {
                     alert("Membership frozen successfully!");
                     closeModal();
-                    loadMemberships(); 
+                    loadMemberships();
                 } else {
                     const errData = await response.json();
                     freezeError.textContent = errData.message || "Failed to freeze membership.";
@@ -202,8 +203,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 const response = await fetch(`/api/Memberships/${id}`, {
                     method: 'GET',
                     headers: {
-                        'Content-Type': 'application/json'
-                        // 'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        "Accept": "application/json",
+                        "Authorization": `Bearer ${token}`
                     }
                 });
 

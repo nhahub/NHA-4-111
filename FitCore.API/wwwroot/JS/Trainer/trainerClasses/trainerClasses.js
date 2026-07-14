@@ -1,4 +1,4 @@
-﻿// trainer-classes.js
+﻿
 
 const DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const user = getCurrentUser();
@@ -24,7 +24,6 @@ async function loadMyClasses() {
         ]);
 
         const allClasses = classesData.data || classesData.Data || [];
-        // const myClasses = allClasses.filter(c => Number(pick(c, 'trainerID', 'TrainerID')) === Number(user.userId));
         const myClasses = allClasses.filter(c => pick(c, 'trainerName', 'trainerName') === trainerName);
 
         renderStats(myClasses, occurrencesData);

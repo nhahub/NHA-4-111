@@ -66,7 +66,7 @@ namespace FitCore.BLL.Services
                 PaymentMethodTypes = new List<string> { "card" },
                 LineItems = lineItems,
                 Mode = "payment",
-                SuccessUrl = successUrl + "?session_id={CHECKOUT_SESSION_ID}",
+                SuccessUrl = successUrl + (successUrl.Contains('?') ? "&" : "?") + "session_id={CHECKOUT_SESSION_ID}",
                 CancelUrl = cancelUrl,
                 Metadata = new Dictionary<string, string>
                 {

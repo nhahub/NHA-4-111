@@ -1,4 +1,4 @@
-﻿// trainer-private-sessions.js
+﻿
 const user = getCurrentUser();
 document.addEventListener('DOMContentLoaded', loadSessions);
 

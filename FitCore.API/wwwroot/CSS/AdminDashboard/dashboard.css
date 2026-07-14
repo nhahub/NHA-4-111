@@ -1,11 +1,4 @@
-/* ============================================================
-   Admin Dashboard — page-specific styles
-   Uses only design tokens from /CSS/style.css so the page stays
-   visually consistent with the rest of the app.
-============================================================ */
 
-/* style.css centers .main-content for single-card pages (QR page).
-   The dashboard needs a normal top-to-bottom scrolling layout instead. */
 .dashboard-main {
     align-items: stretch;
     justify-content: flex-start;

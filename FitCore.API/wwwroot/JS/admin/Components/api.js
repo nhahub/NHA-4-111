@@ -1,6 +1,4 @@
-﻿// api.js — tiny fetch wrapper shared by every page.
-// Assumes the frontend is served from the same origin as the FitCore.API project
-// (i.e. dropped into FitCore.API/wwwroot), so relative "/api/..." URLs resolve correctly.
+﻿
 
 const FitCoreApi = {
     async request(method, url, body) {
@@ -43,8 +41,7 @@ const FitCoreApi = {
     delete(url) { return this.request('DELETE', url); },
 };
 
-// Normalizes API responses that may come back camelCase or PascalCase
-// (System.Text.Json vs. manually-built objects) into a single shape.
+
 function pick(obj, ...keys) {
     for (const key of keys) {
         if (obj && obj[key] !== undefined && obj[key] !== null) return obj[key];

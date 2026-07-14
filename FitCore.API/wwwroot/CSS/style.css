@@ -1,17 +1,12 @@
-﻿/* ============================================================
-   style.css — Global design tokens & shared layout
-   كل الألوان والمقاسات موجودة هنا كمتغيرات (design tokens).
-   لو حبيت تغيّر هوية الألوان، غيّر هنا بس وهتتطبق في كل الصفحات.
-============================================================ */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+﻿@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 :root {
-    /* ---------- Brand ---------- */
+
     --primary-blue: #0047FF;
     --primary-blue-hover: #0038CC;
-    --primary-blue-soft: #EFF4FF; /* خلفيات فاتحة للأزرار/الحالة النشطة */
+    --primary-blue-soft: #EFF4FF; 
     --primary-dark: #0F172A;
-    /* ---------- Neutrals ---------- */
+
     --text-main: #1E293B;
     --text-muted: #64748B;
     --text-faint: #94A3B8;
@@ -20,22 +15,22 @@
     --bg-hover: #F1F5F9;
     --border-color: #E2E8F0;
     --border-color-strong: #CBD5E1;
-    /* ---------- Status / Module colors ---------- */
-    --status-blue: #3B82F6; /* Members */
-    --status-green: #10B981; /* Inventory */
-    --status-yellow: #F59E0B; /* Billing */
-    --status-gray: #94A3B8; /* System */
-    --status-red: #EF4444; /* Errors / destructive */
+
+    --status-blue: #3B82F6; 
+    --status-green: #10B981; 
+    --status-yellow: #F59E0B; 
+    --status-gray: #94A3B8; 
+    --status-red: #EF4444;
 
     --status-blue-bg: #EFF6FF;
     --status-green-bg: #ECFDF5;
     --status-yellow-bg: #FFFBEB;
     --status-gray-bg: #F1F5F9;
     --status-red-bg: #FEF2F2;
-    /* ---------- Avatar ---------- */
+
     --avatar-bg: #E2E8F0;
     --avatar-text: #0F172A;
-    /* ---------- Spacing scale ---------- */
+
     --space-1: 4px;
     --space-2: 8px;
     --space-3: 12px;
@@ -44,16 +39,16 @@
     --space-6: 24px;
     --space-8: 32px;
     --space-10: 40px;
-    /* ---------- Radius ---------- */
+
     --radius-sm: 6px;
     --radius-md: 10px;
     --radius-lg: 14px;
     --radius-full: 999px;
-    /* ---------- Shadows ---------- */
+
     --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
     --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.06);
     --shadow-lg: 0 12px 24px rgba(15, 23, 42, 0.08);
-    /* ---------- Typography ---------- */
+
     --font-family: 'Inter', sans-serif;
     --fs-xs: 12px;
     --fs-sm: 14px;
@@ -61,11 +56,13 @@
     --fs-md: 18px;
     --fs-lg: 24px;
     --fs-xl: 32px;
-    /* ---------- Motion ---------- */
+
     --transition-fast: 0.15s ease;
     --transition-base: 0.2s ease;
 }
-
+.text{
+    text-decoration:none;
+}
 * {
     margin: 0;
     padding: 0;
@@ -118,7 +115,6 @@ button {
     }
 .container {
     max-width: 1180px;
-/*    margin-inline: auto;*/
 }
 .primary-dark {
     color: var(--primary-dark);
@@ -129,9 +125,11 @@ button {
 .primary-blue-soft {
     color: var( --primary-blue-soft);
 }
+
 /* ============================================================
    Sidebar
 ============================================================ */
+
 .sidebar-header {
     display: flex;
     flex-direction: column;
@@ -166,7 +164,7 @@ button {
     height: 100dvh;
     overflow-y: auto;
 }
-    /* تجميل شكل الـ Scrollbar الخاص بالـ Sidebar */
+
 #sidebar-container::-webkit-scrollbar {
     width: 6px;
 }
@@ -283,8 +281,8 @@ button {
 ============================================================ */
 .top-header {
     display: flex;
-    justify-content: right; /* was: end → this pushes everything to the left */
-    align-items: center; /* was: end (that was a vertical-centering bug) */
+    justify-content: right; 
+    align-items: center; 
     gap: var(--space-4);
     padding: var(--space-4) var(--space-10);
     background-color: var(--bg-card);
@@ -319,18 +317,17 @@ button {
 
     .icon-btn .dot {
         position: absolute;
-        top: 2px; /* رفعناها لفوق شوية */
-        right: 2px; /* جبناها يمين شوية */
-        width: 12px; /* كبرنا العرض (كان 8) */
-        height: 12px; /* كبرنا الطول (كان 8) */
+        top: 2px; 
+        right: 2px;
+        width: 12px;
+        height: 12px;
         border-radius: 50%;
         background-color: var(--status-red);
         border: 2px solid var(--bg-card);
-        /* حركة النبض لزيادة الانتباه */
         animation: pulse-dot 2s infinite;
     }
 
-/* Keyframes الخاصة بحركة النبض */
+
 @keyframes pulse-dot {
     0% {
         box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
@@ -346,7 +343,7 @@ button {
 }
 
 .sidebar-toggle-btn {
-    display: none; /* only needed once sidebar collapses on mobile */
+    display: none; 
 }
 
 .header-divider {
@@ -355,8 +352,7 @@ button {
     background-color: var(--border-color);
 }
 
-/* Profile chip — renamed inner classes so they never collide with
-   .profile-meta/.profile-name used on the Profile page itself */
+
 .profile-chip {
     display: flex;
     align-items: center;
@@ -394,23 +390,23 @@ button {
 }
 
 @media (max-width: 720px) {
-    /* Show the hamburger icon */
+
     .sidebar-toggle-btn {
         display: flex;
     }
 
-    /* Detach the sidebar and hide it off-screen to the left */
+
     #sidebar-container {
         position: fixed;
         top: 0;
-        left: -300px; /* Moves it completely out of view */
+        left: -300px; 
         height: 100vh;
-        z-index: 1000; /* Ensures it sits on top of everything else */
+        z-index: 1000; 
         transition: left var(--transition-base);
         box-shadow: var(--shadow-lg);
     }
 
-        /* This class will be toggled by JavaScript to slide the sidebar in */
+
         #sidebar-container.open {
             left: 0;
         }
@@ -420,7 +416,7 @@ a.profile-chip {
     color: inherit;
 }
 
-/* تصميم دايرة الأفاتار الأساسية */
+
 .avatar {
     width: 36px;
     height: 36px;
@@ -432,16 +428,14 @@ a.profile-chip {
     justify-content: center;
     font-weight: 600;
     font-size: var(--fs-sm);
-    flex-shrink: 0; /* عشان الدايرة متتبططش */
+    flex-shrink: 0; 
 }
 
-/* ============================================================
-   Notification Panel (Side Drawer)
-============================================================ */
+
 .notification-panel {
     position: fixed;
     top: 0;
-    right: -400px; /* مخفي بره الشاشة */
+    right: -400px; 
     width: 350px;
     height: 100vh;
     background-color: var(--bg-card);
@@ -454,26 +448,26 @@ a.profile-chip {
 }
 
     .notification-panel.open {
-        right: 0; /* بيظهر لما ياخد الكلاس ده */
+        right: 0;
     }
 
 .panel-header {
     padding: var(--space-5);
     border-bottom: 1px solid var(--border-color);
     display: flex;
-    flex-direction: column; /* بيرص الصفين تحت بعض */
-    gap: var(--space-4); /* مسافة ممتازة بين العنوان والزرار */
+    flex-direction: column; 
+    gap: var(--space-4); 
 }
 .panel-header-top {
     display: flex;
-    justify-content: space-between; /* بيبعدهم لأقصى اليمين والشمال */
+    justify-content: space-between; 
     align-items: center;
     width: 100%;
 }
 
 .panel-header h3 {
-    font-size: var(--fs-lg); /* كبرنا الخط لدرجة Large */
-    font-weight: 800; /* خليناه عريض وبارز */
+    font-size: var(--fs-lg); 
+    font-weight: 800; 
     color: var(--primary-dark);
     margin: 0;
 }
@@ -482,7 +476,7 @@ a.profile-chip {
     width: 100%;
 }
 
-/* لو عايزة زرار Mark all ياخد عرض الشاشة كله ويبقى شكله أحلى، ضيفي الكلاس ده ليه */
+
 .panel-actions .mark-read-btn {
     width: 100%;
     text-align: center;
@@ -525,7 +519,7 @@ a.profile-chip {
         background-color: var(--bg-hover);
     }
 
-    /* تصميم الإشعار اللي لسه متقراش */
+
     .notification-item.unread {
         background-color: var(--primary-blue-soft);
         border-color: rgba(0, 71, 255, 0.1);
@@ -548,19 +542,19 @@ a.profile-chip {
     flex: 1;
 }
 
-/* 1. تكبير عنوان الإشعار */
+
 .notif-title {
-    font-size: var(--fs-base); /* كبرناه درجة */
-    font-weight: 700; /* خليناه عريض أكتر */
+    font-size: var(--fs-base); 
+    font-weight: 700; 
     color: var(--primary-dark);
     margin-bottom: 6px;
 }
 
-/* 2. تصميم زرار Mark all as read الجديد */
+
 .mark-read-btn {
     background-color: var(--status-red-bg);
     color: var(--status-red);
-    border: 1px solid rgba(239, 68, 68, 0.3); /* إطار أحمر خفيف */
+    border: 1px solid rgba(239, 68, 68, 0.3); 
     padding: 6px 12px;
     border-radius: var(--radius-sm);
     font-size: var(--fs-xs);
@@ -575,7 +569,7 @@ a.profile-chip {
         border-color: var(--status-red);
     }
 
-/* 3. ألوان خلفيات الأيقونات حسب الخطورة */
+
 .icon-danger {
     background-color: var(--status-red-bg);
     color: var(--status-red);

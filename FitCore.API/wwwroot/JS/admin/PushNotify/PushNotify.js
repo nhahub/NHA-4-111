@@ -7,30 +7,30 @@ document.addEventListener("DOMContentLoaded", () => {
     const messageInput = document.getElementById('notifMessage');
     const sendBtn = document.getElementById('sendBtn');
     token = getToken();
-    // عناصر الـ Preview
+
     const previewTitle = document.getElementById('previewTitle');
     const previewMessage = document.getElementById('previewMessage');
     const previewIcon = document.getElementById('previewIcon');
 
-    // 1. Live Preview Logic (ثبتنا الأيقونة عشان دايماً Announcement)
+
     function updatePreview() {
         previewTitle.textContent = titleInput.value || 'Notification Title';
         previewMessage.textContent = messageInput.value || 'Your message will appear here...';
 
-        // شكل أيقونة الـ Announcement الثابتة
+
         previewIcon.className = 'notif-icon icon-info';
         previewIcon.innerHTML = '<i class="fa-solid fa-bullhorn"></i>';
     }
 
-    // ربط الـ Inputs بالبريڤيو
+
     titleInput.addEventListener('input', updatePreview);
     messageInput.addEventListener('input', updatePreview);
 
-    // 2. Submit Logic 
+
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        // جمع الأدوار (Roles) اللي اتعمل عليها صح
+
         const selectedRoles = Array.from(document.querySelectorAll('input[name="targetRoles"]:checked'))
             .map(checkbox => parseInt(checkbox.value));
 
@@ -46,7 +46,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const payload = {
             title: titleInput.value.trim(),
             message: messageInput.value.trim(),
-            type: 2, // 2 = Announcement (قيمة ثابتة للباك إند)
+            type: 2, 
             recieveUserRoles: selectedRoles
         };
 

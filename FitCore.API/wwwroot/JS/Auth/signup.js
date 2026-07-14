@@ -5,7 +5,7 @@
     const btnText = document.getElementById('btnText');
     const btnSpinner = document.getElementById('btnSpinner');
 
-    const API_BASE_URL = 'http://localhost:5184/api/Auth';
+    const API_BASE_URL = '/api/Auth';
 
     signupForm.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -36,6 +36,8 @@
                 })
             });
 
+            console.log(response);
+
             const data = await response.json();
 
 
@@ -47,7 +49,7 @@
                 localStorage.setItem('userRoles', JSON.stringify(data.roles));
 
 
-                window.location.href = '../user/MemberDashboard/member-dashboard.html';
+                window.location.href = '/html/Auth/login.html';
             } else {
 
                 if (data.errors && Array.isArray(data.errors)) {

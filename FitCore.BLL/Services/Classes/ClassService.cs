@@ -240,7 +240,7 @@ namespace FitCore.BLL.Services.Classes
                 };
             }
 
-            // 4. جلب حسابات الحجوزات المعلقة للكلاسات الحالية
+  
             var classIds = classes.Select(c => c.ClassID).ToList();
 
             var activeMembershipsCount = await DbContext.Set<Membership>()

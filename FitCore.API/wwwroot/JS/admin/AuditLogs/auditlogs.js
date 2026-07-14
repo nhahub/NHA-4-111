@@ -1,11 +1,11 @@
-﻿// auditlogs.js
+﻿
 
 let currentPage = 1;
 let currentSearch = '';
 let currentSortBy = 'Date';
 let isDescending = true;
 
-// أول ما الصفحة تحمل
+
 document.addEventListener('DOMContentLoaded', () => {
     requireRole(["Admin"]);
     fetchAuditLogs();
@@ -38,7 +38,7 @@ async function fetchAuditLogs() {
     } catch (error) {
         console.error("Failed to fetch logs", error);
         showErrorState();
-        // لو حصل error فعلي، نفضّي الباجيناشن عشان ميفضلش شكل قديم غلط
+
         document.getElementById('paginationControls').innerHTML = '';
     }
 }
@@ -83,28 +83,27 @@ function renderTable(logs) {
     tbody.innerHTML = '';
 
     logs.forEach(log => {
-        // 1. تظبيط الحروف (عشان الـ .NET بيبعتها camelCase)
+
         const entityName = log.entityName || log.EntityName || 'Unknown';
         const action = log.action || log.Action || 'Unknown';
         const userName = log.userName || log.UserName || 'System';
         const primaryKey = log.entityPrimaryKey || log.EntityPrimaryKey || '#';
         const createdAt = log.createdAt || log.CreatedAt;
 
-        // 2. تحديد لون النقطة (Module)
         let dotClass = 'system';
         const entityLower = entityName.toLowerCase();
         if (entityLower.includes('invoice') || entityLower.includes('payment') || entityLower.includes('cart')) dotClass = 'billing';
         else if (entityLower.includes('user') || entityLower.includes('member')) dotClass = 'members';
         else if (entityLower.includes('product') || entityLower.includes('inventory')) dotClass = 'inventory';
 
-        // 3. تنسيق التاريخ زي التصميم بالظبط
+
         const dateObj = new Date(createdAt);
         const hasValidDate = !isNaN(dateObj.getTime());
         const dateStr = hasValidDate ? dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
         const timeStr = hasValidDate ? dateObj.toLocaleTimeString('en-US', { hour12: false }) : '';
         const formattedDate = `${dateStr}${timeStr ? ` <br> <small>${timeStr}</small>` : ''}`;
 
-        // 4. تجهيز الداتا لزرار الـ Details (عشان ميضربش إيرور لو كان null)
+
         const oldVal = encodeURIComponent(log.oldValue || log.OldValue || '');
         const newVal = encodeURIComponent(log.newValue || log.NewValue || '');
 
@@ -133,15 +132,14 @@ function renderTable(logs) {
     });
 }
 
-// حماية بسيطة من الـ HTML injection في النصوص القادمة من السيرفر
+
 function escapeHtml(str) {
     const div = document.createElement('div');
     div.textContent = str ?? '';
     return div.innerHTML;
 }
 
-// دالة بسيطة عشان لما تدوسي على زرار الـ (ℹ) تطبع التغييرات في الـ Console مؤقتاً
-// أو تقدري مستقبلاً تخليها تفتح Popup (Modal)
+
 function showDetails(encodedOld, encodedNew) {
     const oldVal = decodeURIComponent(encodedOld);
     const newVal = decodeURIComponent(encodedNew);
@@ -157,7 +155,6 @@ function renderPagination(totalCount, currPage, pageSize) {
     const paginationContainer = document.getElementById('paginationControls');
     paginationContainer.innerHTML = '';
 
-    // لو صفحة واحدة بس ومفيش نتائج أصلاً، مفيش داعي نعرض باجيناشن
     if (totalCount === 0) return;
 
     for (let i = 1; i <= totalPages; i++) {
@@ -177,7 +174,7 @@ function renderPagination(totalCount, currPage, pageSize) {
 function applyFilters() {
     currentSearch = document.getElementById('searchInput').value;
     currentSortBy = document.getElementById('sortBySelect').value;
-    currentPage = 1; // رجع لأول صفحة لما تفلتر
+    currentPage = 1; 
     fetchAuditLogs();
 }
 

@@ -29,9 +29,7 @@ function showMessage(text, type) {
     setTimeout(() => banner.classList.add('d-none'), 4000);
 }
 
-// =========================================================
-// Load & filter
-// =========================================================
+
 async function loadCategories() {
     const tbody = document.getElementById('categoriesTableBody');
     tbody.innerHTML = `<tr><td colspan="3" class="text-center text-muted py-4">Loading categories...</td></tr>`;
@@ -61,9 +59,7 @@ function updateStats(categories) {
     document.getElementById('statEmptyCategories').textContent = empty;
 }
 
-// =========================================================
-// Render
-// =========================================================
+
 function renderCategoriesTable(categories) {
     const tbody = document.getElementById('categoriesTableBody');
     tbody.innerHTML = '';
@@ -116,9 +112,7 @@ function escapeHtml(str) {
     return div.innerHTML;
 }
 
-// =========================================================
-// Create
-// =========================================================
+
 async function submitCreateCategory() {
     const name = document.getElementById('createCategoryName').value.trim();
 
@@ -138,9 +132,7 @@ async function submitCreateCategory() {
     }
 }
 
-// =========================================================
-// Edit
-// =========================================================
+
 function openEditModal(categoryId) {
     const category = allCategories.find(c => Number(pick(c, 'id', 'Id')) === Number(categoryId));
     if (!category) return;
@@ -174,9 +166,7 @@ async function submitEditCategory() {
     }
 }
 
-// =========================================================
-// Delete
-// =========================================================
+
 async function deleteCategory(id) {
     if (!confirm('Are you sure you want to delete this category? This cannot be undone.')) return;
 

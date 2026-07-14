@@ -1,10 +1,4 @@
-﻿// ============================================================
-// login.js
-// One login form serves every role. The Member/Staff/Admin tabs
-// only change the welcome copy — the backend is the single source
-// of truth for which roles an account actually has, and we redirect
-// based on what it returns, not what tab was clicked.
-// ============================================================
+﻿
 
 const TAB_COPY = {
     Member: {

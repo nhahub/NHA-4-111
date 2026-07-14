@@ -5,7 +5,7 @@
         return;
     }
 
-    const API_BASE = 'http://localhost:5184/api';
+    const API_BASE = '/api';
     const tbody = document.getElementById('invoicesTableBody');
     const prevBtn = document.getElementById('prevPageBtn');
     const nextBtn = document.getElementById('nextPageBtn');
@@ -23,12 +23,12 @@
             if (!response.ok) throw new Error("Failed to fetch invoices");
 
             const data = await response.json();
-            // Assuming API returns { data: [...], totalPages: X } or similar. Adjust if it returns a direct array.
+
             const invoices = Array.isArray(data) ? data : (data.data || data.Data || []);
 
             renderTable(invoices);
 
-            // Basic pagination logic (Adjust based on your actual API pagination response)
+
             pageIndicator.textContent = `Page ${currentPage}`;
             prevBtn.disabled = currentPage === 1;
             nextBtn.disabled = invoices.length < pageSize;
@@ -48,14 +48,14 @@
         }
 
         invoices.forEach(inv => {
-            // Mapping status: 0=Pending, 1=Completed, 2=Cancelled (Change based on your exact Enums)
+
             let statusText = "Unknown";
             let statusClass = "status-pending";
 
             const statusCode = inv.invoiceStatus || inv.InvoiceStatus;
             if (statusCode === 1 || statusCode === "Pending") { statusText = "Pending"; statusClass = "status-pending"; }
             if (statusCode === 2 || statusCode === "Completed") { statusText = "Completed"; statusClass = "status-completed"; }
-            //if (statusCode === 2 || statusCode === "Cancelled") { statusText = "Cancelled"; statusClass = "status-cancelled"; }
+
 
             const date = new Date(inv.issueDate || inv.IssueDate).toLocaleDateString();
             const total = (inv.totalAmount || inv.TotalAmount || 0).toFixed(2);

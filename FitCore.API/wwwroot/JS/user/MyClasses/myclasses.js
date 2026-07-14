@@ -1,13 +1,4 @@
-﻿// My Classes page — shows only bookings (classes + gym services) whose
-// status is "Attended" or "Paid".
-//
-// APIs used (already existing in the backend):
-//   GET /api/Classes/my-bookings   -> ClassBookingDto[]      (Status = BookingStatus enum -> serialized as a NUMBER by default)
-//   GET /api/GymServices/my-services -> BookingGymServiceDto[] (Status = string, e.g. "Attended" / "Paid")
-//
-// BookingStatus enum (FitCore.Shared.Enums.BookingStatus):
-//   0 = Booked, 1 = Cancelled, 2 = Attended, 3 = NoShow, 4 = Paid
-
+﻿
 const CLASSES_ENDPOINT = '/api/Classes/my-bookings';
 const GYM_SERVICES_ENDPOINT = '/api/GymServices/my-services';
 
@@ -19,7 +10,7 @@ const STATUS_NUMBER_TO_NAME = {
     4: 'Paid',
 };
 
-const TARGET_STATUSES = ['attended', 'paid']; // what this page cares about
+const TARGET_STATUSES = ['attended', 'paid']; 
 
 let allClassBookings = [];
 let allServiceBookings = [];
@@ -31,9 +22,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('statusFilter')?.addEventListener('change', renderAll);
 });
 
-// ---------------------------------------------------------------
-// Data loading
-// ---------------------------------------------------------------
 async function loadData() {
     const loadingState = document.getElementById('loadingState');
     loadingState.style.display = 'block';
@@ -56,11 +44,9 @@ async function loadData() {
     }
 }
 
-// ---------------------------------------------------------------
-// Status helpers
-// ---------------------------------------------------------------
+
 function normalizeStatus(rawStatus) {
-    // Handles both numeric enum values (Classes API) and string values (GymServices API)
+
     if (typeof rawStatus === 'number') {
         return (STATUS_NUMBER_TO_NAME[rawStatus] || '').toLowerCase();
     }
@@ -76,9 +62,7 @@ function matchesFilter(statusLower) {
     return statusLower === filter;
 }
 
-// ---------------------------------------------------------------
-// Render
-// ---------------------------------------------------------------
+
 function renderAll() {
     const filteredClasses = allClassBookings.filter(b => matchesFilter(normalizeStatus(pick(b, 'status', 'Status'))));
     const filteredServices = allServiceBookings.filter(s => matchesFilter(normalizeStatus(pick(s, 'status', 'Status'))));
@@ -191,9 +175,7 @@ function statusBadge(statusLower) {
     return `<span class="status-badge">${escapeHtml(statusLower)}</span>`;
 }
 
-// ---------------------------------------------------------------
-// Stats
-// ---------------------------------------------------------------
+
 function renderStats() {
     const classStatuses = allClassBookings.map(b => normalizeStatus(pick(b, 'status', 'Status')));
     const serviceStatuses = allServiceBookings.map(s => normalizeStatus(pick(s, 'status', 'Status')));
@@ -209,9 +191,7 @@ function setCount(elId, value) {
     if (el) el.innerText = value;
 }
 
-// ---------------------------------------------------------------
-// Small helpers
-// ---------------------------------------------------------------
+
 function pick(obj, ...keys) {
     for (const key of keys) {
         if (obj && obj[key] !== undefined && obj[key] !== null) return obj[key];

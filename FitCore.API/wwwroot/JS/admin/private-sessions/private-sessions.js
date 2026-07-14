@@ -58,8 +58,7 @@ async function init() {
         allTrainers = trainersRes.data || trainersRes.Data || [];
 
         const membersRes = await FitCoreApi.get('/api/Auth/users');
-        const usersList = membersRes.data || [];
-        const membersOnly = usersList.filter(user => user.roles && user.roles.includes('Member'));
+        const membersOnly = membersRes.filter(user => user.roles && user.roles.includes('Member'));
 
         const options = allTrainers.map(t => {
             const id = pick(t, 'trainerID', 'TrainerID');

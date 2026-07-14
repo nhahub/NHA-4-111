@@ -1,9 +1,4 @@
-﻿// ============================================================
-// manage-users.js
-// Admin-only. Lists every user (GET /api/Auth/users) and lets the
-// Admin promote a Member to Trainer (PUT /api/Auth/promote-to-trainer/{id}).
-// ============================================================
-
+﻿
 let allUsers = [];
 
 document.addEventListener("DOMContentLoaded", async () => {

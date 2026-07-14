@@ -1,8 +1,4 @@
-﻿// ============================================================
-// staff-create.js
-// Admin-only flow: create a Trainer or Receptionist account.
-// POST /api/Auth/create-staff — protected by [Authorize(Roles = "Admin")].
-// ============================================================
+﻿
 
 document.addEventListener("DOMContentLoaded", () => {
     // requireRole(["Admin"]);

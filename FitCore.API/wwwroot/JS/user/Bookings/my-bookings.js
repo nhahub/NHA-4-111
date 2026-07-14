@@ -1,4 +1,4 @@
-﻿// 1. تحديث الحالات لتطابق الـ Enum في السي شارب (0=Booked, 1=Cancelled, 2=Attended, 3=NoShow, 4=Paid)
+﻿
 const STATUS_LABELS = ['booked', 'cancelled', 'attended', 'noshow', 'paid'];
 const bookingStatuses = {
     0: 'Booked',
@@ -162,10 +162,12 @@ function renderUpcoming() {
                         <span><i class='bx bx-money text-primary me-1'></i> Price: <strong class="text-dark">${parseFloat(price).toFixed(0)} EGP</strong></span>
                  </div>
                 <div class=" d-flex flex-md-row flex-column justify-content-between gap-2">
-                    <button class="btn btn-primary fw-semibold"
-                        onclick="checkoutService(${currentBookingID})">
+                    <a href="/html/user/payment/checkout.html" 
+                        class="btn btn-primary fw-semibold"
+                        role="button"
+                        >
                         Proceed to Checkout
-                    </button>          
+                    </a>          
                     <button class="icon-btn-danger border border-danger text-danger" title="Cancel booking" data-cancel="${currentBookingID}"><i class='bx bx-x'></i></button>
                 </div>
             </div>
@@ -201,7 +203,6 @@ function renderServiceUpcoming() {
         const allowedSessionsCount = pick(up, 'allowedSessionsCount', 'allowedSessionsCount');
         const price = pick(up, 'price', 'price');
         const status = pick(up, 'status', 'status');
-        // const category = pick(up, `${categories[category]}`, 'category');
         const durationInDays = pick(up, 'durationInDays', 'durationInDays') || [];
         const currentBookingID = pick(up, 'bookingId', 'BookingID');
         

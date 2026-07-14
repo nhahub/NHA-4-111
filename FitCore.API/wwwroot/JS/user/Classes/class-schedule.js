@@ -1,4 +1,4 @@
-﻿// classes-schedule.js
+﻿
 
 const DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const CLASS_ICONS = [
@@ -20,11 +20,11 @@ const FEATURED_SVG = `<svg viewBox="0 0 260 230" xmlns="http://www.w3.org/2000/s
 let occurrences = [];
 let currentPage = 1;
 let totalCount = 0;
-const PAGE_SIZE = 9;
+const PAGE_SIZE = 4;
 let user = [];
 let activeCategory = '';
 let activeTrainer = '';
-
+let bookedClassIds = new Set();
 
 function pick(obj, ...props) {
     if (!obj) return undefined;
@@ -37,6 +37,9 @@ function pick(obj, ...props) {
 document.addEventListener('DOMContentLoaded', () => {
     requireRole(["Member"]);
     user = getCurrentUser();
+
+    loadMyBookedClasses();
+
     loadOccurrences(true);
     
     document.getElementById('rangeFilter').addEventListener('change', () => loadOccurrences(true));
@@ -69,6 +72,30 @@ function showToast(message) {
     showToast._t = setTimeout(() => toast.classList.remove('show'), 2800);
 }
 
+async function loadMyBookedClasses() {
+
+    try {
+        const [bookings, memberships] = await Promise.all([
+            FitCoreApi.get('/api/Classes/my-bookings').catch(() => []),
+            FitCoreApi.get('/api/Memberships/my-memberships').catch(() => [])
+        ]);
+
+        const collectClassIds = (list) => {
+            (list || []).forEach(item => {
+                const classId = pick(item, 'classID', 'ClassID', 'classId', 'ClassId');
+                if (classId !== undefined && classId !== null) {
+                    bookedClassIds.add(Number(classId));
+                }
+            });
+        };
+
+        collectClassIds(bookings);
+        collectClassIds(memberships);
+    } catch (error) {
+        console.error('Error loading existing bookings/memberships:', error);
+    }
+}
+
 function categoryFor(name) {
     const found = CLASS_ICONS.find(c => c.match.test(name || ''));
     return found || { icon: 'bx-body', color: 'indigo', category: 'General' };
@@ -91,7 +118,7 @@ async function loadOccurrences(reset) {
         const data = await FitCoreApi.get(url);
         const pageItems = data.data || data.Data || [];
         totalCount = data.totalCount ?? data.TotalCount ?? pageItems.length;
-
+ 
         console.log(data);
 
         occurrences = reset ? pageItems : occurrences.concat(pageItems);
@@ -189,10 +216,15 @@ function renderCard(o, featured) {
     const trainerName = pick(o, 'trainerName', 'TrainerName') || '—';
     const price = pick(o, 'price', 'price') ;
     const capacity = Number(pick(o, 'capacity', 'Capacity') || 0);
-    const bookedCount = Number(pick(o, 'bookedCount', 'BookedCount') || 0);
+    let bookedCount = Number(pick(o, 'bookedCount', 'BookedCount') || 0);
+    const isAlreadyBooked = bookedClassIds.has(Number(classID));  
+    if (isAlreadyBooked) {
+        ++bookedCount;
+    }
     const available = capacity - bookedCount;
     const isFull = available <= 0;
-
+    const isDisabled = isFull || isAlreadyBooked;
+    
     const cat = categoryFor(className);
     const schedules = pick(o, 'schedules', 'Schedules') || [];
 
@@ -260,8 +292,8 @@ function renderCard(o, featured) {
                             ${price} <span class="text-primary fw-bold" style="font-size: 13px;">EGP</span>
                         </span>
                     </div>
-                    <button class="btn-primary" data-book data-class-id="${classID}" ${isFull ? 'disabled' : ''} style="margin-top: 15px; width: 100%;">
-                        ${isFull ? 'Full Booked' : 'Book Full Course'}
+                    <button class="btn-primary" data-book data-class-id="${classID}" ${isDisabled ? 'disabled' : ''} style="margin-top: 15px; width: 100%;">
+                        ${isAlreadyBooked ? 'Already Booked' : (isFull ? 'Full Booked' : 'Book Full Course')}
                     </button>
                 </div>
             </article>
@@ -288,8 +320,8 @@ function renderCard(o, featured) {
                 ${price} <span class="text-primary fw-bold" style="font-size: 13px;">EGP</span>
             </span>
         </div>
-        <button class="btn btn-outline-primary" data-book data-class-id="${classID}" ${isFull ? 'disabled' : ''} style="margin-top: 15px; width: 100%;">
-            ${isFull ? 'Full' : 'Book Spot'}
+        <button class="btn btn-outline-primary" data-book data-class-id="${classID}" ${isDisabled ? 'disabled' : ''} style="margin-top: 15px; width: 100%;">
+            ${isAlreadyBooked ? 'Already Booked' : (isFull ? 'Full' : 'Book Spot')}
         </button>
     </article>`;
 }

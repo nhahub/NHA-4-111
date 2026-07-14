@@ -1,4 +1,4 @@
-﻿// working-hours.js
+﻿
 
 const DAY_LABELS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 const user = getCurrentUser();

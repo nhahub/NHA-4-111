@@ -1,7 +1,4 @@
-﻿/* ============================================================
-   roles-permissions.css — read-only Roles & Permissions matrix.
-   Uses design tokens from style.css (must load after it).
-============================================================ */
+﻿
 
 .roles-grid {
     display: grid;
@@ -76,9 +73,6 @@
     width: 16px;
 }
 
-/* Read-only toggle — visually communicates on/off, not interactive.
-   Permissions here are fixed per role in code, not editable per-user,
-   so there is nothing to persist or toggle. */
 .ro-toggle {
     width: 40px;
     height: 22px;

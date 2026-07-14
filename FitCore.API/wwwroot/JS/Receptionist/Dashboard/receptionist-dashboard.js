@@ -1,4 +1,4 @@
-// receptionist-dashboard.js
+
 
 document.addEventListener('DOMContentLoaded', init);
 

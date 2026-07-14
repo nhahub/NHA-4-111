@@ -1,6 +1,4 @@
-﻿// receptionist-booking.js
-
-const STATUS_LABELS = ['booked', 'cancelled', 'attended', 'noshow'];
+﻿const STATUS_LABELS = ['booked', 'cancelled', 'attended', 'noshow'];
 const STATUS_BADGE = { booked: 'primary', cancelled: 'secondary', attended: 'success', noshow: 'danger' };
 const STATUS_SERVICE = { Booked: 'primary', Cancelled: 'secondary', Attended: 'success', Noshow: 'danger' };
 let currentMemberUserId = null;

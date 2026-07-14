@@ -1,4 +1,4 @@
-﻿// داتا تجريبية لحد ما نربط الشاشتين ببعض ديناميك
+﻿
 const currentInvoice = {
     invoiceId: 1,
     userId: 1,
@@ -6,14 +6,14 @@ const currentInvoice = {
     description: "Monthly Plan"
 };
 
-// أول ما الصفحة تفتح، بنعرض الداتا
+
 document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("display-invoice-id").textContent = currentInvoice.invoiceId;
     document.getElementById("display-desc").textContent = currentInvoice.description;
     document.getElementById("display-amount").textContent = currentInvoice.amount;
 });
 
-// الدالة بتاعة زرار الدفع
+
 async function processPayment() {
     const methodSelect = document.getElementById("payment-method-select");
     const selectedMethod = methodSelect.options[methodSelect.selectedIndex].value;
@@ -27,7 +27,7 @@ async function processPayment() {
     };
 
     try {
-        // بنكلم الـ API بتاعك
+
         const response = await fetch('/api/Subscription/pay-invoice', {
             method: 'POST',
             headers: {
@@ -39,7 +39,7 @@ async function processPayment() {
         if (response.ok) {
             alert("تم الدفع بنجاح! الفلوس دخلت السيستم.");
 
-            // نغير شكل الشاشة عشان نأكد الدفع
+
             const badge = document.getElementById("invoice-status");
             badge.textContent = "Completed";
             badge.style.backgroundColor = "var(--status-green-bg)";

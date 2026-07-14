@@ -1,17 +1,3 @@
-// reception-terminal.js
-// Wires the Admin Reception Terminal to AttendanceController's ops endpoints:
-//   POST /api/Attendance/checkin/scan?searchInput=
-//   POST /api/Attendance/checkin/manual?searchInput=
-//   GET  /api/Attendance/members/search?query=
-//   GET  /api/Attendance/members/{userId}/checkin-summary
-//   GET  /api/Attendance/recent-scans
-//   GET  /api/Attendance/daily-logs
-//
-// Note: checkin/scan and checkin/manual currently hit the exact same backend
-// handler (CheckInManual) — there's no dedicated QR-payload endpoint yet, so
-// "Simulate Scan" and "Manual Check-In" both just pass the typed value as
-// searchInput to their respective routes.
-
 const ATTENDANCE_BASE = '/api/Attendance';
 
 document.addEventListener('DOMContentLoaded', () => {

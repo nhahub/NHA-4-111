@@ -1,11 +1,3 @@
-// access-key.js
-// Wires the QR Key page to AttendanceController's self-service endpoints:
-//   GET  /api/Attendance/me/qrcode?userId=
-//   GET  /api/Attendance/me/status-today?userId=
-// These endpoints take userId as a required query param since there is no
-// auth yet; window.CURRENT_MEMBER_USER_ID stands in for the logged-in member.
-// NOTE: the access key/QR is fixed for the lifetime of the member profile
-// (generated once at registration) — there is no regenerate action anymore.
 
 const ATTENDANCE_BASE = '/api/Attendance';
 const user = getCurrentUser();

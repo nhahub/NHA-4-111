@@ -1,9 +1,4 @@
-﻿// ============================================================
-// member-create.js
-// Receptionist (or Admin) front-desk flow: create a new Member
-// account. POST /api/Auth/register-member — protected by
-// [Authorize(Roles = "Receptionist,Admin")] on the backend.
-// ============================================================
+﻿
 
 document.addEventListener("DOMContentLoaded", () => {
     requireRole(["Receptionist", "Admin"]);

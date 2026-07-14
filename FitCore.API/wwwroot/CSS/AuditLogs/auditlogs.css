@@ -1,7 +1,4 @@
-﻿/* ============================================================
-auditlogs.css — Audit Trail Logs page
-بيستخدم design tokens من style.css (لازم يتحمّل بعده).
-============================================================ */
+﻿
 
 .page-content {
 padding: var(--space-8) var(--space-10);
@@ -142,7 +139,7 @@ font-size: var(--fs-xs);
 font-weight: 400;
 }
 
-/* Module cell + colored dot */
+
 .module-cell {
 display: flex;
 align-items: center;

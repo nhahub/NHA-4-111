@@ -1,4 +1,4 @@
-﻿/* Small overrides on top of Bootstrap - keep this file short, let Bootstrap do the heavy lifting. */
+﻿
 
 .btn-primary {
     background-color: var(--primary-blue);

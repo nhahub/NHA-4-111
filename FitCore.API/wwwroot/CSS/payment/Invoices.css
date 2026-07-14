@@ -1,28 +1,25 @@
-﻿/* ============================================================
-   Invoices & Invoice Details Styles (Isolated & Responsive)
-============================================================ */
+﻿
 
-/* 1. التوسيط الخاص بصفحات الفواتير فقط (بدون لمس style.css) */
+
 body[data-page="invoices"] .container {
     margin-inline: auto !important;
-    padding-inline: var(--space-4); /* قللنا الـ padding شوية للموبايل */
+    padding-inline: var(--space-4); 
     padding-block: var(--space-8);
-    overflow-x: hidden; /* 👈 السطر ده بيمنع الـ Horizontal Scroll تماماً */
+    overflow-x: hidden; 
     width: 100%;
     box-sizing: border-box;
 }
 
-/* 2. حاوية مخصصة لورقة الفاتورة عشان تبان في النص وملمومة */
 .invoice-paper-container {
     max-width: 850px;
     margin-inline: auto;
-    width: 100%; /* تملأ المساحة المتاحة لحد الـ 850px */
+    width: 100%; 
 }
 
-/* 3. Table Styles */
+
 .table-wrapper {
-    width: 100%; /* الجدول ياخد عرض الكارت */
-    overflow-x: auto; /* الجدول بس هو اللي مسموح له يعمل سكرول */
+    width: 100%; 
+    overflow-x: auto; 
     -webkit-overflow-scrolling: touch;
 }
 
@@ -30,7 +27,7 @@ body[data-page="invoices"] .container {
     width: 100%;
     border-collapse: collapse;
     text-align: left;
-    min-width: 600px; /* بيمنع الجدول يطبق على بعضه في الشاشات الصغيرة */
+    min-width: 600px; 
 }
 
 .custom-table th{
@@ -59,7 +56,6 @@ body[data-page="invoices"] .container {
     background: #F8FAFC;
 }
 
-/* 4. Status Pills */
 .status-pill {
     display: inline-block;
     border-radius: var(--radius-full);
@@ -85,15 +81,15 @@ body[data-page="invoices"] .container {
     color: var(--status-red);
 }
 
-/* 5. Invoice Receipt Details */
+
 .invoice-receipt {
     background-color: var(--bg-card);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-md);
-    padding: var(--space-6); /* قللنا الـ padding شوية للفاتورة عشان متتضغطش */
+    padding: var(--space-6); 
     margin-top: var(--space-4);
     border: 1px solid var(--border-color);
-    width: 100%; /* نضمن إنها متخرجش بره الـ container */
+    width: 100%; 
     box-sizing: border-box;
 }
 
@@ -126,7 +122,7 @@ body[data-page="invoices"] .container {
         margin-bottom: 4px;
     }
 
-/* 6. Totals Section */
+
 .receipt-totals {
     width: 300px;
     margin-left: auto;
@@ -182,17 +178,15 @@ body[data-page="invoices"] .container {
     font-weight: 700;
     color: var(--primary-dark);
 }
-/* ============================================================
-   📱 Responsive Design (للموبايل والتابلت)
-============================================================ */
+
 @media (max-width: 768px) {
-    /* تقليل المسافات الخارجية في الموبايل */
+
     body[data-page="invoices"] .container {
         padding-inline: var(--space-3);
         padding-block: var(--space-5);
     }
 
-    /* الهيدر والزراير تترص تحت بعضها بدل جمب بعض */
+
     .page-header {
         flex-direction: column;
         align-items: stretch;
@@ -203,23 +197,21 @@ body[data-page="invoices"] .container {
             width: 100%;
         }
 
-    /* تصغير مسافات الفاتورة من جوه */
     .invoice-receipt {
         padding: var(--space-4);
     }
 
-    /* راس الفاتورة (اللوجو والبيانات) ينزلوا تحت بعض */
-    .receipt-header {
+  .receipt-header {
         flex-direction: column;
         gap: var(--space-4);
     }
 
-    /* محاذاة البيانات للشمال بدل اليمين في الموبايل */
+
     .receipt-meta {
         text-align: left;
     }
 
-    /* الإجمالي ياخد عرض الشاشة بالكامل */
+
     .receipt-totals {
         width: 100%;
         margin-left: 0;

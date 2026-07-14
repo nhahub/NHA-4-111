@@ -1,6 +1,4 @@
-﻿// classes-management.js
-
-const CLASS_ICONS = [
+﻿const CLASS_ICONS = [
     { match: /hiit|sprint|inferno/i, icon: 'bx-bolt' },
     { match: /yoga|flow|yin|zen/i, icon: 'bx-leaf' },
     { match: /spin|cycle|cycling/i, icon: 'bx-cycling' },
@@ -55,7 +53,7 @@ function classIconFor(name) {
     return found ? found.icon : 'bx-body';
 }
 
-/* ---------------- Data loading ---------------- */
+
 
 async function loadTrainers() {
     try {
@@ -111,7 +109,6 @@ async function loadWeeklyOccurrences() {
 
 function toDateInput(date) { return date.toISOString().substring(0, 10); }
 
-/* ---------------- Table rendering ---------------- */
 
 function getFilteredClasses() {
     return allClasses.filter(c => {
@@ -331,7 +328,7 @@ function renderPagination(totalPages) {
     }
 }
 
-/* ---------------- Stats ---------------- */
+
 
 function renderStats() {
     const totalBooked = weeklyOccurrences.reduce((sum, o) => sum + (Number(pick(o, 'bookedCount', 'BookedCount')) || 0), 0);
@@ -372,7 +369,7 @@ function renderPeakHourAlert() {
     }
 }
 
-/* ---------------- Create class modal ---------------- */
+
 
 function addScheduleRow(day, start, end) {
     const container = document.getElementById('scheduleRows');
