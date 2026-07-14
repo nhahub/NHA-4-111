@@ -13,7 +13,6 @@ namespace FitCore.BLL.Interfaces.MemberDashboard
 
         Task<NextClassDto> GetNextClassAsync(int userId);
 
-        Task<CheckInResultDto> CheckInAsync(int userId);
 
         Task<List<NotificationDto>> GetNotificationsAsync(int userId);
 

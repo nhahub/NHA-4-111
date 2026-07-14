@@ -33,19 +33,6 @@ namespace FitCore.BLL.Services.Attendance
             return new MemberQrCodeDto { QrCode = profile.QRCodeData };
         }
 
-        public async Task<MemberQrCodeDto> RegenerateMyQrCodeAsync(int userId)
-        {
-            var profile = await context.Set<MemberProfile>()
-                .FirstOrDefaultAsync(m => m.UserID == userId);
-
-            if (profile == null)
-                throw new KeyNotFoundException("Member profile not found.");
-
-            profile.QRCodeData = GenerateQrCode();
-            await context.SaveChangesAsync();
-
-            return new MemberQrCodeDto { QrCode = profile.QRCodeData };
-        }
 
         public async Task<bool> GetMyStatusTodayAsync(int userId)
         {

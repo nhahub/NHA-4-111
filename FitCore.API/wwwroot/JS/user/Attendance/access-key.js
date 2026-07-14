@@ -1,10 +1,11 @@
 // access-key.js
 // Wires the QR Key page to AttendanceController's self-service endpoints:
 //   GET  /api/Attendance/me/qrcode?userId=
-//   POST /api/Attendance/me/qrcode/regenerate?userId=
 //   GET  /api/Attendance/me/status-today?userId=
 // These endpoints take userId as a required query param since there is no
 // auth yet; window.CURRENT_MEMBER_USER_ID stands in for the logged-in member.
+// NOTE: the access key/QR is fixed for the lifetime of the member profile
+// (generated once at registration) — there is no regenerate action anymore.
 
 const ATTENDANCE_BASE = '/api/Attendance';
 const user = getCurrentUser();
@@ -13,12 +14,10 @@ document.addEventListener('DOMContentLoaded', () => {
     requireRole(["Member"]);
     loadQrCode();
     loadStatusToday();
-
-    document.getElementById('btn-regenerate')?.addEventListener('click', regenerateKey);
 });
 
 function currentUserId() {
-    return user?.userId ;
+    return user?.userId;
 }
 
 async function loadQrCode() {
@@ -47,25 +46,6 @@ async function loadStatusToday() {
     } catch (error) {
         console.error('Error loading today status:', error);
         badgeText.textContent = 'Status unavailable';
-    }
-}
-
-async function regenerateKey() {
-    const btn = document.getElementById('btn-regenerate');
-    btn.disabled = true;
-    const originalHtml = btn.innerHTML;
-    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Generating…';
-
-    try {
-        const newQrCode = await FitCoreApi.post(`${ATTENDANCE_BASE}/me/qrcode/regenerate?userId=${currentUserId()}`);
-        updateQrImage(newQrCode);
-        showToast('Your access key has been regenerated.');
-    } catch (error) {
-        console.error('Error regenerating QR code:', error);
-        showToast('Could not regenerate your key. Please try again.');
-    } finally {
-        btn.disabled = false;
-        btn.innerHTML = originalHtml;
     }
 }
 

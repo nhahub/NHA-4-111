@@ -30,10 +30,7 @@ namespace FitCore.API.Controllers
             return Ok(result);
         }
 
-        [HttpPost("me/qrcode/regenerate")]
-        [Authorize]
-        public async Task<IActionResult> RegenerateMyQrCode() => Ok(await _attendanceService.RegenerateMyQrCodeAsync(_currentUserService.GetRequiredUserId()));
-
+       
         [HttpGet("me/status-today")]
         [Authorize]
         public async Task<IActionResult> GetMyStatusToday() => Ok(await _attendanceService.GetMyStatusTodayAsync(_currentUserService.GetRequiredUserId()));

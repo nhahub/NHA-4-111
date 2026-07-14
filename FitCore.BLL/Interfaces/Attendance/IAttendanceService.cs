@@ -8,7 +8,6 @@ namespace FitCore.BLL.Interfaces.Attendance
     public interface IAttendanceService
     {
         Task<MemberQrCodeDto> GetMyQrCodeAsync(int userId);
-        Task<MemberQrCodeDto> RegenerateMyQrCodeAsync(int userId);
         Task<bool> GetMyStatusTodayAsync(int userId);
         Task<object> GetMyHistoryAsync(int userId, int page, int pageSize);
         Task<object> GetMyStatsAsync(int userId);

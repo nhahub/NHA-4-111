@@ -283,7 +283,20 @@ function initialsFor(name) {
 // builds the file from data already on the page rather than calling
 // a non-existent /export route.)
 // ---------------------------------------------------------------
-function exportReportCsv() {
+//function exportReportCsv() {
+//    console.log("Export button clicked!");
+
+//    if (!lastRevenueChartData || lastRevenueChartData.length === 0) {
+//        showBanner('Nothing to export yet — the revenue chart is still loading.');
+//        return;
+//    }
+
+//    window.location.href = '/api/admin/AdminDashboard/export-report';
+//}
+
+
+
+async function exportReportCsv() {
     console.log("Export button clicked!");
 
     if (!lastRevenueChartData || lastRevenueChartData.length === 0) {
@@ -291,8 +304,49 @@ function exportReportCsv() {
         return;
     }
 
-    window.location.href = '/api/admin/AdminDashboard/export-report';
+    const btn = document.getElementById('exportReportBtn');
+    if (btn) btn.disabled = true;
+
+    try {
+        const token = getToken();
+        const response = await fetch('/api/admin/AdminDashboard/export-report', {
+            method: 'GET',
+            headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+        });
+
+        if (response.status === 401) {
+            logout();
+            throw new Error('Session expired. Please log in again.');
+        }
+        if (!response.ok) throw new Error(`Export failed (${response.status})`);
+
+        const blob = await response.blob();
+
+        // Prefer the filename the server sent, fall back to a sensible default.
+        const contentDisposition = response.headers.get('Content-Disposition') || '';
+        const fileNameMatch = contentDisposition.match(/filename="?([^"]+)"?/i);
+        const fileName = fileNameMatch ? fileNameMatch[1] : `RevenueReport_${new Date().toISOString().slice(0, 10)}.csv`;
+
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(downloadUrl);
+    } catch (error) {
+        console.error('Error exporting report:', error);
+        showBanner('Could not export the report. Please try again.');
+    } finally {
+        if (btn) btn.disabled = false;
+    }
 }
+
+
+
+
+
 
 // ---------------------------------------------------------------
 // Small helpers

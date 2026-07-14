@@ -41,14 +41,7 @@ namespace FitCore.API.Controllers.MemberDashboard
             return Ok(result);
         }
 
-        [HttpPost("attendance/check-in")]
-        [Authorize]
-        public async Task<IActionResult> CheckIn()
-        {
-            int userId = _currentUser.UserId ?? throw new UnauthorizedAccessException();
-            var result = await _service.CheckInAsync(userId);
-            return Ok(result);
-        }
+
 
         [HttpGet("notifications")]
         [Authorize]

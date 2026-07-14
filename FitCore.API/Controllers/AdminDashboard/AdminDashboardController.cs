@@ -36,6 +36,7 @@ public class AdminDashboardController : ControllerBase
         return Ok(data);
     }
 
+    [AllowAnonymous]
     [HttpGet("export-report")]
     public async Task<IActionResult> ExportReport(DateTime? startDate, DateTime? endDate)
     {

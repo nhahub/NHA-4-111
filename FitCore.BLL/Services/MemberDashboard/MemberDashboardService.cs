@@ -56,20 +56,7 @@ namespace FitCore.BLL.Services
                 .FirstOrDefaultAsync() ?? new NextClassDto();
         }
 
-        public async Task<CheckInResultDto> CheckInAsync(int userId)
-        {
-            var newAttendance = new FitCore.DAL.Data.Models.Attendance
-            {
-                UserId = userId,
-                CheckInTime = DateTime.UtcNow,
-                Type = AttendenceType.OpenGym
-            };
 
-            _context.Attendances.Add(newAttendance);
-            await _context.SaveChangesAsync();
-
-            return new CheckInResultDto { Success = true, Message = "تم تسجيل الحضور بنجاح!" };
-        }
 
         public async Task<List<NotificationDto>> GetNotificationsAsync(int userId)
         {

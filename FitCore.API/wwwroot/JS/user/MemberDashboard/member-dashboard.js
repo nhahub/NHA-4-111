@@ -4,9 +4,9 @@
 //
 // GET  /api/member/MemberDashboard/profile?userId=X         -> ProfileStatsDto { attendancePercentage, membershipStatus }
 // GET  /api/member/MemberDashboard/next-class?userId=X      -> NextClassDto    { className, studioName, trainerName, startTime }
-// POST /api/member/MemberDashboard/attendance/check-in?userId=X -> CheckInResultDto { success, message }
 // GET  /api/member/MemberDashboard/notifications?userId=X   -> NotificationDto[] { title, content, timeAgo }
 // GET  /api/member/MemberDashboard/digital-pass?userId=X    -> DigitalPassDto  { memberName, membershipType, validUntil, qrCodeData }
+
 
 const user = getCurrentUser();
 const token = getToken();
@@ -14,10 +14,11 @@ const token = getToken();
 const MEMBER_DASHBOARD_ENDPOINTS = {
     profile: '/api/member/MemberDashboard/profile',
     nextClass: '/api/member/MemberDashboard/next-class',
-    checkIn: '/api/member/MemberDashboard/attendance/check-in',
     notifications: '/api/member/MemberDashboard/notifications',
     digitalPass: '/api/member/MemberDashboard/digital-pass',
 };
+
+const MY_QR_PAGE_URL = '/html/user/Attendance/access-key.html';
 
 document.addEventListener('DOMContentLoaded', () => {
     if (!token) {
@@ -26,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     requireRole(["Member"]);
     loadMemberDashboard();
-    document.getElementById('checkInBtn')?.addEventListener('click', performCheckIn);
+    document.getElementById('checkInBtn')?.addEventListener('click', goToMyQrCode);
 });
 
 // Appends ?userId=... (or &userId=... if the endpoint already has a query string).
@@ -125,45 +126,11 @@ function renderNextClass(nextClass) {
 }
 
 // ---------------------------------------------------------------
-// Check-in
+// Check-in — takes the member to their fixed QR code so it can be
+// scanned at the reception terminal (the real check-in mechanism).
 // ---------------------------------------------------------------
-async function performCheckIn() {
-    if (!user?.userId) {
-        showBanner('Please log in to check in.', true);
-        return;
-    }
-
-    const btn = document.getElementById('checkInBtn');
-    if (btn) {
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Checking in…';
-    }
-
-    try {
-        const response = await fetch(withUserId(MEMBER_DASHBOARD_ENDPOINTS.checkIn),
-            {
-                method: 'POST',
-                headers: {
-                    "Accept": "application/json",
-                    "Authorization": `Bearer ${token}`
-                }
-            }
-        );
-
-        if (!response.ok) throw new Error(`Check-in failed (${response.status})`);
-        const result = await response.json();
-        const success = pick(result, 'success', 'Success');
-        const message = pick(result, 'message', 'Message') ?? (success ? 'Checked in!' : 'Could not check in.');
-        showBanner(message, !success);
-    } catch (error) {
-        console.error('Error checking in:', error);
-        showBanner('Could not check in right now. Please try again.', true);
-    } finally {
-        if (btn) {
-            btn.disabled = false;
-            btn.innerHTML = '<i class="fa-solid fa-qrcode"></i> Check In Now';
-        }
-    }
+function goToMyQrCode() {
+    window.location.href = MY_QR_PAGE_URL;
 }
 
 // ---------------------------------------------------------------
