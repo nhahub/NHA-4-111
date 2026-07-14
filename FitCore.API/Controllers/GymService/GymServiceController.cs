@@ -174,5 +174,13 @@ namespace FitCore.API.Controllers
             var result = await _gymService.AddGymServiceToBookingAsync(userId, gymServiceId);
             return Ok(result);
         }
+        [Authorize]
+        [HttpGet("bookings")]
+        public async Task<IActionResult> GetAllBookings()
+        {
+            int userId = _currentUser?.UserId ?? throw new UnauthorizedAccessException();
+            var result = await _gymService.GetAllBookingsAsync(userId);
+            return Ok(result);
+        }
     }
 }

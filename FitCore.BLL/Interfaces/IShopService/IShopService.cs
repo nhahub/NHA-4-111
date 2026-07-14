@@ -16,7 +16,7 @@ namespace FitCore.BLL.Interfaces.IShopService
         Task<IEnumerable<CartItemDTO>> GetUserCartAsync(int userId);
         Task<bool> RemoveFromCartAsync(int cartItemId, int userId);
         Task<bool> UpdateCartItemQuantityAsync(int cartItemId, int quantity, int userId);
-        Task<int> CheckoutAsync(int userId, CheckoutDTO checkoutDto);
+        //Task<int> CheckoutAsync(int userId, CheckoutDTO checkoutDto);
 
         // ---- Admin: Product catalog management ----
         Task<PaginationResponseDto<AdminProductDTO>> GetAdminProductsAsync(int page, int pageSize, string? searchTerm, int? categoryId);

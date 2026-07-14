@@ -656,3 +656,7 @@ a.profile-chip {
     border-radius: var(--radius-full);
     text-transform: uppercase;
 }
+a.icon-btn {
+    text-decoration: none;
+    color: var(--text-muted);
+}

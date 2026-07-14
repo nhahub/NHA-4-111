@@ -46,12 +46,12 @@ public class ShopController(IShopService shopService) : ControllerBase
         return result ? Ok() : BadRequest();
     }
 
-    [HttpPost("checkout")]
-    public async Task<IActionResult> Checkout([FromBody] CheckoutDTO dto)
-    {
-        var invoiceId = await shopService.CheckoutAsync(GetUserId(), dto);
-        return Ok(new { InvoiceId = invoiceId, Message = "Purchase completed successfully!" });
-    }
+    //[HttpPost("checkout")]
+    //public async Task<IActionResult> Checkout([FromBody] CheckoutDTO dto)
+    //{
+    //    var invoiceId = await shopService.CheckoutAsync(GetUserId(), dto);
+    //    return Ok(new { InvoiceId = invoiceId, Message = "Purchase completed successfully!" });
+    //}
 
 
     [HttpGet("admin/products")]
