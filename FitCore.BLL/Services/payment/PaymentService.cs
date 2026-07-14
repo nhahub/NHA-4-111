@@ -1,4 +1,5 @@
 ﻿using FitCore.BLL.DTOs.Payment;
+using FitCore.BLL.Interfaces.IShopService;
 using FitCore.BLL.Interfaces.Membership;
 using FitCore.BLL.Interfaces.Payment;
 using FitCore.DAL.Data.Contexts;
@@ -18,13 +19,15 @@ namespace FitCore.BLL.Services
         private readonly FitCoreDbContext _context;
         private readonly IMembershipService _membershipService;
         private readonly string _webhookSecret;
+        private readonly IShopService _shopService;
 
-        public PaymentService(FitCoreDbContext context, IMembershipService membershipService, IConfiguration configuration)
+        public PaymentService(FitCoreDbContext context, IMembershipService membershipService, IConfiguration configuration, IShopService shopService)
         {
             _context = context;
             _membershipService = membershipService;
             _webhookSecret = configuration["Stripe:WebhookSecret"]
                 ?? throw new InvalidOperationException("Stripe:WebhookSecret is missing from configuration.");
+            _shopService = shopService;
         }
 
         public async Task<CheckoutSessionResponseDto> CreateCheckoutSessionAsync(int invoiceId, string successUrl, string cancelUrl)
@@ -149,8 +152,11 @@ namespace FitCore.BLL.Services
                     .Include(c => c.CartItems)
                     .FirstOrDefaultAsync(c => c.UserID == invoice.UserID);
 
+
+
                 if (cart != null && cart.CartItems.Any())
                 {
+                    await _shopService.RemoveInventory(cart);
                     _context.CartItems.RemoveRange(cart.CartItems);
                 }
 

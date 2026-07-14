@@ -1,4 +1,5 @@
-﻿using FitCore.Shared.DTOs;
+﻿using FitCore.DAL.Data.Models;
+using FitCore.Shared.DTOs;
 using FitCore.Shared.DTOs.Cart;
 using FitCore.Shared.DTOs.Products;
 using System;
@@ -32,5 +33,6 @@ namespace FitCore.BLL.Interfaces.IShopService
         // ---- Admin: Inventory ----
         Task<IEnumerable<InventoryDTO>> GetInventoryAsync(int? productId);
         Task<InventoryDTO> AddInventoryAsync(AddInventoryDTO dto);
+        public Task<bool> RemoveInventory(Cart cart);
     }
 }

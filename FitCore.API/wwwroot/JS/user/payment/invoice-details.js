@@ -50,8 +50,8 @@
         const statusEl = document.getElementById('invStatus');
         const statusCode = inv.invoiceStatus || inv.InvoiceStatus;
         if (statusCode === 1 || statusCode === "Pending") { statusEl.textContent = "Pending"; statusEl.className = "status-pill status-pending"; }
-        else  (statusCode === 2 || statusCode === "Completed") { statusEl.textContent = "Paid"; statusEl.className = "status-pill status-completed"; }
-        //else { statusEl.textContent = "Cancelled"; statusEl.className = "status-pill status-cancelled"; }
+        else if  (statusCode === 2 || statusCode === "Completed") { statusEl.textContent = "Paid"; statusEl.className = "status-pill status-completed"; }
+        else { statusEl.textContent = "Cancelled"; statusEl.className = "status-pill status-cancelled"; }
 
         // Render Items
         const itemsBody = document.getElementById('invItemsBody');
