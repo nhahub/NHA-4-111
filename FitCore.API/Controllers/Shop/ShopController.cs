@@ -162,4 +162,5 @@ public class ShopController(IShopService shopService) : ControllerBase
             return NotFound(new { Message = ex.Message });
         }
     }
+
 }

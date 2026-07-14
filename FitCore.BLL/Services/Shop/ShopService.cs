@@ -413,5 +413,67 @@ namespace FitCore.BLL.Services
                 ExpiryDate = inventory.ExpiryDate
             };
         }
+
+        public async Task<bool> RemoveInventory(Cart cart)
+        {
+            if (cart == null)
+                throw new ArgumentNullException(nameof(cart));
+
+            if (cart.CartItems == null || !cart.CartItems.Any())
+                throw new InvalidOperationException("Cart is empty.");
+
+            foreach (var cartItem in cart.CartItems.Where(ci => !ci.IsDeleted))
+            {
+                int requiredQuantity = cartItem.Quantity;
+
+                if (requiredQuantity <= 0)
+                    continue;
+
+                var inventories = await DbContext.Inventories
+                    .Where(inv => inv.ProductId == cartItem.ProductID
+                               && !inv.IsDeleted
+                               && inv.Quantity > 0)
+                    .OrderBy(inv => inv.ExpiryDate ?? DateTime.MaxValue)
+                    .ThenBy(inv => inv.DateAdded)
+                    .ToListAsync();
+
+                int totalAvailable = inventories.Sum(inv => inv.Quantity);
+
+                if (totalAvailable < requiredQuantity)
+                {
+                    throw new InvalidOperationException(
+                        $"Insufficient stock for product '{cartItem.Product?.Name ?? cartItem.ProductID.ToString()}'. " +
+                        $"Required: {requiredQuantity}, Available: {totalAvailable}.");
+                }
+
+                int remainingToDeduct = requiredQuantity;
+
+                foreach (var inv in inventories)
+                {
+                    if (remainingToDeduct <= 0)
+                        break;
+
+                    int deductFromThisBatch = Math.Min(inv.Quantity, remainingToDeduct);
+
+                    inv.Quantity -= deductFromThisBatch;
+                    remainingToDeduct -= deductFromThisBatch;
+
+                    if (inv.Quantity == 0)
+                    {
+                        inv.IsDeleted = true;
+                        inv.DeletedAt = DateTime.UtcNow;
+                    }
+                }
+
+                if (remainingToDeduct > 0)
+                {
+                    throw new InvalidOperationException(
+                        $"Unexpected error deducting stock for product '{cartItem.ProductID}'.");
+                }
+            }
+
+            await DbContext.SaveChangesAsync();
+            return true;
+        }
     }
 }
